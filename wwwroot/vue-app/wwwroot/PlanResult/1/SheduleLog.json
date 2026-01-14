@@ -1,0 +1,1778 @@
+[
+    {
+        "Logid": "20250808162243625",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-08T16:22:43.6260594+08:00",
+        "End": "2025-08-08T16:22:45.5644105+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250808162454711",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-08T16:24:54.7117523+08:00",
+        "End": "2025-08-08T16:24:56.6675514+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250808162611953",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-08T16:26:11.953898+08:00",
+        "End": "2025-08-08T16:26:14.0331967+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250808162753764",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-08T16:27:53.7643835+08:00",
+        "End": "2025-08-08T16:27:55.7851602+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250808163432101",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-08T16:34:32.1018072+08:00",
+        "End": "2025-08-08T16:34:34.7548573+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250808164650567",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-08T16:46:50.5720782+08:00",
+        "End": "2025-08-08T16:46:50.6315291+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250808171305409",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-08T17:13:05.409591+08:00",
+        "End": "2025-08-08T17:13:05.4183652+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250808172256022",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-08T17:22:56.0222412+08:00",
+        "End": "2025-08-08T17:22:56.0270042+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250808172259352",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-08T17:22:59.3523504+08:00",
+        "End": "2025-08-08T17:22:59.3535529+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250808203207804",
+        "LogType": "New Schedule",
+        "Start": "2025-08-08T20:32:07.8113229+08:00",
+        "End": "2025-08-08T20:32:08.2223484+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250808203302498",
+        "LogType": "New Schedule",
+        "Start": "2025-08-08T20:33:02.498415+08:00",
+        "End": "2025-08-08T20:33:02.5325006+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250808203511585",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-08T20:35:11.5912806+08:00",
+        "End": "2025-08-08T20:35:11.6589175+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250808203709997",
+        "LogType": "New Schedule",
+        "Start": "2025-08-08T20:37:09.9973637+08:00",
+        "End": "2025-08-08T20:37:10.0663958+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n"
+    },
+    {
+        "Logid": "20250808203756877",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-08T20:37:56.8774074+08:00",
+        "End": "2025-08-08T20:37:56.8847212+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250808203759066",
+        "LogType": "New Schedule",
+        "Start": "2025-08-08T20:37:59.0663478+08:00",
+        "End": "2025-08-08T20:37:59.0788523+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n"
+    },
+    {
+        "Logid": "20250808203830087",
+        "LogType": "New Schedule",
+        "Start": "2025-08-08T20:38:30.0874516+08:00",
+        "End": "2025-08-08T20:39:02.8027864+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n"
+    },
+    {
+        "Logid": "20250808204446131",
+        "LogType": "New Schedule",
+        "Start": "2025-08-08T20:44:46.1315972+08:00",
+        "End": "2025-08-08T20:45:16.3309074+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n"
+    },
+    {
+        "Logid": "20250808204654696",
+        "LogType": "New Schedule",
+        "Start": "2025-08-08T20:46:54.6962104+08:00",
+        "End": "2025-08-08T20:47:25.8666158+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n"
+    },
+    {
+        "Logid": "20250808204830471",
+        "LogType": "New Schedule",
+        "Start": "2025-08-08T20:48:30.4716634+08:00",
+        "End": "2025-08-08T20:49:00.717355+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n"
+    },
+    {
+        "Logid": "20250808204959484",
+        "LogType": "New Schedule",
+        "Start": "2025-08-08T20:49:59.4843217+08:00",
+        "End": "2025-08-08T20:49:59.5578525+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n"
+    },
+    {
+        "Logid": "20250808213105275",
+        "LogType": "New Schedule",
+        "Start": "2025-08-08T21:31:05.2754939+08:00",
+        "End": "2025-08-08T21:31:05.3201967+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n"
+    },
+    {
+        "Logid": "20250808213133860",
+        "LogType": "New Schedule",
+        "Start": "2025-08-08T21:31:33.8600885+08:00",
+        "End": "2025-08-08T21:31:33.8870991+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n"
+    },
+    {
+        "Logid": "20250808213308291",
+        "LogType": "New Schedule",
+        "Start": "2025-08-08T21:33:08.2919938+08:00",
+        "End": "2025-08-08T21:33:08.3667707+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n"
+    },
+    {
+        "Logid": "20250808213509744",
+        "LogType": "New Schedule",
+        "Start": "2025-08-08T21:35:09.7446426+08:00",
+        "End": "2025-08-08T21:35:42.3220326+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n... existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809110911854",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T11:09:11.8598053+08:00",
+        "End": "2025-08-09T11:09:26.746818+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809111018610",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T11:10:18.6145819+08:00",
+        "End": "2025-08-09T11:10:42.7748661+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809111050774",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T11:10:50.7747499+08:00",
+        "End": "2025-08-09T11:11:16.9740637+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809111350897",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T11:13:50.8979581+08:00",
+        "End": "2025-08-09T11:14:23.5480616+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809111452703",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T11:14:52.7035078+08:00",
+        "End": "2025-08-09T11:15:25.4361312+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809111549445",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T11:15:49.4458348+08:00",
+        "End": "2025-08-09T11:16:21.7335015+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809111702653",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T11:17:02.6581345+08:00",
+        "End": "2025-08-09T11:17:35.3123947+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809111826989",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T11:18:26.9899599+08:00",
+        "End": "2025-08-09T11:18:47.2608225+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809111934722",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T11:19:34.7228131+08:00",
+        "End": "2025-08-09T11:19:34.7972928+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809112239800",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T11:22:39.8004768+08:00",
+        "End": "2025-08-09T11:22:39.8600722+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809112250349",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T11:22:50.3495869+08:00",
+        "End": "2025-08-09T11:23:01.9727483+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809112337831",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T11:23:37.8316291+08:00",
+        "End": "2025-08-09T11:23:37.8840816+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809112404094",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T11:24:04.094339+08:00",
+        "End": "2025-08-09T11:24:04.1919253+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809112409666",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T11:24:09.6669365+08:00",
+        "End": "2025-08-09T11:24:21.3144407+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809113803281",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T11:38:03.2818795+08:00",
+        "End": "2025-08-09T11:38:03.3503857+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809115508316",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T11:55:08.3165955+08:00",
+        "End": "2025-08-09T11:55:08.3647934+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809115538954",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T11:55:38.9591167+08:00",
+        "End": "2025-08-09T11:55:42.501717+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809115642084",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T11:56:42.0843801+08:00",
+        "End": "2025-08-09T11:56:42.1315952+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809115707362",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T11:57:07.3621961+08:00",
+        "End": "2025-08-09T11:57:07.3949543+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809143704528",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T14:37:04.5329535+08:00",
+        "End": "2025-08-09T14:37:04.7313767+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809143725206",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T14:37:25.206762+08:00",
+        "End": "2025-08-09T14:37:25.3051521+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809144050881",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T14:40:50.8819596+08:00",
+        "End": "2025-08-09T14:40:50.9123993+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809144139529",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T14:41:39.5297116+08:00",
+        "End": "2025-08-09T14:41:39.5566408+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809144201544",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T14:42:01.5446363+08:00",
+        "End": "2025-08-09T14:42:01.5676121+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809144211816",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T14:42:11.8164746+08:00",
+        "End": "2025-08-09T14:42:11.8231336+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809144227960",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T14:42:27.960886+08:00",
+        "End": "2025-08-09T14:42:27.9856971+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809144322450",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T14:43:22.454537+08:00",
+        "End": "2025-08-09T14:43:24.1222866+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809144402539",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T14:44:02.5392483+08:00",
+        "End": "2025-08-09T14:44:18.7266337+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809144444286",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T14:44:44.2860137+08:00",
+        "End": "2025-08-09T14:44:44.3423869+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809150344680",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-09T15:03:44.6877053+08:00",
+        "End": "2025-08-09T15:03:54.076075+08:00",
+        "Remark": "新加入 Lot Step 數量:72 ",
+        "RemarkData": "[\r\n  {\r\n    \"LotId\": \"Lot-F-01\",\r\n    \"Step\": \"S01\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-01\",\r\n    \"Step\": \"S02\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-02\",\r\n    \"Step\": \"S01\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-01\",\r\n    \"Step\": \"S03\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-02\",\r\n    \"Step\": \"S02\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-03\",\r\n    \"Step\": \"S01\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-01\",\r\n    \"Step\": \"S04\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-02\",\r\n    \"Step\": \"S03\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-03\",\r\n    \"Step\": \"S02\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-04\",\r\n    \"Step\": \"S01\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-01\",\r\n    \"Step\": \"S05\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-02\",\r\n    \"Step\": \"S04\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-03\",\r\n    \"Step\": \"S03\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-04\",\r\n    \"Step\": \"S02\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-05\",\r\n    \"Step\": \"S01\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-01\",\r\n    \"Step\": \"S06\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-02\",\r\n    \"Step\": \"S05\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-03\",\r\n    \"Step\": \"S04\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-04\",\r\n    \"Step\": \"S03\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-01\",\r\n    \"Step\": \"S07\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-05\",\r\n    \"Step\": \"S02\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-06\",\r\n    \"Step\": \"S01\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-02\",\r\n    \"Step\": \"S06\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-03\",\r\n    \"Step\": \"S05\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-04\",\r\n    \"Step\": \"S04\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-05\",\r\n    \"Step\": \"S03\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-02\",\r\n    \"Step\": \"S07\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-01\",\r\n    \"Step\": \"S08\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-06\",\r\n    \"Step\": \"S02\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-07\",\r\n    \"Step\": \"S01\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-03\",\r\n    \"Step\": \"S06\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-04\",\r\n    \"Step\": \"S05\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-05\",\r\n    \"Step\": \"S04\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-06\",\r\n    \"Step\": \"S03\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-01\",\r\n    \"Step\": \"S09\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-03\",\r\n    \"Step\": \"S07\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-02\",\r\n    \"Step\": \"S08\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-07\",\r\n    \"Step\": \"S02\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-08\",\r\n    \"Step\": \"S01\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-04\",\r\n    \"Step\": \"S06\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-05\",\r\n    \"Step\": \"S05\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-06\",\r\n    \"Step\": \"S04\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-07\",\r\n    \"Step\": \"S03\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-02\",\r\n    \"Step\": \"S09\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-04\",\r\n    \"Step\": \"S07\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-03\",\r\n    \"Step\": \"S08\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-08\",\r\n    \"Step\": \"S02\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-05\",\r\n    \"Step\": \"S06\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-06\",\r\n    \"Step\": \"S05\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-07\",\r\n    \"Step\": \"S04\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-08\",\r\n    \"Step\": \"S03\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-03\",\r\n    \"Step\": \"S09\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-05\",\r\n    \"Step\": \"S07\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-04\",\r\n    \"Step\": \"S08\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-06\",\r\n    \"Step\": \"S06\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-07\",\r\n    \"Step\": \"S05\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-08\",\r\n    \"Step\": \"S04\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-04\",\r\n    \"Step\": \"S09\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-06\",\r\n    \"Step\": \"S07\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-05\",\r\n    \"Step\": \"S08\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-07\",\r\n    \"Step\": \"S06\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-08\",\r\n    \"Step\": \"S05\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-05\",\r\n    \"Step\": \"S09\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-07\",\r\n    \"Step\": \"S07\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-06\",\r\n    \"Step\": \"S08\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-08\",\r\n    \"Step\": \"S06\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-06\",\r\n    \"Step\": \"S09\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-08\",\r\n    \"Step\": \"S07\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-07\",\r\n    \"Step\": \"S08\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-07\",\r\n    \"Step\": \"S09\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-08\",\r\n    \"Step\": \"S08\"\r\n  },\r\n  {\r\n    \"LotId\": \"Lot-F-08\",\r\n    \"Step\": \"S09\"\r\n  }\r\n]"
+    },
+    {
+        "Logid": "20250809150542871",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T15:05:42.8718549+08:00",
+        "End": "2025-08-09T15:05:42.9231573+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809152414152",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-09T15:24:14.1528756+08:00",
+        "End": "2025-08-09T15:24:17.481096+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250809155149693",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-09T15:51:49.6986822+08:00",
+        "End": "2025-08-09T15:51:49.7652244+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250809155322311",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-09T15:53:22.3118603+08:00",
+        "End": "2025-08-09T15:53:22.3219961+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250809155658185",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-09T15:56:58.1852762+08:00",
+        "End": "2025-08-09T15:56:58.1906778+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250809155658678",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-09T15:56:58.6788603+08:00",
+        "End": "2025-08-09T15:56:58.6804584+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250809155659189",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-09T15:56:59.1893672+08:00",
+        "End": "2025-08-09T15:56:59.1910129+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250809155659709",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-09T15:56:59.7097755+08:00",
+        "End": "2025-08-09T15:56:59.7119361+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250809160233929",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T16:02:33.929959+08:00",
+        "End": "2025-08-09T16:02:33.9599847+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809160312760",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T16:03:12.7603552+08:00",
+        "End": "2025-08-09T16:03:12.807696+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809162126788",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T16:21:26.7887097+08:00",
+        "End": "2025-08-09T16:21:26.8190187+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809163750510",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T16:37:50.5103244+08:00",
+        "End": "2025-08-09T16:37:50.5434401+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809163859253",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T16:38:59.2534885+08:00",
+        "End": "2025-08-09T16:38:59.3127766+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809164516550",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T16:45:16.550968+08:00",
+        "End": "2025-08-09T16:45:16.5779638+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809164725404",
+        "LogType": "New Schedule",
+        "Start": "2025-08-09T16:47:25.4091645+08:00",
+        "End": "2025-08-09T16:48:49.7438565+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 lots 中移除已存在的 LotId\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809210715155",
+        "LogType": "New Schedule, remove Same Lot:{_reScheduleSameLot}",
+        "Start": "2025-08-09T21:07:15.1610143+08:00",
+        "End": "2025-08-09T21:07:15.4323161+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 LotStepResult_All 中移除已存在的 LotId\r\nread existing Usage\r\n建立機台 existing Usage\r\n"
+    },
+    {
+        "Logid": "20250809211112640",
+        "LogType": "New Schedule, remove Same Lot:{_reScheduleSameLot}",
+        "Start": "2025-08-09T21:11:12.6407508+08:00",
+        "End": "2025-08-09T21:11:12.692196+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 LotStepResult_All 中移除已存在的 LotId\r\nread existing Usage\r\n建立機台 existing Usage\r\nAssign New lot\r\n21:11:12.652 +++++Start Solve\r\n21:11:12.675 -----Finish Solve\r\n21:11:12.675 Optimal\r\n"
+    },
+    {
+        "Logid": "20250809211917415",
+        "LogType": "New Schedule, remove Same Lot:{_reScheduleSameLot}",
+        "Start": "2025-08-09T21:19:17.4157567+08:00",
+        "End": "2025-08-09T21:19:17.4707384+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 LotStepResult_All 中移除已存在的 LotId\r\nread existing Usage\r\n建立機台 existing Usage\r\nAssign New lot\r\n21:19:17.428 +++++Start Solve\r\n21:19:17.457 -----Finish Solve\r\n21:19:17.457 Optimal\r\n"
+    },
+    {
+        "Logid": "20250809211948769",
+        "LogType": "New Schedule, remove Same Lot:{_reScheduleSameLot}",
+        "Start": "2025-08-09T21:19:49.2287904+08:00",
+        "End": "2025-08-09T21:22:17.0551857+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n從 LotStepResult_All 中移除已存在的 LotId\r\nread existing Usage\r\n建立機台 existing Usage\r\nAssign New lot\r\n21:22:16.988 +++++Start Solve\r\n21:22:17.053 -----Finish Solve\r\n21:22:17.053 Optimal\r\n"
+    },
+    {
+        "Logid": "20250809213341739",
+        "LogType": "New Schedule, remove Same Lot:{_reScheduleSameLot}",
+        "Start": "2025-08-09T21:33:41.7446337+08:00",
+        "End": "2025-08-09T21:33:56.7043588+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n重複 lot 要重排 , LotStepResult_All 中移除已存在的 LotId\r\nread existing Usage\r\n建立機台 existing Usage\r\nAssign New lot\r\n21:33:56.614 +++++Start Solve\r\n21:33:56.678 -----Finish Solve\r\n21:33:56.678 Optimal\r\n"
+    },
+    {
+        "Logid": "20250809213417403",
+        "LogType": "New Schedule, remove Same Lot:{_reScheduleSameLot}",
+        "Start": "2025-08-09T21:34:17.4036423+08:00",
+        "End": "2025-08-09T21:36:44.3540142+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n重複 lot 要重排 , LotStepResult_All 中移除已存在的 LotId\r\nread existing Usage\r\n建立機台 existing Usage\r\nAssign New lot\r\n21:35:04.581 +++++Start Solve\r\n21:35:04.624 -----Finish Solve\r\n21:35:04.624 Optimal\r\n"
+    },
+    {
+        "Logid": "20250809215630905",
+        "LogType": "New Schedule, remove Same Lot:{_reScheduleSameLot}",
+        "Start": "2025-08-09T21:56:30.9050202+08:00",
+        "End": "2025-08-09T21:56:33.7094675+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n重複 lot 要重排 , LotStepResult_All 中移除已存在的 LotId\r\nread existing Usage\r\n建立機台 existing Usage\r\nAssign New lot\r\n21:56:30.913 +++++Start Solve\r\n21:56:30.940 -----Finish Solve\r\n21:56:30.940 Optimal\r\n"
+    },
+    {
+        "Logid": "20250809215701275",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-09T21:57:01.2808443+08:00",
+        "End": "2025-08-09T21:57:01.3640797+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250809220818359",
+        "LogType": "New Schedule, remove Same Lot:{_reScheduleSameLot}",
+        "Start": "2025-08-09T22:08:18.3635682+08:00",
+        "End": "2025-08-09T22:09:24.4740817+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n重複 lot 要重排 , LotStepResult_All 中移除已存在的 LotId\r\nlots count:5 make plan to LotStepResult_All count:0\r\nread existing Usage\r\n建立機台 existing Usage\r\nAssign New lot\r\n22:09:05.224 +++++Start Solve\r\n22:09:05.287 -----Finish Solve\r\n22:09:05.287 Optimal\r\n"
+    },
+    {
+        "Logid": "20250809220953751",
+        "LogType": "Merge Schedule",
+        "Start": "2025-08-09T22:09:53.7517443+08:00",
+        "End": "2025-08-09T22:09:53.7567329+08:00",
+        "Remark": "新加入 Lot Step 數量:0 ",
+        "RemarkData": "[]"
+    },
+    {
+        "Logid": "20250809221038786",
+        "LogType": "New Schedule, remove Same Lot:{_reScheduleSameLot}",
+        "Start": "2025-08-09T22:10:38.7862911+08:00",
+        "End": "2025-08-09T22:10:41.2872154+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n重複 lot 要重排 , LotStepResult_All 中移除已存在的 LotId\r\nlots count:5 make plan to LotStepResult_All count:35\r\nread existing Usage\r\n建立機台 existing Usage\r\nAssign New lot\r\n22:10:40.312 +++++Start Solve\r\n22:10:40.349 -----Finish Solve\r\n22:10:40.349 Optimal\r\n"
+    },
+    {
+        "Logid": "20250810094519066",
+        "LogType": "New Schedule, remove Same Lot:{_reScheduleSameLot}",
+        "Start": "2025-08-10T09:45:19.0711419+08:00",
+        "End": "2025-08-10T09:45:19.3059668+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n重複 lot 要重排 , LotStepResult_All 中移除已存在的 LotId\r\nlots count:5 make plan to LotStepResult_All count:35\r\nread existing Usage\r\n建立機台 existing Usage\r\nAssign New lot\r\n09:45:19.109 +++++Start Solve\r\n09:45:19.282 -----Finish Solve\r\n09:45:19.282 Optimal\r\n"
+    },
+    {
+        "Logid": "20250810094552728",
+        "LogType": "New Schedule, remove Same Lot:{_reScheduleSameLot}",
+        "Start": "2025-08-10T09:45:52.7287042+08:00",
+        "End": "2025-08-10T09:45:52.7782534+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n重複 lot 要重排 , LotStepResult_All 中移除已存在的 LotId\r\nlots count:5 make plan to LotStepResult_All count:37\r\nread existing Usage\r\n建立機台 existing Usage\r\nAssign New lot\r\n09:45:52.733 +++++Start Solve\r\n09:45:52.772 -----Finish Solve\r\n09:45:52.772 Optimal\r\n"
+    },
+    {
+        "Logid": "20250810094701416",
+        "LogType": "New Schedule, remove Same Lot:{_reScheduleSameLot}",
+        "Start": "2025-08-10T09:47:01.4161021+08:00",
+        "End": "2025-08-10T09:47:01.4597441+08:00",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\r\n重複 lot 要重排 , LotStepResult_All 中移除已存在的 LotId\r\nlots count:5 make plan to LotStepResult_All count:39\r\nread existing Usage\r\n建立機台 existing Usage\r\nAssign New lot\r\n09:47:01.419 +++++Start Solve\r\n09:47:01.455 -----Finish Solve\r\n09:47:01.455 Optimal\r\n"
+    },
+    {
+        "Logid": "20260107132623189793",
+        "Start": "2026-01-07T13:26:23.189820",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\n從 lots 中移除已存在的 LotId\n建立機台 existing Usage",
+        "End": "2026-01-07T13:26:23.224261"
+    },
+    {
+        "Logid": "20260107132656081404",
+        "Start": "2026-01-07T13:26:56.081434",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\n從 lots 中移除已存在的 LotId\n建立機台 existing Usage",
+        "End": "2026-01-07T13:26:56.123317"
+    },
+    {
+        "Logid": "20260107132713015544",
+        "Start": "2026-01-07T13:27:13.015570",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\n從 lots 中移除已存在的 LotId\n建立機台 existing Usage",
+        "End": "2026-01-07T13:27:13.039300"
+    },
+    {
+        "Logid": "20260108090300606340",
+        "Start": "2026-01-08T09:03:00.606367",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\n從 lots 中移除已存在的 LotId",
+        "End": "2026-01-08T09:03:00.679779"
+    },
+    {
+        "Logid": "20260108090436520486",
+        "Start": "2026-01-08T09:04:36.520515",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule\n從 lots 中移除已存在的 LotId",
+        "End": "2026-01-08T09:04:36.581576"
+    },
+    {
+        "Logid": "20260108090704710584",
+        "Start": "2026-01-08T09:07:04.710610",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T09:07:04.726196"
+    },
+    {
+        "Logid": "20260108090714826679",
+        "Start": "2026-01-08T09:07:14.826709",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T09:07:14.845014"
+    },
+    {
+        "Logid": "20260108091507490975",
+        "Start": "2026-01-08T09:15:07.491004",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T09:15:07.532044"
+    },
+    {
+        "Logid": "20260108094222398057",
+        "Start": "2026-01-08T09:42:22.398086",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T09:42:22.444079"
+    },
+    {
+        "Logid": "20260108094355070629",
+        "Start": "2026-01-08T09:43:55.070657",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T09:43:55.110661"
+    },
+    {
+        "Logid": "20260108094504329872",
+        "Start": "2026-01-08T09:45:04.329900",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T09:45:04.381537"
+    },
+    {
+        "Logid": "20260108100240551403",
+        "Start": "2026-01-08T10:02:40.551429",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T10:02:40.601697"
+    },
+    {
+        "Logid": "20260108104509253772",
+        "Start": "2026-01-08T10:45:09.253803",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T10:45:09.311470"
+    },
+    {
+        "Logid": "20260108104708820631",
+        "Start": "2026-01-08T10:47:08.820661",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T10:47:08.861573"
+    },
+    {
+        "Logid": "20260108110745487181",
+        "Start": "2026-01-08T11:07:45.487207",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T11:07:45.538727"
+    },
+    {
+        "Logid": "20260108110951516157",
+        "Start": "2026-01-08T11:09:51.516185",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T11:09:51.549983"
+    },
+    {
+        "Logid": "20260108111210982309",
+        "Start": "2026-01-08T11:12:10.982364",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T11:12:11.014774"
+    },
+    {
+        "Logid": "20260108111645577199",
+        "Start": "2026-01-08T11:16:45.577226",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T11:16:45.624244"
+    },
+    {
+        "Logid": "20260108111706360207",
+        "Start": "2026-01-08T11:17:06.360236",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T11:17:06.407450"
+    },
+    {
+        "Logid": "20260108112644281497",
+        "Start": "2026-01-08T11:26:44.281525",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T11:26:44.331231"
+    },
+    {
+        "Logid": "20260108112759818285",
+        "Start": "2026-01-08T11:27:59.818311",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T11:27:59.864544"
+    },
+    {
+        "Logid": "20260108113103318447",
+        "Start": "2026-01-08T11:31:03.318477",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T11:31:03.366821"
+    },
+    {
+        "Logid": "20260108113153739615",
+        "Start": "2026-01-08T11:31:53.739650",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T11:31:53.793142"
+    },
+    {
+        "Logid": "20260108113640351171",
+        "Start": "2026-01-08T11:36:40.351196",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T11:36:40.443012"
+    },
+    {
+        "Logid": "20260108113958177482",
+        "Start": "2026-01-08T11:39:58.177511",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T11:39:58.341214"
+    },
+    {
+        "Logid": "20260108114013616851",
+        "Start": "2026-01-08T11:40:13.616876",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T11:40:13.714683"
+    },
+    {
+        "Logid": "20260108114420052161",
+        "Start": "2026-01-08T11:44:20.052191",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T11:44:20.133061"
+    },
+    {
+        "Logid": "20260108115841123939",
+        "Start": "2026-01-08T11:58:41.123959",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T11:58:41.215020"
+    },
+    {
+        "Logid": "20260108115907897695",
+        "Start": "2026-01-08T11:59:07.897721",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T11:59:08.011710"
+    },
+    {
+        "Logid": "20260108120050952939",
+        "Start": "2026-01-08T12:00:50.952968",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T12:00:51.236433"
+    },
+    {
+        "Logid": "20260108130949562792",
+        "Start": "2026-01-08T13:09:49.562819",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T13:09:49.650126"
+    },
+    {
+        "Logid": "20260108133953316422",
+        "Start": "2026-01-08T13:39:53.316451",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T13:39:53.440933"
+    },
+    {
+        "Logid": "20260108141033339837",
+        "Start": "2026-01-08T14:10:33.339874",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T14:11:04.119758"
+    },
+    {
+        "Logid": "20260108141330893740",
+        "Start": "2026-01-08T14:13:30.893778",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T14:14:01.787694"
+    },
+    {
+        "Logid": "20260108141453410580",
+        "Start": "2026-01-08T14:14:53.410609",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T14:15:23.889955"
+    },
+    {
+        "Logid": "20260108141632976128",
+        "Start": "2026-01-08T14:16:32.976149",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T14:16:33.104127"
+    },
+    {
+        "Logid": "20260108143427180379",
+        "Start": "2026-01-08T14:34:27.180408",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T14:34:57.625856"
+    },
+    {
+        "Logid": "20260108143812487331",
+        "Start": "2026-01-08T14:38:12.487358",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T14:38:42.956708"
+    },
+    {
+        "Logid": "20260108144202470578",
+        "Start": "2026-01-08T14:42:02.470612",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T14:42:12.907260"
+    },
+    {
+        "Logid": "20260108144601226824",
+        "Start": "2026-01-08T14:46:01.226860",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T14:46:11.682675"
+    },
+    {
+        "Logid": "20260108144848174929",
+        "Start": "2026-01-08T14:48:48.174967",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T14:48:51.419889"
+    },
+    {
+        "Logid": "20260108144910162091",
+        "Start": "2026-01-08T14:49:10.162118",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T14:49:20.361821"
+    },
+    {
+        "Logid": "20260108145026069224",
+        "Start": "2026-01-08T14:50:26.069253",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T14:50:36.395553"
+    },
+    {
+        "Logid": "20260108145307341879",
+        "Start": "2026-01-08T14:53:07.341915",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T14:53:10.701670"
+    },
+    {
+        "Logid": "20260108145602337215",
+        "Start": "2026-01-08T14:56:02.337243",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T14:57:02.693122"
+    },
+    {
+        "Logid": "20260108161225689794",
+        "Start": "2026-01-08T16:12:25.689827",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T16:12:25.736113"
+    },
+    {
+        "Logid": "20260108161330306425",
+        "Start": "2026-01-08T16:13:30.306456",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T16:14:30.661689"
+    },
+    {
+        "Logid": "20260108161606094436",
+        "Start": "2026-01-08T16:16:06.094464",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T16:17:03.878714"
+    },
+    {
+        "Logid": "20260108162052273540",
+        "Start": "2026-01-08T16:20:52.273568",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T16:21:52.530439"
+    },
+    {
+        "Logid": "20260108162228115946",
+        "Start": "2026-01-08T16:22:28.115975",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T16:23:28.442024"
+    },
+    {
+        "Logid": "20260108162828349730",
+        "Start": "2026-01-08T16:28:28.349758",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T16:28:59.030630"
+    },
+    {
+        "Logid": "20260108162931996255",
+        "Start": "2026-01-08T16:29:31.996281",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-08T16:30:32.288959"
+    },
+    {
+        "Logid": "20260109090902161577",
+        "Start": "2026-01-09T09:09:02.161613",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T09:11:01.327424"
+    },
+    {
+        "Logid": "20260109091841809348",
+        "Start": "2026-01-09T09:18:41.809370",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T09:20:20.757636"
+    },
+    {
+        "Logid": "20260109092400714389",
+        "Start": "2026-01-09T09:24:00.714410",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T09:25:33.869277"
+    },
+    {
+        "Logid": "20260109092603442392",
+        "Start": "2026-01-09T09:26:03.442419",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T09:26:30.365584"
+    },
+    {
+        "Logid": "20260109094629580933",
+        "Start": "2026-01-09T09:46:29.580961",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T09:46:29.620958"
+    },
+    {
+        "Logid": "20260109094759813120",
+        "Start": "2026-01-09T09:47:59.813151",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T09:47:59.860085"
+    },
+    {
+        "Logid": "20260109094835829912",
+        "Start": "2026-01-09T09:48:35.829940",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T09:48:35.889987"
+    },
+    {
+        "Logid": "20260109094906168213",
+        "Start": "2026-01-09T09:49:06.168240",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T09:49:06.201956"
+    },
+    {
+        "Logid": "20260109094943777889",
+        "Start": "2026-01-09T09:49:43.777916",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T09:49:43.819107"
+    },
+    {
+        "Logid": "20260109094948816471",
+        "Start": "2026-01-09T09:49:48.816500",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T09:49:48.860707"
+    },
+    {
+        "Logid": "20260109095211598178",
+        "Start": "2026-01-09T09:52:11.598209",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T09:52:11.652560"
+    },
+    {
+        "Logid": "20260109095229312333",
+        "Start": "2026-01-09T09:52:29.312359",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T09:52:29.357425"
+    },
+    {
+        "Logid": "20260109095653828933",
+        "Start": "2026-01-09T09:56:53.828959",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T09:56:53.872698"
+    },
+    {
+        "Logid": "20260109101545648016",
+        "Start": "2026-01-09T10:15:45.648045",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T10:15:45.698991"
+    },
+    {
+        "Logid": "20260109101611432204",
+        "Start": "2026-01-09T10:16:11.432231",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T10:16:11.483121"
+    },
+    {
+        "Logid": "20260109101810249518",
+        "Start": "2026-01-09T10:18:10.249548",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T10:18:10.300815"
+    },
+    {
+        "Logid": "20260109120029827839",
+        "Start": "2026-01-09T12:00:29.827860",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T12:00:29.914060"
+    },
+    {
+        "Logid": "20260109120032051710",
+        "Start": "2026-01-09T12:00:32.051736",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T12:00:32.144784"
+    },
+    {
+        "Logid": "20260109130613506740",
+        "Start": "2026-01-09T13:06:13.506788",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T13:06:13.810014"
+    },
+    {
+        "Logid": "20260109130624717335",
+        "Start": "2026-01-09T13:06:24.717368",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T13:06:24.778574"
+    },
+    {
+        "Logid": "20260109130631654422",
+        "Start": "2026-01-09T13:06:31.654469",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T13:06:31.767532"
+    },
+    {
+        "Logid": "20260109130826742189",
+        "Start": "2026-01-09T13:08:26.742212",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T13:09:27.060143"
+    },
+    {
+        "Logid": "20260109133847383645",
+        "Start": "2026-01-09T13:38:47.383678",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T13:38:47.461801"
+    },
+    {
+        "Logid": "20260109133946727078",
+        "Start": "2026-01-09T13:39:46.727103",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T13:39:46.784800"
+    },
+    {
+        "Logid": "20260109134045749463",
+        "Start": "2026-01-09T13:40:45.749503",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T13:40:45.809731"
+    },
+    {
+        "Logid": "20260109134417641958",
+        "Start": "2026-01-09T13:44:17.641987",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T13:44:17.780650"
+    },
+    {
+        "Logid": "20260109134438671983",
+        "Start": "2026-01-09T13:44:38.672029",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T13:44:38.862628"
+    },
+    {
+        "Logid": "20260109134450684753",
+        "Start": "2026-01-09T13:44:50.684780",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T13:44:50.918585"
+    },
+    {
+        "Logid": "20260109135016289821",
+        "Start": "2026-01-09T13:50:16.289851",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T13:51:16.636459"
+    },
+    {
+        "Logid": "20260109135141967241",
+        "Start": "2026-01-09T13:51:41.967266",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T13:52:42.252198"
+    },
+    {
+        "Logid": "20260109143854614234",
+        "Start": "2026-01-09T14:38:54.614267",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T14:39:36.944152"
+    },
+    {
+        "Logid": "20260109150707568034",
+        "Start": "2026-01-09T15:07:07.568063",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T15:08:08.039983"
+    },
+    {
+        "Logid": "20260109153345141264",
+        "Start": "2026-01-09T15:33:45.141292",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T15:34:45.457650"
+    },
+    {
+        "Logid": "20260109154747275770",
+        "Start": "2026-01-09T15:47:47.275798",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-09T15:48:47.533743"
+    },
+    {
+        "Logid": "20260112104633596696",
+        "Start": "2026-01-12T10:46:33.596734",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T10:47:33.916393"
+    },
+    {
+        "Logid": "20260112112218224912",
+        "Start": "2026-01-12T11:22:18.224941",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T11:22:28.507002"
+    },
+    {
+        "Logid": "20260112112319028451",
+        "Start": "2026-01-12T11:23:19.028479",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T11:23:29.287625"
+    },
+    {
+        "Logid": "20260112112443790995",
+        "Start": "2026-01-12T11:24:43.791028",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T11:24:54.064812"
+    },
+    {
+        "Logid": "20260112112904182133",
+        "Start": "2026-01-12T11:29:04.182164",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T11:29:14.492307"
+    },
+    {
+        "Logid": "20260112113121790284",
+        "Start": "2026-01-12T11:31:21.790315",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T11:31:32.216585"
+    },
+    {
+        "Logid": "20260112113421104215",
+        "Start": "2026-01-12T11:34:21.104240",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T11:34:31.375097"
+    },
+    {
+        "Logid": "20260112113454519999",
+        "Start": "2026-01-12T11:34:54.520031",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T11:35:04.792069"
+    },
+    {
+        "Logid": "20260112113733596114",
+        "Start": "2026-01-12T11:37:33.596141",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T11:37:43.901302"
+    },
+    {
+        "Logid": "20260112113835336312",
+        "Start": "2026-01-12T11:38:35.336338",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T11:38:45.618931"
+    },
+    {
+        "Logid": "20260112132217764088",
+        "Start": "2026-01-12T13:22:17.764124",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T13:22:28.167196"
+    },
+    {
+        "Logid": "20260112133605061612",
+        "Start": "2026-01-12T13:36:05.061642",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T13:36:15.356645"
+    },
+    {
+        "Logid": "20260112133715993023",
+        "Start": "2026-01-12T13:37:15.993051",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T13:37:26.253889"
+    },
+    {
+        "Logid": "20260112134849906003",
+        "Start": "2026-01-12T13:48:49.906032",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T13:49:00.189045"
+    },
+    {
+        "Logid": "20260112134900278184",
+        "Start": "2026-01-12T13:49:00.278242",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T13:49:10.718060"
+    },
+    {
+        "Logid": "20260112134910828509",
+        "Start": "2026-01-12T13:49:10.828567",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T13:49:21.285046"
+    },
+    {
+        "Logid": "20260112134921372472",
+        "Start": "2026-01-12T13:49:21.372537",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T13:49:31.754582"
+    },
+    {
+        "Logid": "20260112141138729124",
+        "Start": "2026-01-12T14:11:38.729154",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T14:11:49.190762"
+    },
+    {
+        "Logid": "20260112141149323549",
+        "Start": "2026-01-12T14:11:49.323616",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T14:11:59.787933"
+    },
+    {
+        "Logid": "20260112141159883288",
+        "Start": "2026-01-12T14:11:59.883339",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T14:12:10.395536"
+    },
+    {
+        "Logid": "20260112141210475021",
+        "Start": "2026-01-12T14:12:10.475094",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T14:12:20.929953"
+    },
+    {
+        "Logid": "20260112141817811171",
+        "Start": "2026-01-12T14:18:17.811208",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T14:18:28.343420"
+    },
+    {
+        "Logid": "20260112141839045721",
+        "Start": "2026-01-12T14:18:39.045806",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T14:18:49.667709"
+    },
+    {
+        "Logid": "20260112141849774825",
+        "Start": "2026-01-12T14:18:49.774891",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T14:19:00.251722"
+    },
+    {
+        "Logid": "20260112142548096158",
+        "Start": "2026-01-12T14:25:48.096188",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T14:25:58.388520"
+    },
+    {
+        "Logid": "20260112142558454509",
+        "Start": "2026-01-12T14:25:58.454575",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T14:26:08.794338"
+    },
+    {
+        "Logid": "20260112142608842205",
+        "Start": "2026-01-12T14:26:08.842265",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T14:26:19.339954"
+    },
+    {
+        "Logid": "20260112142619403523",
+        "Start": "2026-01-12T14:26:19.403578",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T14:26:29.790389"
+    },
+    {
+        "Logid": "20260112142754576387",
+        "Start": "2026-01-12T14:27:54.576414",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T14:28:04.841687"
+    },
+    {
+        "Logid": "20260112142804900079",
+        "Start": "2026-01-12T14:28:04.900128",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T14:28:15.228671"
+    },
+    {
+        "Logid": "20260112142815279881",
+        "Start": "2026-01-12T14:28:15.279931",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T14:28:25.651051"
+    },
+    {
+        "Logid": "20260112142825716719",
+        "Start": "2026-01-12T14:28:25.716793",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T14:28:36.157711"
+    },
+    {
+        "Logid": "20260112142854410369",
+        "Start": "2026-01-12T14:28:54.410400",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T14:29:04.682760"
+    },
+    {
+        "Logid": "20260112142904753635",
+        "Start": "2026-01-12T14:29:04.753682",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T14:29:15.067092"
+    },
+    {
+        "Logid": "20260112142915117613",
+        "Start": "2026-01-12T14:29:15.117660",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T14:29:25.542461"
+    },
+    {
+        "Logid": "20260112142925640106",
+        "Start": "2026-01-12T14:29:25.640192",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T14:29:36.154355"
+    },
+    {
+        "Logid": "20260112164745098399",
+        "Start": "2026-01-12T16:47:45.098428",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T16:47:55.411826"
+    },
+    {
+        "Logid": "20260112164755541834",
+        "Start": "2026-01-12T16:47:55.541899",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T16:48:05.988483"
+    },
+    {
+        "Logid": "20260112164806086713",
+        "Start": "2026-01-12T16:48:06.086766",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T16:48:16.502142"
+    },
+    {
+        "Logid": "20260112164816624494",
+        "Start": "2026-01-12T16:48:16.624557",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T16:48:27.043309"
+    },
+    {
+        "Logid": "20260112165147938133",
+        "Start": "2026-01-12T16:51:47.938162",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T16:51:58.224925"
+    },
+    {
+        "Logid": "20260112165158337173",
+        "Start": "2026-01-12T16:51:58.337226",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T16:52:08.750641"
+    },
+    {
+        "Logid": "20260112165208832040",
+        "Start": "2026-01-12T16:52:08.832111",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T16:52:19.233151"
+    },
+    {
+        "Logid": "20260112165219308230",
+        "Start": "2026-01-12T16:52:19.308280",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T16:52:29.688743"
+    },
+    {
+        "Logid": "20260112165709872754",
+        "Start": "2026-01-12T16:57:09.872784",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T16:57:20.182955"
+    },
+    {
+        "Logid": "20260112165720268526",
+        "Start": "2026-01-12T16:57:20.268582",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T16:57:30.602426"
+    },
+    {
+        "Logid": "20260112165730665573",
+        "Start": "2026-01-12T16:57:30.665628",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T16:57:41.033203"
+    },
+    {
+        "Logid": "20260112165741108158",
+        "Start": "2026-01-12T16:57:41.108213",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T16:57:51.536322"
+    },
+    {
+        "Logid": "20260112170427039075",
+        "Start": "2026-01-12T17:04:27.039111",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T17:04:37.361598"
+    },
+    {
+        "Logid": "20260112170437450022",
+        "Start": "2026-01-12T17:04:37.450077",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T17:04:47.774262"
+    },
+    {
+        "Logid": "20260112170447851139",
+        "Start": "2026-01-12T17:04:47.851196",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T17:04:58.274095"
+    },
+    {
+        "Logid": "20260112170458368153",
+        "Start": "2026-01-12T17:04:58.368206",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T17:05:08.798713"
+    },
+    {
+        "Logid": "20260112170922489635",
+        "Start": "2026-01-12T17:09:22.489668",
+        "LogType": "New Schedule",
+        "Remark": "Plan finished",
+        "RemarkData": "New Schedule",
+        "End": "2026-01-12T17:09:23.628094"
+    }
+]

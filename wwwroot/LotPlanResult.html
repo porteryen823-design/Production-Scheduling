@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8" />
+    <title>Lot Plan Result 表格顯示</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/all.min.css" />
+
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --header-bg: #f8f9fa;
+            --border-color: #dee2e6;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="gray"] {
+            --bg-color: #f5f5f5;
+            --text-color: #333333;
+            --header-bg: #e9ecef;
+            --border-color: #adb5bd;
+            --shadow: rgba(0, 0, 0, 0.15);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --header-bg: #1e1e1e;
+            --border-color: #333333;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        html, body {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container-fluid {
+            background-color: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px var(--shadow);
+            border-radius: 8px;
+            margin: 10px;
+            padding: 15px;
+            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .table-container {
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px var(--shadow);
+            padding: 20px;
+            margin: 10px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .btn-group .btn {
+            transition: all 0.3s;
+        }
+
+        h2 {
+            margin: 0;
+            color: var(--text-color);
+        }
+
+        .table {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .table thead th {
+            background-color: var(--header-bg);
+            border-color: var(--border-color);
+            color: var(--text-color);
+        }
+
+        .table tbody td {
+            border-color: var(--border-color);
+        }
+
+        .delay-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .delay-text {
+            font-weight: 500;
+        }
+
+        /* 統計資訊樣式優化 */
+        .stat-col {
+            border-right: 1px solid var(--border-color);
+            padding: 10px 15px;
+        }
+        .stat-col:last-child {
+            border-right: none;
+        }
+        .stat-label {
+            color: #6c757d;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .stat-value {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+        [data-theme="dark"] .stat-label {
+            color: #adb5bd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-3">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+            <h2><i class="fa-solid fa-table"></i> Lot Plan Result</h2>
+            <!-- 主題切換 -->
+            <div class="btn-group me-3" role="group">
+                <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('light')"><i class="fa-solid fa-sun"></i> 亮色</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('gray')"><i class="fa-solid fa-adjust"></i> 灰色</button>
+            </div>
+            <!-- 重新載入按鈕 -->
+            <button class="btn btn-primary btn-sm" onclick="loadData()"><i class="fa-solid fa-sync"></i> 重新載入</button>
+        </div>
+
+        <!-- 統計資訊 -->
+        <div class="row mb-4" id="statisticsSection" style="display: none;">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0"><i class="fa-solid fa-chart-bar"></i> 排程統計資訊</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="row g-0">
+                            <div class="col-md-3 stat-col">
+                                <div class="mb-2">
+                                    <span class="stat-label">優化類型</span>
+                                    <span class="stat-value" id="optType"></span>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="stat-label">計算批數</span>
+                                    <span class="stat-value" id="batchCount"></span>
+                                </div>
+                                <div>
+                                    <span class="stat-label">優化目標</span>
+                                    <span class="stat-value" id="optGoal"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 stat-col">
+                                <div class="mb-2">
+                                    <span class="stat-label">計算起訖時間</span>
+                                    <span class="stat-value small" id="calcTimeRange"></span>
+                                </div>
+                                <div>
+                                    <span class="stat-label">計算總時間</span>
+                                    <span class="stat-value" id="calcDuration"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 stat-col">
+                                <div class="mb-2">
+                                    <span class="stat-label">最早投入時間</span>
+                                    <span class="stat-value small" id="earliestInput"></span>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="stat-label">最後產出時間</span>
+                                    <span class="stat-value small" id="latestOutput"></span>
+                                </div>
+                                <div>
+                                    <span class="stat-label">總排程時間</span>
+                                    <span class="stat-value" id="totalDuration"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 stat-col">
+                                <span class="stat-label mb-2">延遲統計</span>
+                                <div class="d-flex flex-wrap gap-1">
+                                    <span class="badge bg-success">提早: <span id="earlyCount"></span></span>
+                                    <span class="badge bg-info">準時: <span id="onTimeCount"></span></span>
+                                    <span class="badge bg-warning">輕微延遲: <span id="minorDelayCount"></span></span>
+                                    <span class="badge bg-danger">嚴重延遲: <span id="majorDelayCount"></span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 過濾器 -->
+        <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+            <!-- 批號過濾器 -->
+            <div class="d-flex align-items-center gap-2">
+                <label for="lotFilter" class="fw-semibold mb-0">
+                    <i class="fa-solid fa-hashtag"></i> 批號過濾：
+                </label>
+                <select id="lotFilter" class="form-select form-select-sm" style="width: 150px;" onchange="applyFilters()">
+                    <option value="ALL">全部</option>
+                </select>
+            </div>
+
+            <!-- 產品過濾器 -->
+            <div class="d-flex align-items-center gap-2">
+                <label for="productFilter" class="fw-semibold mb-0">
+                    <i class="fa-solid fa-box"></i> 產品過濾：
+                </label>
+                <select id="productFilter" class="form-select form-select-sm" style="width: 150px;" onchange="applyFilters()">
+                    <option value="ALL">全部</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover" id="resultTable">
+                <thead>
+                    <tr>
+                        <th>Lot</th>
+                        <th>Product</th>
+                        <th>Priority</th>
+                        <th>Due Date</th>
+                        <th>Plan Date</th>
+                        <th>Delay Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- 資料將動態插入這裡 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let allData = [];
+        let statistics = null;
+
+        // 設定主題
+        function setTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+        }
+
+        // 解析延遲時間並計算總天數
+        function parseDelayTime(delayStr) {
+            if (!delayStr || delayStr === "0:00") return 0;
+
+            // 處理負數格式，如 "-1:05" 或 "-0:08"
+            const isNegative = delayStr.startsWith('-');
+            const cleanStr = isNegative ? delayStr.substring(1) : delayStr;
+            const parts = cleanStr.split(':').map(Number);
+            
+            let days = 0;
+            let hours = 0;
+            
+            if (parts.length === 2) {
+                [days, hours] = parts;
+            } else if (parts.length === 3) {
+                // 處理 H:MM:SS 格式
+                const [h, m, s] = parts;
+                days = Math.floor(h / 24);
+                hours = h % 24 + m / 60 + s / 3600;
+            }
+
+            const totalDays = days + hours / 24;
+            return isNegative ? -totalDays : totalDays;
+        }
+
+        // 根據延遲天數取得 Bootstrap Badge 類別和狀態文字
+        function getDelayBadgeInfo(delayStr) {
+            const totalDays = parseDelayTime(delayStr);
+            if (totalDays < 0) {
+                return {
+                    badgeClass: "bg-success",
+                    statusText: "提早",
+                    textColor: "text-success"
+                };
+            } else if (totalDays === 0) {
+                return {
+                    badgeClass: "bg-info",
+                    statusText: "準時",
+                    textColor: "text-info"
+                };
+            } else if (totalDays <= 2) {
+                return {
+                    badgeClass: "bg-warning",
+                    statusText: "輕微延遲",
+                    textColor: "text-warning"
+                };
+            } else {
+                return {
+                    badgeClass: "bg-danger",
+                    statusText: "嚴重延遲",
+                    textColor: "text-danger"
+                };
+            }
+        }
+
+        // 載入資料
+        function loadData() {
+            let file = "Lot_Plan_result/Lot_Plan_Result.json"; // 固定使用同一檔案
+
+            fetch(`http://127.0.0.1:5000/get_json/${file}`)
+                .then(res => res.json())
+                .then(data => {
+                    // 處理新的 JSON 結構
+                    if (data.lot_results) {
+                        allData = data.lot_results;
+                        statistics = data.statistics;
+                    } else {
+                        allData = data;
+                        statistics = null;
+                    }
+                    
+                    updateFilters(allData);
+                    renderTable(allData);
+                    renderStatistics(statistics);
+                })
+                .catch(err => {
+                    console.error("資料載入失敗", err);
+                    document.getElementById('tableBody').innerHTML = '<tr><td colspan="7" class="text-center text-danger">資料載入失敗</td></tr>';
+                });
+        }
+
+        // 渲染統計資訊
+        function renderStatistics(stats) {
+            const section = document.getElementById('statisticsSection');
+            if (!stats) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'flex';
+            
+            document.getElementById('optType').textContent = stats.optimization_type;
+            document.getElementById('batchCount').textContent = stats.batch_count;
+            document.getElementById('optGoal').textContent = stats.optimization_goal;
+            
+            const start = new Date(stats.calculation_start).toLocaleString('zh-TW');
+            const end = new Date(stats.calculation_end).toLocaleString('zh-TW');
+            document.getElementById('calcTimeRange').textContent = `${start} ~ ${end}`;
+            document.getElementById('calcDuration').textContent = stats.calculation_duration;
+            
+            document.getElementById('earliestInput').textContent = new Date(stats.earliest_input_time).toLocaleString('zh-TW');
+            document.getElementById('latestOutput').textContent = new Date(stats.latest_output_time).toLocaleString('zh-TW');
+            document.getElementById('totalDuration').textContent = stats.total_schedule_duration;
+            
+            document.getElementById('earlyCount').textContent = stats.early_count;
+            document.getElementById('onTimeCount').textContent = stats.on_time_count;
+            document.getElementById('minorDelayCount').textContent = stats.minor_delay_count;
+            document.getElementById('majorDelayCount').textContent = stats.major_delay_count;
+        }
+
+        // 更新過濾器選項
+        function updateFilters(data) {
+            // 更新批號過濾器
+            const lotSelect = document.getElementById("lotFilter");
+            lotSelect.innerHTML = '<option value="ALL">全部</option>';
+            const uniqueLots = [...new Set(data.map(d => d.Lot))].sort();
+            uniqueLots.forEach(lot => {
+                const opt = document.createElement("option");
+                opt.value = lot;
+                opt.textContent = lot;
+                lotSelect.appendChild(opt);
+            });
+
+            // 更新產品過濾器
+            const productSelect = document.getElementById("productFilter");
+            productSelect.innerHTML = '<option value="ALL">全部</option>';
+            const uniqueProducts = [...new Set(data.map(d => d.Product))].sort();
+            uniqueProducts.forEach(product => {
+                const opt = document.createElement("option");
+                opt.value = product;
+                opt.textContent = product;
+                productSelect.appendChild(opt);
+            });
+        }
+
+        // 應用過濾器
+        function applyFilters() {
+            const selectedLot = document.getElementById("lotFilter").value;
+            const selectedProduct = document.getElementById("productFilter").value;
+
+            let filtered = allData;
+
+            if (selectedLot !== "ALL") {
+                filtered = filtered.filter(d => d.Lot === selectedLot);
+            }
+
+            if (selectedProduct !== "ALL") {
+                filtered = filtered.filter(d => d.Product === selectedProduct);
+            }
+
+            renderTable(filtered);
+        }
+
+        // 渲染表格
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+
+                // Lot
+                const tdLot = document.createElement('td');
+                tdLot.textContent = row.Lot;
+                tr.appendChild(tdLot);
+
+                // Product
+                const tdProduct = document.createElement('td');
+                tdProduct.textContent = row.Product;
+                tr.appendChild(tdProduct);
+
+                // Priority
+                const tdPriority = document.createElement('td');
+                tdPriority.textContent = row.Priority;
+                tr.appendChild(tdPriority);
+
+                // Due Date
+                const tdDueDate = document.createElement('td');
+                const dueDate = new Date(row["Due Date"]);
+                tdDueDate.textContent = dueDate.toLocaleString('zh-TW');
+                tr.appendChild(tdDueDate);
+
+                // Plan Date
+                const tdPlanDate = document.createElement('td');
+                const planDate = new Date(row["Plan Date"]);
+                tdPlanDate.textContent = planDate.toLocaleString('zh-TW');
+                tr.appendChild(tdPlanDate);
+
+                // Delay Time
+                const tdDelay = document.createElement('td');
+                const badgeInfo = getDelayBadgeInfo(row["delay time"]);
+                tdDelay.innerHTML = `<span class="${badgeInfo.textColor} delay-text">${row["delay time"]}</span>`;
+                tr.appendChild(tdDelay);
+
+                // Status (Bootstrap Badge)
+                const tdStatus = document.createElement('td');
+                tdStatus.innerHTML = `<span class="badge ${badgeInfo.badgeClass}">${badgeInfo.statusText}</span>`;
+                tr.appendChild(tdStatus);
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 初始化
+        setTheme('light');
+        loadData();
+    </script>
+
+</body>
+</html>

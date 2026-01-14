@@ -1,0 +1,278 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8" />
+    <title>Machine Usage Gantt</title>
+    <link rel="stylesheet" href="css/dhtmlxgantt.css" />
+    <link rel="stylesheet" href="css/all.min.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --header-bg: #f8f9fa;
+            --border-color: #dee2e6;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="gray"] {
+            --bg-color: #f5f5f5;
+            --text-color: #333333;
+            --header-bg: #e9ecef;
+            --border-color: #adb5bd;
+            --shadow: rgba(0, 0, 0, 0.15);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --header-bg: #1e1e1e;
+            --border-color: #333333;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        html, body {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container-fluid {
+            background-color: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px var(--shadow);
+            border-radius: 8px;
+            margin: 10px;
+            padding: 15px;
+            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+        }
+
+        #gantt_here {
+            width: 100%;
+            height: calc(100vh - 140px);
+            font-size: 14px;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px var(--shadow);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .btn-group .btn {
+            transition: all 0.3s;
+        }
+
+        h2 {
+            margin: 0;
+            color: var(--text-color);
+        }
+
+        /* 甘特圖主題覆蓋 */
+        .gantt_grid, .gantt_data_area, .gantt_task_row {
+            background-color: var(--bg-color) !important;
+        }
+
+        .gantt_grid_data .gantt_tree_content, .gantt_task_content {
+            color: var(--text-color) !important;
+        }
+
+        .gantt_grid_scale {
+            background-color: var(--header-bg) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .gantt_grid_scale .gantt_grid_head_cell {
+            color: var(--text-color) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-3">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+            <h2><i class="fa-solid fa-cogs"></i> Machine Usage Dashboard</h2>
+            <!-- 主題切換 -->
+            <div class="btn-group me-3" role="group">
+                <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('light')"><i class="fa-solid fa-sun"></i> 亮色</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('gray')"><i class="fa-solid fa-adjust"></i> 灰色</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('dark')"><i class="fa-solid fa-moon"></i> 暗色</button>
+            </div>
+            <!-- 視圖切換 -->
+            <div class="btn-group me-3" role="group">
+                <button class="btn btn-outline-primary btn-sm" onclick="setScale('hour')"><i class="fa-solid fa-clock"></i> 小時 </button>
+                <button class="btn btn-outline-primary btn-sm" onclick="setScale('day')"><i class="fa-solid fa-calendar-day"></i> 天 </button>
+                <button class="btn btn-outline-primary btn-sm" onclick="setScale('week')"><i class="fa-solid fa-calendar-week"></i> 週 </button>
+                <button class="btn btn-outline-primary btn-sm" onclick="setScale('month')"><i class="fa-solid fa-calendar-alt"></i> 月 </button>
+            </div>
+
+            <!-- 機台過濾器 -->
+            <div class="d-flex align-items-center gap-2">
+                <label for="machineFilter" class="fw-semibold mb-0">
+                    <i class="fa-solid fa-filter"></i> 機台過濾：
+                </label>
+                <select id="machineFilter" class="form-select form-select-sm" style="width: 150px;" onchange="applyMachineFilter()">
+                    <option value="ALL">全部</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 甘特圖 -->
+        <div id="gantt_here"></div>
+    </div>
+
+    <script src="js/dhtmlxgantt.js"></script>
+    <script>
+        let allData = [];
+
+        // 設定主題
+        function setTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            // 重新渲染甘特圖以應用新主題
+            if (allData.length > 0) {
+                renderGantt(allData);
+            }
+        }
+
+        // 切換視圖
+        function setScale(mode) {
+            if (mode === "hour") {
+                gantt.config.scale_unit = "day";
+                gantt.config.date_scale = "%Y-%m-%d";
+                gantt.config.subscales = [{ unit: "hour", step: 1, date: "%H:%i" }];
+            } else if (mode === "day") {
+                gantt.config.scale_unit = "week";
+                gantt.config.date_scale = "第 %W 週";
+                gantt.config.subscales = [{ unit: "day", step: 1, date: "%m/%d" }];
+            } else if (mode === "week") {
+                gantt.config.scale_unit = "month";
+                gantt.config.date_scale = "%Y-%m";
+                gantt.config.subscales = [{ unit: "week", step: 1, date: "第 %W 週" }];
+            } else if (mode === "month") {
+                gantt.config.scale_unit = "year";
+                gantt.config.date_scale = "%Y";
+                gantt.config.subscales = [{ unit: "month", step: 1, date: "%m月" }];
+            }
+            gantt.config.scale_height = 60;
+            // 重新渲染數據以應用新的縮放設置
+            if (allData.length > 0) {
+                renderGantt(allData);
+            }
+        }
+
+        // 應用機台過濾
+        function applyMachineFilter() {
+            const selectedMachine = document.getElementById("machineFilter").value;
+            const filtered = (selectedMachine === "ALL")
+                ? allData
+                : allData.filter(d => d.Machine === selectedMachine);
+            renderGantt(filtered);
+        }
+
+        // 更新機台過濾器
+        function updateMachineFilter(data) {
+            const select = document.getElementById("machineFilter");
+            select.innerHTML = '<option value="ALL">全部</option>';
+            const uniqueMachines = [...new Set(data.map(d => d.Machine))].sort();
+            uniqueMachines.forEach(m => {
+                const opt = document.createElement("option");
+                opt.value = m;
+                opt.textContent = m;
+                select.appendChild(opt);
+            });
+        }
+
+        // 渲染甘特圖
+        function renderGantt(filteredData) {
+            const tasks = { data: [], links: [] };
+            let taskId = 1;
+
+            filteredData.forEach(machine => {
+                const machineId = taskId++;
+                tasks.data.push({
+                    id: machineId,
+                    text: machine.Machine,
+                    open: true
+                });
+
+                if (machine.Segments) {
+                    machine.Segments.forEach(seg => {
+                        tasks.data.push({
+                            id: taskId++,
+                            text: `${seg.LotId} (${seg.Step})`,
+                            start_date: formatDate(seg.Start),
+                            end_date: formatDate(seg.End),
+                            parent: machineId,
+                            lot: seg.LotId,
+                            step: seg.Step,
+                            product: seg.Product
+                        });
+                    });
+                }
+            });
+
+            gantt.clearAll();
+            gantt.parse(tasks);
+        }
+
+        // 初始化 Gantt
+        gantt.config.xml_date = "%Y-%m-%d %H:%i:%s";
+
+        // Resource view 設定
+        gantt.config.layout = {
+            css: "gantt_container",
+            rows: [
+                {
+                    cols: [
+                        { view: "grid", width: 300, scrollY: "scrollVer" },
+                        { view: "timeline", scrollX: "scrollHor", scrollY: "scrollVer" },
+                        { view: "scrollbar", id: "scrollVer" }
+                    ]
+                },
+                { view: "scrollbar", id: "scrollHor", height: 20 }
+            ]
+        };
+
+        // 顯示 LotId / Step 資訊
+        gantt.templates.task_text = function (start, end, task) {
+            return task.text;
+        };
+
+        let file = "machine_usage.json"; // 固定使用同一檔案
+        // 從 API 讀取資料
+        fetch(`http://127.0.0.1:5000/get_json/${file}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                allData = data;
+                updateMachineFilter(allData);
+                renderGantt(allData);
+            })
+            .catch(error => {
+                console.error("載入數據時發生錯誤:", error);
+                alert("載入數據失敗: " + error.message);
+            });
+
+        // 格式化日期 (ISO → yyyy-MM-dd HH:mm)
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            const hh = String(date.getHours()).padStart(2, '0');
+            const mm = String(date.getMinutes()).padStart(2, '0');
+            return `${y}-${m}-${d} ${hh}:${mm}`;
+        }
+
+        // 初始化
+        gantt.init("gantt_here");
+        setTheme('light'); // 預設亮色主題
+        setScale("day");
+    </script>
+</body>
+</html>

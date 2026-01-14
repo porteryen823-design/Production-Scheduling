@@ -1,0 +1,219 @@
+{
+    "statistics": {
+        "optimization_type": 1,
+        "batch_count": 25,
+        "optimization_goal": "交期優先 (最小化總完成時間)",
+        "calculation_start": "2026-01-13T15:10:08.418747",
+        "calculation_end": "2026-01-13T15:10:09.167053",
+        "calculation_duration": "0:00:00.748306",
+        "earliest_input_time": "2026-01-09T13:00:00",
+        "latest_output_time": "2026-01-14T22:00:00",
+        "total_schedule_duration": "5:09:00",
+        "early_count": 25,
+        "on_time_count": 0,
+        "minor_delay_count": 0,
+        "major_delay_count": 0
+    },
+    "lot_results": [
+        {
+            "Lot": "LOT_A001",
+            "Product": "PROD_A",
+            "Priority": 100,
+            "Due Date": "2026-01-17T21:41:31.372823",
+            "Plan Date": "2026-01-13T09:00:00",
+            "delay time": "-4:12"
+        },
+        {
+            "Lot": "LOT_A002",
+            "Product": "PROD_A",
+            "Priority": 130,
+            "Due Date": "2026-01-21T04:23:52.352885",
+            "Plan Date": "2026-01-13T13:00:00",
+            "delay time": "-7:15"
+        },
+        {
+            "Lot": "LOT_A003",
+            "Product": "PROD_A",
+            "Priority": 150,
+            "Due Date": "2026-01-19T12:27:23.257156",
+            "Plan Date": "2026-01-14T05:00:00",
+            "delay time": "-5:07"
+        },
+        {
+            "Lot": "LOT_A004",
+            "Product": "PROD_A",
+            "Priority": 180,
+            "Due Date": "2026-01-17T16:15:22.178670",
+            "Plan Date": "2026-01-12T13:00:00",
+            "delay time": "-5:03"
+        },
+        {
+            "Lot": "LOT_A005",
+            "Product": "PROD_A",
+            "Priority": 200,
+            "Due Date": "2026-01-13T19:47:38.914269",
+            "Plan Date": "2026-01-13T01:00:00",
+            "delay time": "-0:18"
+        },
+        {
+            "Lot": "LOT_A006",
+            "Product": "PROD_A",
+            "Priority": 220,
+            "Due Date": "2026-01-13T13:53:16.844571",
+            "Plan Date": "2026-01-11T15:00:00",
+            "delay time": "-1:22"
+        },
+        {
+            "Lot": "LOT_A007",
+            "Product": "PROD_A",
+            "Priority": 100,
+            "Due Date": "2026-01-17T00:14:36.900380",
+            "Plan Date": "2026-01-14T15:00:00",
+            "delay time": "-2:09"
+        },
+        {
+            "Lot": "LOT_A008",
+            "Product": "PROD_A",
+            "Priority": 130,
+            "Due Date": "2026-01-17T06:39:48.598498",
+            "Plan Date": "2026-01-12T19:00:00",
+            "delay time": "-4:11"
+        },
+        {
+            "Lot": "LOT_A009",
+            "Product": "PROD_A",
+            "Priority": 150,
+            "Due Date": "2026-01-14T02:07:27.197695",
+            "Plan Date": "2026-01-12T09:00:00",
+            "delay time": "-1:17"
+        },
+        {
+            "Lot": "LOT_A010",
+            "Product": "PROD_A",
+            "Priority": 180,
+            "Due Date": "2026-01-20T13:08:49.151393",
+            "Plan Date": "2026-01-12T07:00:00",
+            "delay time": "-8:06"
+        },
+        {
+            "Lot": "LOT_B001",
+            "Product": "PROD_B",
+            "Priority": 50,
+            "Due Date": "2026-01-22T14:48:29.593077",
+            "Plan Date": "2026-01-14T16:00:00",
+            "delay time": "-7:22"
+        },
+        {
+            "Lot": "LOT_B002",
+            "Product": "PROD_B",
+            "Priority": 60,
+            "Due Date": "2026-01-18T01:42:03.425639",
+            "Plan Date": "2026-01-14T22:00:00",
+            "delay time": "-3:03"
+        },
+        {
+            "Lot": "LOT_B003",
+            "Product": "PROD_B",
+            "Priority": 70,
+            "Due Date": "2026-01-22T13:31:45.467326",
+            "Plan Date": "2026-01-14T13:00:00",
+            "delay time": "-8:00"
+        },
+        {
+            "Lot": "LOT_B004",
+            "Product": "PROD_B",
+            "Priority": 80,
+            "Due Date": "2026-01-19T09:13:09.115207",
+            "Plan Date": "2026-01-14T22:00:00",
+            "delay time": "-4:11"
+        },
+        {
+            "Lot": "LOT_B005",
+            "Product": "PROD_B",
+            "Priority": 90,
+            "Due Date": "2026-01-22T03:22:47.206845",
+            "Plan Date": "2026-01-14T15:59:00",
+            "delay time": "-7:11"
+        },
+        {
+            "Lot": "LOT_B006",
+            "Product": "PROD_B",
+            "Priority": 50,
+            "Due Date": "2026-01-21T19:01:24.180238",
+            "Plan Date": "2026-01-14T22:00:00",
+            "delay time": "-6:21"
+        },
+        {
+            "Lot": "LOT_C001",
+            "Product": "PROD_C",
+            "Priority": 50,
+            "Due Date": "2026-01-17T14:42:35.609804",
+            "Plan Date": "2026-01-13T17:00:00",
+            "delay time": "-3:21"
+        },
+        {
+            "Lot": "LOT_C002",
+            "Product": "PROD_C",
+            "Priority": 60,
+            "Due Date": "2026-01-15T05:15:25.168991",
+            "Plan Date": "2026-01-14T21:21:00",
+            "delay time": "-0:07"
+        },
+        {
+            "Lot": "LOT_C003",
+            "Product": "PROD_C",
+            "Priority": 70,
+            "Due Date": "2026-01-22T02:46:16.558907",
+            "Plan Date": "2026-01-13T19:00:00",
+            "delay time": "-8:07"
+        },
+        {
+            "Lot": "LOT_C004",
+            "Product": "PROD_C",
+            "Priority": 80,
+            "Due Date": "2026-01-16T14:58:09.027679",
+            "Plan Date": "2026-01-13T05:00:00",
+            "delay time": "-3:09"
+        },
+        {
+            "Lot": "LOT_C005",
+            "Product": "PROD_C",
+            "Priority": 90,
+            "Due Date": "2026-01-19T11:52:35.449810",
+            "Plan Date": "2026-01-14T01:00:00",
+            "delay time": "-5:10"
+        },
+        {
+            "Lot": "LOT_C006",
+            "Product": "PROD_C",
+            "Priority": 100,
+            "Due Date": "2026-01-22T04:42:43.769485",
+            "Plan Date": "2026-01-12T15:00:00",
+            "delay time": "-9:13"
+        },
+        {
+            "Lot": "LOT_C007",
+            "Product": "PROD_C",
+            "Priority": 110,
+            "Due Date": "2026-01-22T17:04:45.947518",
+            "Plan Date": "2026-01-12T23:00:00",
+            "delay time": "-9:18"
+        },
+        {
+            "Lot": "LOT_C008",
+            "Product": "PROD_C",
+            "Priority": 120,
+            "Due Date": "2026-01-16T18:24:59.308891",
+            "Plan Date": "2026-01-14T09:00:00",
+            "delay time": "-2:09"
+        },
+        {
+            "Lot": "LOT_C009",
+            "Product": "PROD_C",
+            "Priority": 130,
+            "Due Date": "2026-01-18T19:58:40.000355",
+            "Plan Date": "2026-01-13T07:00:00",
+            "delay time": "-5:12"
+        }
+    ]
+}

@@ -1,0 +1,291 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8" />
+    <title>Lot Process 甘特圖視覺化</title>
+    <link rel="stylesheet" href="css/dhtmlxgantt.css" />
+    <link rel="stylesheet" href="css/all.min.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --header-bg: #f8f9fa;
+            --border-color: #dee2e6;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="gray"] {
+            --bg-color: #f5f5f5;
+            --text-color: #333333;
+            --header-bg: #e9ecef;
+            --border-color: #adb5bd;
+            --shadow: rgba(0, 0, 0, 0.15);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --header-bg: #1e1e1e;
+            --border-color: #333333;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        html, body {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container-fluid {
+            background-color: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px var(--shadow);
+            border-radius: 8px;
+            margin: 10px;
+            padding: 15px;
+            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+        }
+
+        #gantt_here {
+            width: 100%;
+            height: calc(100vh - 140px);
+            font-size: 14px;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px var(--shadow);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .btn-group .btn {
+            transition: all 0.3s;
+        }
+
+        h2 {
+            margin: 0;
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-3">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+            <h2><i class="fa-solid fa-diagram-project"></i> Lot Process Dashboard</h2>
+            <!-- 主題切換 -->
+            <div class="btn-group me-3" role="group">
+                <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('light')"><i class="fa-solid fa-sun"></i> 亮色</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('gray')"><i class="fa-solid fa-adjust"></i> 灰色</button>                
+            </div>
+            <!-- 視圖切換 -->
+            <div class="btn-group me-3" role="group">
+                <button class="btn btn-outline-primary btn-sm" onclick="setScale('hour')"><i class="fa-solid fa-clock"></i> 小時 </button>
+                <button class="btn btn-outline-primary btn-sm" onclick="setScale('day')"><i class="fa-solid fa-calendar-day"></i> 天 </button>
+                <button class="btn btn-outline-primary btn-sm" onclick="setScale('week')"><i class="fa-solid fa-calendar-week"></i> 週 </button>
+                <button class="btn btn-outline-primary btn-sm" onclick="setScale('month')"><i class="fa-solid fa-calendar-alt"></i> 月 </button>
+            </div>
+          
+
+            <!-- 產品過濾器 -->
+            <div class="d-flex align-items-center gap-2">
+                <label for="productFilter" class="fw-semibold mb-0">
+                    <i class="fa-solid fa-filter"></i> 產品過濾：
+                </label>
+                <select id="productFilter" class="form-select form-select-sm" style="width: 150px;" onchange="applyFilter()">
+                    <option value="ALL">全部</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 甘特圖 -->
+        <div id="gantt_here"></div>
+    </div>
+
+    <script src="js/dhtmlxgantt.js"></script>
+    <script>
+        const colorPool = [
+            "#FF9999", "#99CCFF", "#99FF99", "#FFCC99", "#CC99FF", "#FFB6C1", "#FFD700",
+            "#7FFFD4", "#FF69B4", "#20B2AA", "#87CEFA", "#32CD32", "#FFA07A", "#9370DB",
+            "#40E0D0", "#FF6347", "#8FBC8F", "#6495ED", "#F08080", "#48D1CC", "#BA55D3",
+            "#BDB76B", "#00CED1", "#FF4500", "#228B22", "#8B0000"
+        ];
+
+
+        let allData = [];
+
+        function parseDate(dateStr) {
+            return new Date(dateStr);
+        }
+
+        // 設定主題
+        function setTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+        }
+
+        // 🔁 切換視圖（新增「月」）
+        function setScale(mode) {
+            if (mode === "hour") {
+                gantt.config.scale_unit = "day";
+                gantt.config.date_scale = "%Y-%m-%d";
+                gantt.config.subscales = [{ unit: "hour", step: 1, date: "%H:%i" }];
+            } else if (mode === "day") {
+                gantt.config.scale_unit = "week";
+                gantt.config.date_scale = "第 %W 週";
+                gantt.config.subscales = [{ unit: "day", step: 1, date: "%m/%d" }];
+            } else if (mode === "week") {
+                gantt.config.scale_unit = "month";
+                gantt.config.date_scale = "%Y-%m";
+                gantt.config.subscales = [{ unit: "week", step: 1, date: "第 %W 週" }];
+            } else if (mode === "month") {
+                gantt.config.scale_unit = "year";
+                gantt.config.date_scale = "%Y";
+                gantt.config.subscales = [{ unit: "month", step: 1, date: "%m月" }];
+            }
+            gantt.config.scale_height = 60;
+            // 重新渲染數據以應用新的縮放設置
+            if (allData.length > 0) {
+                renderGantt(allData);
+            }
+        }
+
+        function renderGantt(filteredData) {
+            const tasks = { data: [], links: [] };
+            let taskId = 1;
+            const lotParentMap = {};
+            const lots = [...new Set(filteredData.map(d => d.LotId))];
+
+            lots.forEach(lotId => {
+                const lotProduct = filteredData.find(d => d.LotId === lotId)?.Product || "";
+                const bgColor = productColorMap[lotProduct] || "#6c757d";
+
+                tasks.data.push({
+                    id: taskId,
+                    text: lotId,
+                    open: false,
+                    type: "project",
+                    color: bgColor,
+                    product: lotProduct
+                });
+                lotParentMap[lotId] = taskId;
+                taskId++;
+            });
+
+            const taskMap = {};
+            filteredData.forEach(row => {
+                const id = taskId++;
+                const color = productColorMap[row.Product] || "#cccccc";
+                tasks.data.push({
+                    id: id,
+                    text: `${row.Step} (${row.Machine})`,
+                    start_date: parseDate(row.Start),
+                    end_date: parseDate(row.End),
+                    color: color,
+                    parent: lotParentMap[row.LotId],
+                    lot: row.LotId,
+                    step: row.Step,
+                    product: row.Product
+                });
+                taskMap[`${row.LotId}_${row.Step}`] = id;
+            });
+
+            lots.forEach(lotId => {
+                const lotOps = filteredData.filter(d => d.LotId === lotId);
+                lotOps.sort((a, b) => new Date(a.Start) - new Date(b.Start));
+                for (let i = 0; i < lotOps.length - 1; i++) {
+                    const fromId = taskMap[`${lotOps[i].LotId}_${lotOps[i].Step}`];
+                    const toId = taskMap[`${lotOps[i + 1].LotId}_${lotOps[i + 1].Step}`];
+                    tasks.links.push({ id: taskId++, source: fromId, target: toId, type: "0" });
+                }
+            });
+
+            gantt.clearAll();
+            gantt.parse(tasks);
+
+            document.querySelectorAll(".gantt_tree_content").forEach(el => {
+                const task = gantt.getTask(el.closest(".gantt_row").dataset.taskId);
+                if (task.type === "project") {
+                    el.style.backgroundColor = task.color;
+                }
+            });
+        }
+
+        // 重新載入產品過濾器
+        function updateProductFilter(data) {
+            const select = document.getElementById("productFilter");
+            select.innerHTML = '<option value="ALL">全部</option>';
+            const uniqueProducts = [...new Set(data.map(d => d.Product))].sort();
+            uniqueProducts.forEach(p => {
+                const opt = document.createElement("option");
+                opt.value = p;
+                opt.textContent = p;
+                select.appendChild(opt);
+            });
+        }
+
+        function applyFilter() {
+            const selectedProduct = document.getElementById("productFilter").value;
+            const filtered = (selectedProduct === "ALL")
+                ? allData
+                : allData.filter(d => d.Product === selectedProduct);
+            renderGantt(filtered);
+        }
+
+        let productColorMap = {}; // 全域變數
+
+        // 📥 切換不同資料來源
+        function loadSchedule(type) {
+            let file = "Lot_Plan_result/LotStepResult_New.json"; // 固定使用同一檔案
+
+            fetch(`http://127.0.0.1:5000/get_json/${file}`)
+                .then(res => res.json())
+                .then(data => {
+                    // 條件過濾
+                    if (type === "Old") {
+                        allData = data.filter(d => d.Booking !== 0);
+                    } else if (type === "New") {
+                        allData = data.filter(d => d.Booking === 0);
+                    } else {
+                        allData = data; // All 不過濾
+                    }
+
+                    // 建立 product → color 映射
+                    productColorMap = {};
+                    const uniqueProducts = [...new Set(allData.map(d => d.Product))];
+                    uniqueProducts.forEach((p, i) => {
+                        productColorMap[p] = colorPool[i % colorPool.length];
+                    });
+
+                    updateProductFilter(allData);
+                    renderGantt(allData);
+                })
+                .catch(err => console.error("資料載入失敗", err));
+        }
+
+   
+
+        // 初始化
+        gantt.config.columns = [
+            { name: "text", label: "批次 / 工序", tree: true, width: 200 },
+            { name: "start_date", label: "開始時間", align: "center", width: 150 }
+        ];
+        gantt.config.xml_date = "%Y-%m-%d %H:%i";
+        gantt.config.show_links = true;
+        gantt.config.show_progress = false;
+
+        gantt.plugins({ tooltip: true });
+        gantt.templates.tooltip_text = function (start, end, task) {
+            const format = gantt.date.date_to_str("%Y-%m-%d %H:%i");
+            return `<b>${task.text}</b><br>${format(start)} ~ ${format(end)}`;
+        };
+
+        gantt.init("gantt_here");
+        setTheme('light'); // 預設亮色主題
+        setScale("day");
+        loadSchedule("All");
+    </script>
+
+</body>
+</html>

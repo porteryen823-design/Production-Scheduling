@@ -1,0 +1,5 @@
+ortools
+pyjobshop
+python-dotenv
+mysql-connector-python
+flask
