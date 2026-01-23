@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual Environment
+venv/
+.agent/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Node.js
+node_modules/
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# Environment Variables
+.env

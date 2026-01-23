@@ -61,7 +61,7 @@ def create_test_data():
     lots = []
 
     # 生成 LOT_A001 到 LOT_A030
-    for i in range(1, 11):
+    for i in range(1, 2):
         lot_id = f"LOT_A{i:03d}"
         priority = priorities_a[(i-1) % len(priorities_a)]
         lots.append({
@@ -73,7 +73,7 @@ def create_test_data():
         })
 
     # 生成 LOT_B001 到 LOT_B020
-    for i in range(1, 7):
+    for i in range(1, 2):
         lot_id = f"LOT_B{i:03d}"
         priority = priorities_b[(i-1) % len(priorities_b)]
         lots.append({
@@ -85,7 +85,7 @@ def create_test_data():
         })
 
     # 生成 LOT_C001 到 LOT_C100
-    for i in range(1, 10):
+    for i in range(1, 2):
         lot_id = f"LOT_C{i:03d}"
         priority = priorities_c[(i-1) % len(priorities_c)]
         lots.append({

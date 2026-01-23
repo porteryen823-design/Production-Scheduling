@@ -1,0 +1,26 @@
+{
+    "statistics": {
+        "optimization_type": "weighted_delay",
+        "batch_count": 1,
+        "calculation_start": "2026-01-23T16:02:09",
+        "calculation_end": "2026-01-23T16:02:09",
+        "calculation_duration": "0:00:00.016995",
+        "earliest_input_time": "2026-01-24T17:04:00",
+        "latest_output_time": "2026-01-27T00:00:00",
+        "total_schedule_duration": "2:06:56",
+        "early_count": 0,
+        "on_time_count": 0,
+        "minor_delay_count": 1,
+        "major_delay_count": 0
+    },
+    "lot_results": [
+        {
+            "Lot": "LOT_0001",
+            "Product": "",
+            "Priority": 100,
+            "Due Date": "2026-01-26T15:00:00",
+            "Plan Date": "2026-01-27T00:00:00",
+            "delay time": "0:09"
+        }
+    ]
+}

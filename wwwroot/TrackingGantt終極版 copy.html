@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>專案甘特圖 - 規劃與實際進度對比</title>
+    
+    <!-- dhtmlxGantt v7.1.13 CSS -->
+    <link rel="stylesheet" href="css/dhtmlxgantt.css" />
+    
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+        }
+        
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #f5f5f5;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            margin: 0 0 15px 0;
+            font-size: 24px;
+            color: #333;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 10px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .legend-box {
+            width: 30px;
+            height: 15px;
+            border-radius: 4px;
+        }
+        
+        #gantt_here {
+            flex: 1;
+            width: 100%;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        /* 核心修正：處理 Standard 版本不支援 addTaskLayer 的問題 */
+        .gantt_task_line {
+            background-color: transparent !important;
+            border: none !important;
+            overflow: visible !important;
+        }
+        
+        .gantt_task_content {
+            overflow: visible !important;
+        }
+        
+        /* 規劃時程樣式 (藍色) - 放在上方 */
+        .baseline_bar {
+            position: absolute;
+            border-radius: 4px;
+            height: 12px;
+            background-color: #4A90E2;
+            top: -18px; /* 向上偏移 */
+            z-index: 1;
+        }
+        
+        /* 實際進度樣式 (綠色) - 放在下方 */
+        .actual_bar {
+            position: absolute;
+            border-radius: 4px;
+            height: 12px;
+            background-color: #50C878;
+            top: 2px; /* 向下偏移 */
+            z-index: 1;
+        }
+        
+        /* 延遲樣式 (紅色) */
+        .delayed_bar {
+            position: absolute;
+            border-radius: 4px;
+            height: 12px;
+            background-color: #E74C3C;
+            top: 2px;
+            z-index: 1;
+        }
+
+        /* 增加行高以容納上下兩條線 */
+        .gantt_task_row {
+            height: 60px !important;
+        }
+        
+        /* 調整任務條在行內的位置 */
+        .gantt_bars_area .gantt_task_line {
+            margin-top: 30px;
+        }
+
+        /* 視圖切換按鈕樣式 */
+        .view-controls {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .view-controls button, .marker-controls button {
+            padding: 10px 20px;
+            border: 2px solid #007bff;
+            background: linear-gradient(to bottom, #ffffff, #e6e6e6);
+            color: #007bff;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .view-controls button:hover {
+            background: #007bff;
+            color: #fff;
+        }
+
+        .view-controls button.active {
+            background: #007bff;
+            color: #fff;
+        }
+
+        /* 標記線控制 */
+        .marker-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .marker-controls label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .marker-controls input[type="range"] {
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .marker-controls input[type="date"] {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* 自定義標記線樣式 */
+        .custom-marker {
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>專案甘特圖 - 規劃與實際進度對比(終極版)</h1>
+            <!-- 視圖切換 -->
+            <div class="view-controls">
+                <!-- <button onclick="setScale('hour')">小時</button> -->
+                <!-- <button onclick="setScale('day')">天</button> -->
+                <button onclick="setScale('week')">週</button>
+                <button onclick="setScale('month')">月</button>
+            </div>
+
+           
+            <!-- 標記線控制 -->
+            <div class="marker-controls">
+                <label for="markerDate">標記線日期:</label>
+                <button onclick="changeMarkerDate(-10)">減少10天</button>
+                <button onclick="changeMarkerDate(-1)">減少一天</button>
+                <input type="date" id="markerDate" onchange="updateMarker()">
+                <button onclick="changeMarkerDate(1)">增加一天</button>
+                <button onclick="changeMarkerDate(10)">增加10天</button>
+                <!-- <input type="range" id="markerSlider" min="0" max="400" value="1" oninput="updateMarkerFromSlider()"> -->
+                <span id="markerDateDisplay">2026-01-15</span>                
+            </div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #4A90E2;"></div>
+                    <span>規劃時程</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #50C878;"></div>
+                    <span>實際進度</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #E74C3C;"></div>
+                    <span>延遲</span>
+                </div>
+            </div>
+        </div>
+        <div id="gantt_here"></div>
+    </div>
+
+    <!-- dhtmlxGantt v7.1.13 JS -->
+    <script src="js/dhtmlxgantt.js"></script>
+    <script type="text/javascript">
+        // 配置甘特圖
+        gantt.config.date_format = "%Y-%m-%d";
+        gantt.config.row_height = 60;
+        gantt.config.task_height = 12;
+
+        // 設置默認縮放為天
+        gantt.config.scale_unit = "year";
+        gantt.config.date_scale = "%Y";
+        gantt.config.subscales = [{ unit: "month", step: 1, date: "%m月" }];
+        gantt.config.scale_height = 60;
+        
+        // 配置列
+        gantt.config.columns = [
+            {name: "text", label: "任務名稱", width: 200, tree: true}
+        ];
+
+        // 使用 task_text 模板來渲染兩條線，這在 Standard 版本也能運作
+        gantt.templates.task_text = function(start, end, task) {
+            if (!task.planned_start || !task.planned_end) return "";
+
+            // 計算相對於當前任務條起始點的位置
+            var task_start_pos = gantt.posFromDate(start);
+            var p_start_pos = gantt.posFromDate(task.planned_start);
+            var p_end_pos = gantt.posFromDate(task.planned_end);
+            var a_start_pos = gantt.posFromDate(task.start_date);
+            var a_end_pos = gantt.posFromDate(task.end_date);
+
+            var p_left = p_start_pos - task_start_pos;
+            var p_width = p_end_pos - p_start_pos;
+            var a_left = a_start_pos - task_start_pos;
+            var a_width = a_end_pos - a_start_pos;
+
+            var is_delayed = task.end_date > task.planned_end;
+            var actual_class = is_delayed ? 'delayed_bar' : 'actual_bar';
+
+            var html = "";
+            // 規劃條
+            html += "<div class='baseline_bar' style='left:" + p_left + "px; width:" + p_width + "px;'></div>";
+            // 實際條
+            html += "<div class='" + actual_class + "' style='left:" + a_left + "px; width:" + a_width + "px;'></div>";
+            
+            return html;
+        };
+
+        // 當前縮放模式
+        let currentScale = "day";
+
+        // 標記線日期
+        let markerDate = new Date(2026, 0, 15); // 預設 2026-01-15
+
+        // 切換視圖
+        function setScale(mode = "month") {
+            currentScale = mode;
+
+            // 更新按鈕狀態
+            document.querySelectorAll('.view-controls button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const targetButton = document.querySelector(`.view-controls button[onclick="setScale('${mode}')"]`);
+            if (targetButton) targetButton.classList.add('active');
+
+            if (mode === "hour") {
+                gantt.config.scale_unit = "day";
+                gantt.config.date_scale = "%Y-%m-%d";
+                gantt.config.subscales = [{ unit: "hour", step: 1, date: "%H:%i" }];
+            } else if (mode === "day") {
+                gantt.config.scale_unit = "week";
+                gantt.config.date_scale = "第 %W 週";
+                gantt.config.subscales = [{ unit: "day", step: 1, date: "%m/%d" }];
+            } else if (mode === "week") {
+                gantt.config.scale_unit = "month";
+                gantt.config.date_scale = "%Y-%m";
+                gantt.config.subscales = [{ unit: "week", step: 1, date: "第 %W 週" }];
+            } else if (mode === "month") {
+                gantt.config.scale_unit = "year";
+                gantt.config.date_scale = "%Y";
+                gantt.config.subscales = [{ unit: "month", step: 1, date: "%m月" }];
+            }
+            gantt.config.scale_height = 60;
+            // 重新初始化甘特圖以應用新的縮放設置
+            gantt.init("gantt_here");
+            if (mode === "month") {
+                gantt.config.scale_unit = "year";
+                gantt.config.date_scale = "%Y";
+                gantt.config.subscales = [{ unit: "month", step: 1, date: "%m月" }];
+                gantt.render();
+            }
+            // 重新載入資料
+            gantt.parse(loadSampleData());
+
+            // 添加標記線 (延遲執行以確保甘特圖完全渲染)
+            setTimeout(addMarker, 200);
+        }
+
+       // 更新標記線日期的函數
+function changeMarkerDate(days) {
+    markerDate.setDate(markerDate.getDate() + days);
+    document.getElementById('markerDate').value = markerDate.toISOString().split('T')[0];
+    
+    // 更新 markerDateDisplay 為 markerDate 的前一天
+    const displayDate = new Date(markerDate);
+    displayDate.setDate(displayDate.getDate() - 1);
+    document.getElementById('markerDateDisplay').textContent = displayDate.toLocaleDateString('zh-TW');
+
+    // 重新初始化以更新標記線
+    gantt.init("gantt_here");
+    gantt.parse(loadSampleData());
+    // 添加標記線 (延遲執行以確保甘特圖完全渲染)
+    setTimeout(addMarker, 200);
+}
+        // 添加標記線 (使用自定義 HTML 元素，因為當前版本不支持 addMarker)
+        function addMarker() {
+            // 移除現有的標記線
+            const existingMarker = document.querySelector('.custom-marker');
+            if (existingMarker) {
+                existingMarker.remove();
+            }
+
+            // 確保甘特圖容器存在
+            const ganttContainer = document.getElementById('gantt_here');
+            if (!ganttContainer) {
+                setTimeout(addMarker, 100);
+                return;
+            }
+
+            // ⭐ 核心修正：獲取時間軸區域的實際位置
+            const timelineArea = ganttContainer.querySelector('.gantt_task');
+            if (!timelineArea) {
+                setTimeout(addMarker, 100);
+                return;
+            }
+
+            // 計算標記線的位置（相對於時間軸區域）
+            const markerPos = gantt.posFromDate(markerDate);
+            
+            // ⭐ 獲取左側網格寬度
+            const gridWidth = ganttContainer.querySelector('.gantt_grid')?.offsetWidth || 0;
+            
+            // ⭐ 最終位置 = 網格寬度 + 時間軸內的相對位置
+            const finalPos = gridWidth + markerPos;
+
+            // 創建標記線元素
+            const marker = document.createElement('div');
+            marker.className = 'custom-marker';
+            marker.style.position = 'absolute';
+            marker.style.left = finalPos + 'px';  // ⭐ 使用修正後的位置
+            marker.style.top = '0';
+            marker.style.bottom = '0';
+            marker.style.width = '2px';
+            marker.style.backgroundColor = '#FF6B6B';
+            marker.style.zIndex = '10';
+            marker.style.pointerEvents = 'none';
+
+            // 添加標籤
+            const label = document.createElement('div');
+            label.style.position = 'absolute';
+            label.style.top = '-35px';
+            label.style.left = '-15px';
+            label.style.background = '#FF6B6B';
+            label.style.color = 'white';
+            label.style.padding = '6px 6px';
+            label.style.borderRadius = '6px';
+            label.style.fontSize = '12px';
+            label.style.whiteSpace = 'wrap';
+            label.textContent = '標記日期';
+
+            marker.appendChild(label);
+            ganttContainer.appendChild(marker);
+        }
+
+        // 更新標記線從日期輸入
+        function updateMarker() {
+            const dateInput = document.getElementById('markerDate');
+            markerDate = new Date(dateInput.value);
+            document.getElementById('markerDateDisplay').textContent = markerDate.toLocaleDateString('zh-TW');
+
+            // 重新初始化以更新標記線
+            gantt.init("gantt_here");
+            gantt.parse(loadSampleData());
+            // 添加標記線 (延遲執行以確保甘特圖完全渲染)
+            setTimeout(addMarker, 200);
+        }
+
+        // 更新標記線從滑桿
+        function updateMarkerFromSlider() {
+            const slider = document.getElementById('markerSlider');
+            const value = parseInt(slider.value);
+
+            // 計算日期範圍 (從 2026-01-01 到 2026-12-31)
+            const startDate = new Date(2026, 0, 1);
+            const endDate = new Date(2026, 11, 31);
+            const totalDays = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24));
+            const daysToAdd = Math.floor((value / 100) * totalDays);
+
+            markerDate = new Date(startDate);
+            markerDate.setDate(startDate.getDate() + daysToAdd);
+
+            // 更新日期輸入和顯示
+            document.getElementById('markerDate').value = markerDate.toISOString().split('T')[0];
+            document.getElementById('markerDateDisplay').textContent = markerDate.toLocaleDateString('zh-TW');
+
+            // 重新初始化以更新標記線
+            gantt.init("gantt_here");
+            gantt.parse(loadSampleData());
+            // 添加標記線 (延遲執行以確保甘特圖完全渲染)
+            setTimeout(addMarker, 200);
+        }
+
+        // 載入範例資料的函數
+        function loadSampleData() {
+            return {
+                data: [
+                    {
+                        id: 1, text: "需求分析",
+                        planned_start: new Date(2026, 0, 1), planned_end: new Date(2026, 1, 15),
+                        start_date: "2026-01-01", end_date: "2026-02-25", progress: 0.0
+                    },
+                    {
+                        id: 2, text: "系統設計",
+                        planned_start: new Date(2026, 2, 1), planned_end: new Date(2026, 4, 1),
+                        start_date: "2026-03-10", end_date: "2026-05-01", progress: 0
+                    },
+                    {
+                        id: 3, text: "前端開發",
+                        planned_start: new Date(2026, 4, 15), planned_end: new Date(2026, 7, 1),
+                        start_date: "2026-04-15", end_date: "2026-08-15", progress: 0
+                    },
+                    {
+                        id: 4, text: "後端開發",
+                        planned_start: new Date(2026, 4, 15), planned_end: new Date(2026, 7, 1),
+                        start_date: "2026-04-15", end_date: "2026-07-01", progress: 0
+                    },
+                    {
+                        id: 5, text: "整合測試",
+                        planned_start: new Date(2026, 7, 15), planned_end: new Date(2026, 9, 1),
+                        start_date: "2026-08-10", end_date: "2026-09-20", progress: 0
+                    },
+                    {
+                        id: 6, text: "上線部署",
+                        planned_start: new Date(2026, 9, 15), planned_end: new Date(2026, 10, 15),
+                        start_date: "2026-09-15", end_date: "2026-10-15", progress: 0
+                    }
+                ]
+            };
+        }
+
+        // 初始化
+        gantt.init("gantt_here");
+        console.log("甘特圖已初始化");
+        
+
+        // 設置默認 active 按鈕
+        document.querySelector('button[onclick="setScale(\'day\')"]').classList.add('active');
+
+        // 設置標記線控制的默認值
+        document.getElementById('markerDate').value = markerDate.toISOString().split('T')[0];
+        document.getElementById('markerDateDisplay').textContent = markerDate.toLocaleDateString('zh-TW');
+
+        // 載入範例資料
+        gantt.parse(loadSampleData());
+        console.log("資料已載入:", gantt.getTaskByTime().length, "個任務");
+
+        // 添加標記線 (延遲執行以確保甘特圖完全渲染)
+        setTimeout(addMarker, 200);
+    </script>
+</body>
+</html>

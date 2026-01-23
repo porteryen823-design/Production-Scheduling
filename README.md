@@ -80,7 +80,7 @@ pip install ortools
 ]
 ```
 
-### 排程結果 (LotStepResult_New.json)
+### 排程結果 (LotStepResult.json)
 ```json
 [
   {
@@ -96,6 +96,46 @@ pip install ortools
   }
 ]
 ```
+
+## 結果檔案處理邏輯
+
+系統在排程完成後，會產生三個主要的結果檔案，分別用於詳細記錄、彙整統計及甘特圖顯示。
+
+### 1. LotStepResult.json (詳細排程結果)
+此檔案記錄了每個 Lot 的每一道工序在機台上的具體安排。
+- **處理邏輯**：
+    - 從 CP-SAT 求解器獲取每個任務的 `start` 與 `end` 分鐘數。
+    - 將分鐘數轉換為絕對時間 (`SCHEDULE_START` + 偏移)。
+    - 記錄分配的具體機台名稱 (`Machine`)。
+    - `Booking` 欄位標記為 `0`（代表新產生的排程）。
+- **用途**：作為最底層的排程明細，供後續彙整與資料庫存檔。
+
+### 2. LotPlanResult.json (彙整與統計結果)
+此檔案對排程結果進行了 Lot 等級的彙整，並計算延遲狀況。
+- **處理邏輯**：
+    - **Lot 彙整**：針對每個 Lot，找出其 `StepIdx` 最大的最後一道工序，以其結束時間作為該 Lot 的 `Plan Date`。
+    - **延遲計算**：`delay time = Plan Date - Due Date`。
+        - 格式為 `D:HH` (天:小時)。
+        - 若提早完成，則顯示為負數 (例如 `-1:05` 代表提早 1 天 5 小時)。
+    - **統計資訊 (statistics)**：
+        - 計算總批數、最早投入時間、最晚產出時間。
+        - **延遲分類統計**：
+            - `early_count`: 提早完成。
+            - `on_time_count`: 準時完成 (延遲為 0)。
+            - `minor_delay_count`: 延遲 <= 2 天。
+            - `major_delay_count`: 延遲 > 2 天或解析失敗。
+- **用途**：提供生產管理人員快速掌握訂單交期達成狀況。
+
+### 3. machineTaskSegment.json (甘特圖渲染數據)
+此檔案專為前端甘特圖組件 (如 DHTMLX Gantt) 格式化。
+- **處理邏輯**：
+    - **機台分組**：按機台 ID 進行分組。
+    - **虛擬節點**：為每個機台建立一個 `render: "split"` 的父節點，作為該機台所有任務的容器。
+    - **任務段建立**：
+        - 每個任務段的 `parent` 指向所屬機台。
+        - `duration` 轉換為小時單位。
+        - **顏色映射**：調用 `BookingColorMap` 根據 `Booking` 狀態賦予顏色（例如：新排程為天藍色 `#00BFFF`）。
+- **用途**：前端可視化呈現，支援機台視角的任務分佈查看。
 
 ## Machine Group Utilizations 計算說明
 

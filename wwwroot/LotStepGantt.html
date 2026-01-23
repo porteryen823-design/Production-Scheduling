@@ -1,0 +1,815 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8" />
+    <title>Lot Process 甘特圖視覺化</title>
+    <link rel="stylesheet" href="css/dhtmlxgantt.css" />
+    <link rel="stylesheet" href="css/all.min.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #0f172a;
+            --header-bg: #f8fafc;
+            --border-color: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.05);
+            --shadow-hover: rgba(0, 0, 0, 0.1);
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #10b981;
+            --success-hover: #059669;
+            --secondary: #64748b;
+            --secondary-hover: #475569;
+            --muted-text: #64748b;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="gray"] {
+            --bg-color: #f8fafc;
+            --text-color: #334155;
+            --header-bg: #f1f5f9;
+            --border-color: #cbd5e1;
+            --shadow: rgba(0, 0, 0, 0.08);
+            --shadow-hover: rgba(0, 0, 0, 0.15);
+            --muted-text: #64748b;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --glass-bg: rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --text-color: #f8fafc;
+            --header-bg: #1e293b;
+            --border-color: #334155;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --shadow-hover: rgba(0, 0, 0, 0.4);
+            --primary: #60a5fa;
+            --primary-hover: #3b82f6;
+            --success: #34d399;
+            --success-hover: #10b981;
+            --secondary: #94a3b8;
+            --secondary-hover: #64748b;
+            --muted-text: #94a3b8;
+            --card-bg: rgba(30, 41, 59, 0.8);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        html, body {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            background: linear-gradient(135deg, var(--bg-color) 0%, var(--header-bg) 100%);
+            color: var(--text-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .container-fluid {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px var(--shadow);
+            border-radius: 16px;
+            margin: 20px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .container-fluid:hover {
+            box-shadow: 0 8px 25px var(--shadow-hover);
+        }
+
+        #gantt_here {
+            width: 100%;
+            height: calc(100vh - 180px);
+            font-size: 14px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px var(--shadow);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .btn-group .btn {
+            transition: all 0.2s ease;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 8px 16px;
+            margin: 0 2px;
+        }
+
+        .btn-group .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-outline-secondary {
+            background: var(--card-bg);
+            color: var(--secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-outline-primary {
+            background: var(--card-bg);
+            color: var(--primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-outline-success {
+            background: var(--card-bg);
+            color: var(--success);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-outline-success:hover {
+            background: var(--success);
+            color: white;
+        }
+
+        h2 {
+            margin: 0;
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .control-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .control-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .control-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-label {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+
+        .form-select {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            padding: 8px 12px;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+        }
+
+        .status-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
+        }
+
+        .status-loading {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        /* 甘特圖主題覆蓋 */
+        .gantt_grid, .gantt_data_area, .gantt_task_row {
+            background-color: var(--card-bg) !important;
+        }
+
+        .gantt_grid_data .gantt_tree_content, .gantt_task_content {
+            color: var(--text-color) !important;
+        }
+
+        .gantt_grid_scale {
+            background: linear-gradient(135deg, var(--header-bg) 0%, var(--card-bg) 100%) !important;
+            border-color: var(--border-color) !important;
+            border-bottom: 2px solid var(--border-color) !important;
+        }
+
+        .gantt_grid_scale .gantt_grid_head_cell {
+            color: var(--text-color) !important;
+            font-weight: 600 !important;
+            font-size: 0.75rem !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            padding: 10px 6px !important;
+        }
+
+        /* 表格行樣式 */
+        .gantt_row {
+            border-bottom: 1px solid var(--border-color) !important;
+            transition: background-color 0.2s ease !important;
+        }
+
+        .gantt_row:hover {
+            background-color: var(--glass-bg) !important;
+        }
+
+        .gantt_row:nth-child(even) {
+            background-color: rgba(0, 0, 0, 0.02) !important;
+        }
+
+        [data-theme="dark"] .gantt_row:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.02) !important;
+        }
+
+        /* 表格單元格樣式 */
+        .gantt_cell {
+            padding: 8px 12px !important;
+            border-right: 1px solid var(--border-color) !important;
+            color: var(--text-color) !important;
+            font-size: 0.75rem !important;
+            line-height: 1.4 !important;
+        }
+
+        .gantt_cell:last-child {
+            border-right: none !important;
+        }
+
+        /* 樹狀結構樣式 */
+        .gantt_tree_content {
+            padding: 2px 2px !important;
+            font-weight: 500 !important;
+            color: var(--text-color) !important;
+            border-radius: 6px !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .gantt_tree_content:hover {
+            background-color: var(--glass-bg) !important;
+        }
+
+        /* 專案行樣式 */
+        .gantt_row_project .gantt_tree_content {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2) !important;
+        }
+
+        /* 任務行樣式 */
+        .gantt_row_task .gantt_tree_content {
+            background: var(--glass-bg) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+
+        /* 展開/收起圖示 */
+        .gantt_tree_icon {
+            color: var(--muted-text) !important;
+            transition: color 0.2s ease !important;
+        }
+
+        .gantt_tree_icon:hover {
+            color: var(--primary) !important;
+        }
+
+        /* 任務條樣式 */
+        .gantt_task_line {
+            border-radius: 6px !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+            border: 2px solid rgba(255, 255, 255, 0.8) !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .gantt_task_line:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+            transform: scaleY(1.1) !important;
+        }
+
+        .gantt_task_progress_drag {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%) !important;
+            border-radius: 4px !important;
+        }
+
+        /* 連結線樣式 */
+        .gantt_link_line {
+            stroke: var(--muted-text) !important;
+            stroke-width: 2 !important;
+            fill: none !important;
+        }
+
+        .gantt_link_arrow {
+            fill: var(--muted-text) !important;
+            stroke: var(--muted-text) !important;
+            stroke-width: 1 !important;
+        }
+
+        /* 滾動條樣式 */
+        .gantt_scrollable::-webkit-scrollbar {
+            width: 8px !important;
+            height: 8px !important;
+        }
+
+        .gantt_scrollable::-webkit-scrollbar-track {
+            background: var(--glass-bg) !important;
+            border-radius: 4px !important;
+        }
+
+        .gantt_scrollable::-webkit-scrollbar-thumb {
+            background: var(--border-color) !important;
+            border-radius: 4px !important;
+            transition: background 0.2s ease !important;
+        }
+
+        .gantt_scrollable::-webkit-scrollbar-thumb:hover {
+            background: var(--muted-text) !important;
+        }
+
+        /* 選中狀態 */
+        .gantt_selected .gantt_tree_content {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%) !important;
+            color: white !important;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3) !important;
+        }
+
+        .gantt_selected .gantt_task_line {
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+            border-color: var(--primary) !important;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .container-fluid {
+                margin: 10px;
+                padding: 16px;
+            }
+
+            .control-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .control-group {
+                justify-content: space-between;
+            }
+
+            h2 {
+                font-size: 1.25rem;
+            }
+
+            #gantt_here {
+                height: calc(100vh - 200px);
+            }
+        }
+
+        /* 載入動畫 */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--card-bg);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            border-radius: 12px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 工具提示改進 */
+        .gantt_tooltip {
+            background: var(--card-bg) !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: 8px !important;
+            box-shadow: 0 10px 25px var(--shadow) !important;
+            color: var(--text-color) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- 頁面標題 -->
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h2><i class="fa-solid fa-diagram-project"></i> Lot Process Dashboard</h2>
+            <div class="status-indicator status-success">
+                <i class="fa-solid fa-circle"></i>
+                系統正常
+            </div>
+        </div>
+
+        <!-- 控制面板 -->
+        <div class="control-panel">
+            <!-- 第一行控制項 -->
+            <div class="control-row">
+                <div class="control-group">
+                    <span class="control-label"><i class="fa-solid fa-palette"></i> 主題</span>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('light')" title="亮色主題">
+                            <i class="fa-solid fa-sun"></i> 亮色
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('gray')" title="灰色主題">
+                            <i class="fa-solid fa-adjust"></i> 灰色
+                        </button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <span class="control-label"><i class="fa-solid fa-clock"></i> 時間尺度</span>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-outline-primary btn-sm" onclick="setScale('hour')" title="小時視圖">
+                            <i class="fa-solid fa-clock"></i> 小時
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" onclick="setScale('day')" title="天視圖">
+                            <i class="fa-solid fa-calendar-day"></i> 天
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" onclick="setScale('week')" title="週視圖">
+                            <i class="fa-solid fa-calendar-week"></i> 週
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" onclick="setScale('month')" title="月視圖">
+                            <i class="fa-solid fa-calendar-alt"></i> 月
+                        </button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
+                    <button class="btn btn-outline-success btn-sm" onclick="document.getElementById('jsonFileInput').click()" title="從本地檔案讀取資料">
+                        <i class="fa-solid fa-upload"></i> 讀取 JSON
+                    </button>
+                </div>
+            </div>
+
+            <!-- 第二行控制項 -->
+            <div class="control-row">
+                <div class="control-group">
+                    <label for="productFilter" class="control-label">
+                        <i class="fa-solid fa-filter"></i> 產品過濾
+                    </label>
+                    <select id="productFilter" class="form-select" style="width: 200px;" onchange="applyFilter()">
+                        <option value="ALL">全部產品</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <span class="control-label"><i class="fa-solid fa-info-circle"></i> 狀態</span>
+                    <div id="dataStatus" class="status-indicator status-loading">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                        載入中...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 甘特圖容器 -->
+        <div style="position: relative;">
+            <div id="gantt_here"></div>
+            <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/dhtmlxgantt.js"></script>
+    <script>
+        const colorPool = [
+            "#FF9999", "#99CCFF", "#99FF99", "#FFCC99", "#CC99FF", "#FFB6C1", "#FFD700",
+            "#7FFFD4", "#FF69B4", "#20B2AA", "#87CEFA", "#32CD32", "#FFA07A", "#9370DB",
+            "#40E0D0", "#FF6347", "#8FBC8F", "#6495ED", "#F08080", "#48D1CC", "#BA55D3",
+            "#BDB76B", "#00CED1", "#FF4500", "#228B22", "#8B0000"
+        ];
+
+
+        let allData = [];
+
+        function parseDate(dateStr) {
+            return new Date(dateStr);
+        }
+
+        // 設定主題
+        function setTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            // 儲存主題偏好到 localStorage
+            localStorage.setItem('lotGanttTheme', theme);
+        }
+
+        // 🔁 切換視圖（新增「月」）
+        function setScale(mode) {
+            if (mode === "hour") {
+                gantt.config.scale_unit = "day";
+                gantt.config.date_scale = "%Y-%m-%d";
+                gantt.config.subscales = [{ unit: "hour", step: 1, date: "%H:%i" }];
+            } else if (mode === "day") {
+                gantt.config.scale_unit = "week";
+                gantt.config.date_scale = "第 %W 週";
+                gantt.config.subscales = [{ unit: "day", step: 1, date: "%m/%d" }];
+            } else if (mode === "week") {
+                gantt.config.scale_unit = "month";
+                gantt.config.date_scale = "%Y-%m";
+                gantt.config.subscales = [{ unit: "week", step: 1, date: "第 %W 週" }];
+            } else if (mode === "month") {
+                gantt.config.scale_unit = "year";
+                gantt.config.date_scale = "%Y";
+                gantt.config.subscales = [{ unit: "month", step: 1, date: "%m月" }];
+            }
+            gantt.config.scale_height = 60;
+            // 重新渲染數據以應用新的縮放設置
+            if (allData.length > 0) {
+                renderGantt(allData);
+            }
+        }
+
+        function renderGantt(filteredData) {
+            const tasks = { data: [], links: [] };
+            let taskId = 1;
+            const lotParentMap = {};
+            const lots = [...new Set(filteredData.map(d => d.LotId))];
+
+            lots.forEach(lotId => {
+                const lotProduct = filteredData.find(d => d.LotId === lotId)?.Product || "";
+                const bgColor = productColorMap[lotProduct] || "#6c757d";
+
+                tasks.data.push({
+                    id: taskId,
+                    text: lotId,
+                    open: false,
+                    type: "project",
+                    color: bgColor,
+                    product: lotProduct
+                });
+                lotParentMap[lotId] = taskId;
+                taskId++;
+            });
+
+            const taskMap = {};
+            filteredData.forEach(row => {
+                const id = taskId++;
+                const color = productColorMap[row.Product] || "#cccccc";
+                tasks.data.push({
+                    id: id,
+                    text: `${row.Step} (${row.Machine})`,
+                    start_date: parseDate(row.Start),
+                    end_date: parseDate(row.End),
+                    color: color,
+                    parent: lotParentMap[row.LotId],
+                    lot: row.LotId,
+                    step: row.Step,
+                    product: row.Product
+                });
+                taskMap[`${row.LotId}_${row.Step}`] = id;
+            });
+
+            lots.forEach(lotId => {
+                const lotOps = filteredData.filter(d => d.LotId === lotId);
+                lotOps.sort((a, b) => new Date(a.Start) - new Date(b.Start));
+                for (let i = 0; i < lotOps.length - 1; i++) {
+                    const fromId = taskMap[`${lotOps[i].LotId}_${lotOps[i].Step}`];
+                    const toId = taskMap[`${lotOps[i + 1].LotId}_${lotOps[i + 1].Step}`];
+                    tasks.links.push({ id: taskId++, source: fromId, target: toId, type: "0" });
+                }
+            });
+
+            gantt.clearAll();
+            gantt.parse(tasks);
+
+            document.querySelectorAll(".gantt_tree_content").forEach(el => {
+                const task = gantt.getTask(el.closest(".gantt_row").dataset.taskId);
+                if (task.type === "project") {
+                    el.style.backgroundColor = task.color;
+                }
+            });
+        }
+
+        // 重新載入產品過濾器
+        function updateProductFilter(data) {
+            const select = document.getElementById("productFilter");
+            select.innerHTML = '<option value="ALL">全部</option>';
+            const uniqueProducts = [...new Set(data.map(d => d.Product))].sort();
+            uniqueProducts.forEach(p => {
+                const opt = document.createElement("option");
+                opt.value = p;
+                opt.textContent = p;
+                select.appendChild(opt);
+            });
+        }
+
+        function applyFilter() {
+            const selectedProduct = document.getElementById("productFilter").value;
+            const filtered = (selectedProduct === "ALL")
+                ? allData
+                : allData.filter(d => d.Product === selectedProduct);
+            renderGantt(filtered);
+        }
+
+        let productColorMap = {}; // 全域變數
+
+        // 📥 載入排程資料
+        function loadSchedule(type) {
+            updateStatus('spinner fa-spin', '從伺服器載入資料...', 'loading');
+            showLoading(true);
+
+            let file = "Lot_Plan_result/LotStepResult_New.json"; // 固定使用同一檔案
+
+            fetch(`http://127.0.0.1:5000/get_json/${file}`)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    // 條件過濾
+                    if (type === "Old") {
+                        allData = data.filter(d => d.Booking !== 0);
+                    } else if (type === "New") {
+                        allData = data.filter(d => d.Booking === 0);
+                    } else {
+                        allData = data; // All 不過濾
+                    }
+
+                    // 建立 product → color 映射
+                    productColorMap = {};
+                    const uniqueProducts = [...new Set(allData.map(d => d.Product))];
+                    uniqueProducts.forEach((p, i) => {
+                        productColorMap[p] = colorPool[i % colorPool.length];
+                    });
+
+                    updateProductFilter(allData);
+                    renderGantt(allData);
+
+                    updateStatus('check-circle', `已載入 ${allData.length} 筆資料`, 'success');
+                    showLoading(false);
+                })
+                .catch(err => {
+                    console.error("資料載入失敗", err);
+                    updateStatus('exclamation-triangle', '載入失敗', 'error');
+                    showLoading(false);
+                    alert("資料載入失敗: " + err.message);
+                });
+        }
+
+   
+
+        // 初始化
+        gantt.config.columns = [
+            { name: "text", label: "Lot/工序", tree: true, width: 200 },
+            { name: "start_date", label: "開始時間", align: "center", width: 150 }
+        ];
+        gantt.config.xml_date = "%Y-%m-%d %H:%i";
+        gantt.config.show_links = true;
+        gantt.config.show_progress = false;
+
+        gantt.plugins({ tooltip: true });
+        gantt.templates.tooltip_text = function (start, end, task) {
+            const format = gantt.date.date_to_str("%Y-%m-%d %H:%i");
+            return `<b>${task.text}</b><br>${format(start)} ~ ${format(end)}`;
+        };
+
+        // 更新狀態指示器
+        function updateStatus(status, message, type = 'info') {
+            const statusEl = document.getElementById('dataStatus');
+            statusEl.className = `status-indicator status-${type}`;
+            statusEl.innerHTML = `<i class="fa-solid fa-${status}"></i> ${message}`;
+        }
+
+        // 顯示/隱藏載入遮罩
+        function showLoading(show = true) {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = show ? 'flex' : 'none';
+        }
+
+        // 初始化應用程式
+        function initializeApp() {
+            // 載入儲存的主題偏好
+            const savedTheme = localStorage.getItem('lotGanttTheme') || 'light';
+            setTheme(savedTheme);
+
+            // 初始化甘特圖
+            gantt.init("gantt_here");
+            setScale("day");
+
+            // 設定檔案輸入事件監聽器
+            document.getElementById('jsonFileInput').addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    updateStatus('spinner fa-spin', '解析檔案中...', 'loading');
+                    showLoading(true);
+
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            allData = data;
+
+                            // 建立 product → color 映射
+                            productColorMap = {};
+                            const uniqueProducts = [...new Set(allData.map(d => d.Product))];
+                            uniqueProducts.forEach((p, i) => {
+                                productColorMap[p] = colorPool[i % colorPool.length];
+                            });
+
+                            updateProductFilter(allData);
+                            renderGantt(allData);
+
+                            updateStatus('check-circle', `已載入 ${allData.length} 筆資料`, 'success');
+                            showLoading(false);
+
+                            // 儲存檔案名稱到 localStorage
+                            localStorage.setItem('lastLoadedFile', file.name);
+
+                        } catch (error) {
+                            updateStatus('exclamation-triangle', '解析失敗', 'error');
+                            showLoading(false);
+                            alert("解析 JSON 失敗: " + error.message);
+                        }
+                    };
+
+                    reader.onerror = function() {
+                        updateStatus('exclamation-triangle', '讀取失敗', 'error');
+                        showLoading(false);
+                        alert("讀取檔案失敗");
+                    };
+
+                    reader.readAsText(file);
+                }
+            });
+
+            // 停用自動載入資料 - 需要手動透過檔案上傳載入
+            updateStatus('info-circle', '請選擇 JSON 檔案載入資料', 'info');
+        }
+
+        // 當頁面載入完成後初始化
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+
+</body>
+</html>

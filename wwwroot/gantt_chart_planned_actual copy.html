@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dhtmlxGantt v7.1.13 - 規劃與實際對比</title>
+    
+    <!-- dhtmlxGantt v7.1.13 CSS -->
+    <link rel="stylesheet" href="css/dhtmlxgantt.css" />
+    
+    <!-- dhtmlxGantt v7.1.13 JS -->
+    <script src="js/dhtmlxgantt.js"></script>
+    
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: #4A90E2;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 22px;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 13px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-box {
+            width: 20px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        
+        #gantt_here {
+            flex: 1;
+            width: 100%;
+            min-height: 0;
+            position: relative;
+        }
+        
+        /* 自訂樣式 */
+        .gantt_task_line.planned {
+            background-color: #4A90E2;
+            border-color: #3A7BC8;
+        }
+        
+        .gantt_task_line.actual {
+            background-color: #50C878;
+            border-color: #40B868;
+        }
+        
+        .gantt_task_line.delayed {
+            background-color: #E74C3C;
+            border-color: #D73C2C;
+        }
+        
+        /* Baseline 樣式 */
+        .gantt_task_baseline {
+            position: absolute;
+            border-radius: 2px;
+            opacity: 0.5;
+            height: 8px;
+            background: #4A90E2;
+            border: 1px solid #3A7BC8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>專案甘特圖 - 規劃與實際進度對比 (dhtmlxGantt v7.1.13)</h1>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #4A90E2; opacity: 0.5;"></div>
+                    <span>規劃時程 (Baseline)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #50C878;"></div>
+                    <span>實際進度</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #E74C3C;"></div>
+                    <span>延遲</span>
+                </div>
+            </div>
+        </div>
+        <div id="gantt_here"></div>
+    </div>
+
+    <script type="text/javascript">
+        // 確認 gantt 物件已載入
+        if (typeof gantt === 'undefined') {
+            console.error('dhtmlxGantt 未正確載入!');
+            document.getElementById('gantt_here').innerHTML = '<div style="padding:20px;color:red;">錯誤: dhtmlxGantt 庫未載入,請檢查網路連線。</div>';
+        } else {
+            console.log('dhtmlxGantt 已載入,版本:', gantt.version);
+            
+            // 配置甘特圖
+            gantt.config.date_format = "%Y-%m-%d";
+            gantt.config.scale_unit = "month";
+            gantt.config.step = 1;
+            gantt.config.date_scale = "%Y年%m月";
+            
+            gantt.config.subscales = [
+                {unit: "day", step: 5, date: "%d日"}
+            ];
+            
+            // 啟用拖放和調整大小
+            gantt.config.drag_move = true;
+            gantt.config.drag_resize = true;
+            
+            // 顯示進度條
+            gantt.config.show_progress = true;
+
+            // 啟用 baseline 功能
+            gantt.config.baseline = true;
+            gantt.config.baseline_start = "planned_start";
+            gantt.config.baseline_end = "planned_end";
+
+            // 自動排程
+            gantt.config.auto_scheduling = true;
+            gantt.config.auto_scheduling_strict = true;
+            
+            // 配置列
+            gantt.config.columns = [
+                {name: "text", label: "任務名稱", width: 180, tree: true},
+                {name: "start_date", label: "開始日期", align: "center", width: 90},
+                {name: "duration", label: "工期", align: "center", width: 50},
+                {name: "progress", label: "進度", align: "center", width: 60, template: function(obj){
+                    return Math.round(obj.progress * 100) + "%";
+                }}
+            ];
+            
+            // 自訂任務類別樣式
+            gantt.templates.task_class = function(start, end, task){
+                if (task.status === "delayed") {
+                    return "delayed";
+                } else if (task.status === "actual") {
+                    return "actual";
+                }
+                return "planned";
+            };
+
+            // 自訂 Tooltip
+            gantt.templates.tooltip_text = function(start, end, task) {
+                var html = "<b>任務:</b> " + task.text + "<br/>";
+                if (task.planned_start && task.planned_end) {
+                    var dateFormat = gantt.date.date_to_str("%Y-%m-%d");
+                    html += "<b>規劃:</b> " + dateFormat(task.planned_start) +
+                            " 至 " + dateFormat(task.planned_end) + "<br/>";
+                }
+                var dateFormat = gantt.date.date_to_str("%Y-%m-%d");
+                html += "<b>實際:</b> " + dateFormat(start) +
+                        " 至 " + dateFormat(end) + "<br/>";
+                html += "<b>進度:</b> " + Math.round(task.progress * 100) + "%";
+                return html;
+            };
+
+            // 初始化甘特圖
+            gantt.init("gantt_here");
+            
+            // 載入資料
+            gantt.parse({
+                data: [
+                    {
+                        id: 1, 
+                        text: "需求分析", 
+                        start_date: "2026-01-01", 
+                        duration: 68,
+                        progress: 1,
+                        planned_start: new Date(2026, 0, 1),
+                        planned_end: new Date(2026, 1, 15),
+                        status: "actual"
+                    },
+                    {
+                        id: 2, 
+                        text: "系統設計", 
+                        start_date: "2026-03-10", 
+                        duration: 40,
+                        progress: 1,
+                        planned_start: new Date(2026, 1, 15),
+                        planned_end: new Date(2026, 3, 15),
+                        status: "actual"
+                    },
+                    {
+                        id: 3, 
+                        text: "前端開發", 
+                        start_date: "2026-04-20", 
+                        duration: 110,
+                        progress: 0.85,
+                        planned_start: new Date(2026, 3, 15),
+                        planned_end: new Date(2026, 6, 15),
+                        status: "delayed"
+                    },
+                    {
+                        id: 4, 
+                        text: "後端開發", 
+                        start_date: "2026-04-20", 
+                        duration: 90,
+                        progress: 1,
+                        planned_start: new Date(2026, 3, 15),
+                        planned_end: new Date(2026, 6, 15),
+                        status: "actual"
+                    },
+                    {
+                        id: 5, 
+                        text: "整合測試", 
+                        start_date: "2026-08-10", 
+                        duration: 40,
+                        progress: 0.6,
+                        planned_start: new Date(2026, 6, 15),
+                        planned_end: new Date(2026, 8, 15),
+                        status: "actual"
+                    },
+                    {
+                        id: 6, 
+                        text: "上線部署", 
+                        start_date: "2026-09-20", 
+                        duration: 30,
+                        progress: 0,
+                        planned_start: new Date(2026, 8, 15),
+                        planned_end: new Date(2026, 9, 15),
+                        status: "planned"
+                    }
+                ],
+                links: [
+                    {id: 1, source: 1, target: 2, type: "0"},
+                    {id: 2, source: 2, target: 3, type: "0"},
+                    {id: 3, source: 2, target: 4, type: "0"},
+                    {id: 4, source: 3, target: 5, type: "0"},
+                    {id: 5, source: 4, target: 5, type: "0"},
+                    {id: 6, source: 5, target: 6, type: "0"}
+                ]
+            });
+            
+            console.log('甘特圖初始化完成');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+[
+    {
+        "LotId": "LOT_0001",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 1,
+        "Step": "STEP1",
+        "Machine": "M01-2",
+        "Start": "2026-01-24T17:04:00",
+        "End": "2026-01-24T21:04:00",
+        "Booking": 0
+    },
+    {
+        "LotId": "LOT_0001",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 2,
+        "Step": "STEP2",
+        "Machine": "M02-2",
+        "Start": "2026-01-25T21:20:00",
+        "End": "2026-01-25T23:20:00",
+        "Booking": 0
+    },
+    {
+        "LotId": "LOT_0001",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 3,
+        "Step": "STEP3",
+        "Machine": "M03-3",
+        "Start": "2026-01-25T23:20:00",
+        "End": "2026-01-26T04:20:00",
+        "Booking": 0
+    },
+    {
+        "LotId": "LOT_0001",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 4,
+        "Step": "STEP4",
+        "Machine": "M04-3",
+        "Start": "2026-01-26T04:20:00",
+        "End": "2026-01-26T09:00:00",
+        "Booking": 0
+    },
+    {
+        "LotId": "LOT_0001",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 5,
+        "Step": "STEP5",
+        "Machine": "M05-2",
+        "Start": "2026-01-26T09:00:00",
+        "End": "2026-01-26T15:00:00",
+        "Booking": 0
+    },
+    {
+        "LotId": "LOT_0001",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 6,
+        "Step": "STEP6",
+        "Machine": "M06-2",
+        "Start": "2026-01-26T15:00:00",
+        "End": "2026-01-26T18:20:00",
+        "Booking": 0
+    },
+    {
+        "LotId": "LOT_0001",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 7,
+        "Step": "STEP7",
+        "Machine": "M07-2",
+        "Start": "2026-01-26T18:20:00",
+        "End": "2026-01-26T21:20:00",
+        "Booking": 0
+    },
+    {
+        "LotId": "LOT_0001",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 8,
+        "Step": "STEP8",
+        "Machine": "M08-4",
+        "Start": "2026-01-26T21:20:00",
+        "End": "2026-01-27T00:00:00",
+        "Booking": 0
+    }
+]

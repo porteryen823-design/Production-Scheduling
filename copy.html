@@ -1,0 +1,11 @@
+<!-- 標記線控制 -->
+<div class="marker-controls">
+    <label for="markerDate">標記線日期:</label>
+    <button onclick="changeMarkerDate(-10)">減少10天</button>
+    <button onclick="changeMarkerDate(-1)">減少一天</button>
+    <input type="date" id="markerDate" onchange="updateMarker()">
+    <input type="range" id="markerSlider" min="0" max="200" value="100" oninput="updateMarkerFromSlider()">
+    <span id="markerDateDisplay">2026-01-15</span>
+    <button onclick="changeMarkerDate(1)">增加一天</button>
+    <button onclick="changeMarkerDate(10)">增加10天</button>
+</div>

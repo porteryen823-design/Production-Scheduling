@@ -1,0 +1,50 @@
+{
+    "statistics": {
+        "optimization_type": "weighted_delay",
+        "batch_count": 4,
+        "calculation_start": "2026-01-21T15:00:03.461268",
+        "calculation_end": "2026-01-21T15:00:03.498535",
+        "calculation_duration": "0:00:00.037267",
+        "earliest_input_time": "2026-01-24T15:20:00",
+        "latest_output_time": "2026-02-03T20:40:00",
+        "total_schedule_duration": "10:05:20",
+        "early_count": 0,
+        "on_time_count": 0,
+        "minor_delay_count": 2,
+        "major_delay_count": 2
+    },
+    "lot_results": [
+        {
+            "Lot": "LOT_0001",
+            "Product": "",
+            "Priority": 100,
+            "Due Date": "2026-01-24T14:00:00.000000",
+            "Plan Date": "2026-01-25T13:40:00",
+            "delay time": "0:23"
+        },
+        {
+            "Lot": "LOT_0002",
+            "Product": "",
+            "Priority": 100,
+            "Due Date": "2026-01-24T14:00:00.000000",
+            "Plan Date": "2026-01-25T13:40:00",
+            "delay time": "0:23"
+        },
+        {
+            "Lot": "LOT_0003",
+            "Product": "",
+            "Priority": 100,
+            "Due Date": "2026-01-24T14:00:00.000000",
+            "Plan Date": "2026-02-03T20:40:00",
+            "delay time": "10:06"
+        },
+        {
+            "Lot": "LOT_0004",
+            "Product": "",
+            "Priority": 100,
+            "Due Date": "2026-01-24T14:00:00.000000",
+            "Plan Date": "2026-02-03T20:40:00",
+            "delay time": "10:06"
+        }
+    ]
+}

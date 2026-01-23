@@ -88,6 +88,33 @@
         .gantt_grid_scale .gantt_grid_head_cell {
             color: var(--text-color) !important;
         }
+
+        .legend-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px;
+            background-color: var(--header-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 10px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--text-color);
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+            border: 1px solid #000;
+        }
     </style>
 </head>
 <body>
@@ -97,7 +124,7 @@
             <!-- 主題切換 -->
             <div class="btn-group me-3" role="group">
                 <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('light')"><i class="fa-solid fa-sun"></i> 亮色</button>
-                <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('gray')"><i class="fa-solid fa-adjust"></i> 灰色</button>                
+                <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('gray')"><i class="fa-solid fa-adjust"></i> 灰色</button>
             </div>
             <!-- 視圖切換 -->
             <div class="btn-group me-3" role="group">
@@ -106,6 +133,10 @@
                 <button class="btn btn-outline-primary btn-sm" onclick="setScale('week')"><i class="fa-solid fa-calendar-week"></i> 週 </button>
                 <button class="btn btn-outline-primary btn-sm" onclick="setScale('month')"><i class="fa-solid fa-calendar-alt"></i> 月 </button>
             </div>
+
+            <!-- 讀取 JSON 按鈕 -->
+            <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
+            <button class="btn btn-outline-success btn-sm me-3" onclick="document.getElementById('jsonFileInput').click()"><i class="fa-solid fa-upload"></i> 讀取 JSON</button>
 
             <!-- 機台過濾器 -->
             <div class="d-flex align-items-center gap-2">
@@ -118,11 +149,27 @@
             </div>
         </div>
 
+        <!-- Legend -->
+        <div id="legend" class="legend-container"></div>
+
         <!-- 甘特圖 -->
         <div id="gantt_here"></div>
     </div>
 
     <script>
+        const COLOR_BY_BOOKING = {
+            "0": "#00BFFF",   // 新排程
+            "1": "#FFE5B4",   // 已預約 / 進行中作業(WIP)
+            "2": "#32CD32",   // 已鎖定 /已完成作業(COMPLETED)
+            "3": "#A9A9A9",   // 已超過現在時間
+            "1002": "#8A2BE2", // 凍結作業(FROZEN)
+            "-1": "#FF4500",  // 維修/維修計畫
+            "-2": "#B87333",  // 當機
+            "-20": "#808080", // 預留
+            "-21": "#C0C0C0", // 預留
+            "-22": "#FFFDD0", // 預留
+        };
+
         let allData = [];
 
         // 設定主題
@@ -131,6 +178,36 @@
             // 重新渲染甘特圖以應用新主題
             if (allData.length > 0) {
                 renderGantt(allData);
+            }
+        }
+
+        // 渲染圖例
+        function renderLegend() {
+            const legendContainer = document.getElementById('legend');
+            legendContainer.innerHTML = '';
+            const labels = {
+                "0": "新排程",
+                "1": "已預約 / 進行中作業(WIP)",
+                "2": "已鎖定 /已完成作業(COMPLETED)",
+                "3": "已超過現在時間",
+                "1002": "凍結作業(FROZEN)",
+                "-1": "維修/維修計畫",
+                "-2": "當機",
+                "-20": "預留",
+                "-21": "預留",
+                "-22": "預留"
+            };
+            for (const [key, color] of Object.entries(COLOR_BY_BOOKING)) {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                const colorDiv = document.createElement('div');
+                colorDiv.className = 'legend-color';
+                colorDiv.style.backgroundColor = color;
+                const label = document.createElement('span');
+                label.textContent = labels[key];
+                item.appendChild(colorDiv);
+                item.appendChild(label);
+                legendContainer.appendChild(item);
             }
         }
 
@@ -256,36 +333,65 @@
         }
 
         gantt.init("gantt_here");
+        renderLegend(); // 渲染圖例
         setTheme('light'); // 預設亮色主題
         setScale("day");
 
-        let file = "gantt/machineTaskSegment_New.json"; // 固定使用同一檔案
-        // 從 Django API 讀取資料
-        fetch(`http://127.0.0.1:5000/get_json/${file}`)
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error(`HTTP 錯誤! 狀態: ${res.status}`);
-                }
-                return res.json();
-            })
-            .then(data => {
-                let rawData;
-                if (Array.isArray(data)) {
-                    rawData = data;
-                } else if (typeof data === 'object' && data !== null && data.data) {
-                    rawData = data.data;
-                } else {
-                    rawData = [];
-                }
+        // 檔案輸入事件監聽器
+        document.getElementById('jsonFileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        let rawData;
+                        if (Array.isArray(data)) {
+                            rawData = data;
+                        } else if (typeof data === 'object' && data !== null && data.data) {
+                            rawData = data.data;
+                        } else {
+                            rawData = [];
+                        }
 
-                allData = rawData;
-                updateMachineFilter(allData);
-                renderGantt(allData);
-            })
-            .catch(error => {
-                console.error("載入數據時發生錯誤:", error);
-                alert("載入數據失敗: " + error.message);
-            });
+                        allData = rawData;
+                        updateMachineFilter(allData);
+                        renderGantt(allData);
+                    } catch (error) {
+                        alert("解析 JSON 失敗: " + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // let file = "gantt/machineTaskSegment_New.json"; // 固定使用同一檔案
+        // // 從  API 讀取資料
+        // fetch(`http://127.0.0.1:5000/get_json/${file}`)
+        //     .then(res => {
+        //         if (!res.ok) {
+        //             throw new Error(`HTTP 錯誤! 狀態: ${res.status}`);
+        //         }
+        //         return res.json();
+        //     })
+        //     .then(data => {
+        //         let rawData;
+        //         if (Array.isArray(data)) {
+        //             rawData = data;
+        //         } else if (typeof data === 'object' && data !== null && data.data) {
+        //             rawData = data.data;
+        //         } else {
+        //             rawData = [];
+        //         }
+
+        //         allData = rawData;
+        //         updateMachineFilter(allData);
+        //         renderGantt(allData);
+        //     })
+        //     .catch(error => {
+        //         console.error("載入數據時發生錯誤:", error);
+        //         alert("載入數據失敗: " + error.message);
+        //     });
     </script>
 </body>
 </html>

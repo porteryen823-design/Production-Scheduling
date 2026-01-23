@@ -3,3 +3,4 @@ pyjobshop
 python-dotenv
 mysql-connector-python
 flask
+PyQt5

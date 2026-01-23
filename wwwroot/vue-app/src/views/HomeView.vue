@@ -1,8 +1,8 @@
 <template>
-  <div class="container mt-5">
+  <div class="container-fluid">
     <div class="row justify-content-center">
-      <div class="col-12 text-center mb-5">
-        <h1 class="display-4">歡迎使用 產線排程系統</h1>        
+      <div class="col-12 text-center mb-5" style="margin-left: 6rem;">
+        <h1 class="display-4">歡迎使用 產線排程系統</h1>
         <hr class="my-4">
       </div>
     </div>
