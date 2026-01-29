@@ -1,6 +1,10 @@
-# Scheduler Full Example
+# Production Scheduling System (APS01)
 
-這是一個使用 Google OR-Tools CP-SAT 求解器的生產排程系統範例，專為半導體或製造業的 Lot 排程設計。
+## Project Profile
+- Technology Profile: Profile A (FastAPI + Python + MySQL + DHTMLX Gantt)
+
+## 系統概述
+這是一個結合 Google OR-Tools CP-SAT 求解器、FastAPI 後端、MySQL 資料庫以及 DHTMLX 甘特圖的可視化生產排程系統。專為處理複雜工序與機台約束的製造業設計。
 
 ## 功能特點
 
@@ -19,7 +23,14 @@
 ### 可視化支援
 - **甘特圖數據生成**：輸出機台任務段數據至 JSON
 - **顏色映射**：根據預約狀態提供不同顏色
-- **Machine Group Utilizations**：計算各機台群組的利用率，識別瓶頸並輸出 Top 5
+- **模擬時間整合**：甘特圖界面可完整顯示該排程對應的「模擬結束時間」
+- **Machine Group Utilizations**：計算各機台群組的利用率
+
+### 資料庫與模擬系統
+- **資料庫整合**：完整對接 MySQL，實現排程、工序、設定的持久化儲存
+- **模擬數據記錄 (`SimulationData`)**：獨立記錄模擬時鐘的 `simulation_start_time` 與 `simulation_end_time`
+- **排程與模擬同步**：排程結果 (`DynamicSchedulingJob`) 會自動關聯最後一次模擬的結束時間
+- **GUI 管理工具**：提供 Qt-based 管理界面，支援資料清理、Lots 產生、模擬時鐘啟動及排程觸發
 
 ## 安裝依賴
 
@@ -187,16 +198,32 @@ pip install ortools
 3. **Priority 順序**：高 Priority Lot 先開始第一道工序
 4. **資源分配**：動態選擇機台組內可用機台
 
-### 目標函數
+### 目標函數 (Objective Functions)
 
-系統支援四種不同的優化目標：
+系統支援多種不同的優化目標，可透過 `OBJECTIVE_TYPE` 參數設定：
 
-1. **交期優先 (1)**：`Minimize(makespan)` - 最小化總完成時間
-2. **優先權優先 (2)**：`Minimize(Σ(Priority_i × end_time_i))` - 最小化加權完成時間
-3. **多目標優化 (3)**：`Minimize(α × weighted_completion + β × makespan)` - 平衡權重與完成時間
-4. **準時交貨優先 (4)**：`Minimize(Σ max(0, end_time_i - DueDate_i))` - 最小化總延遲時間
+1. **交期優先 (`makespan`)**：最小化總完成時間。
+2. **優先權優先 (`weighted_delay`)**：最小化所有 Lot 的 (Priority × 延遲時間)。
+3. **總完工時間優化 (`total_completion_time`) [預設]**：最小化每批最後一站完成時間之總和，確保所有批次儘早完工。
+    - 公式：`Minimize(Σ(LastStepCompletion) * 10 + Makespan)`
+4. **多目標優化**：平衡權重與完成時間。
 
-其中 `end_time_i` 為 Lot i 的最後一道工序結束時間。
+### 效能優化 (Performance)
+
+為了發揮多核心 CPU 的最大效能，求解器支援並行計算：
+- **並行線程數**：可透過 `.env` 中的 `SOLVER_NUM_SEARCH_WORKERS` 設定（建議設為邏輯核心數）。
+- **時間限制**：透過 `SOLVER_MAX_TIME_IN_SECONDS` 控制每一波排程的計算時間。
+
+## 環境變數配置 (.env)
+```ini
+MYSQL_HOST=127.0.0.1
+MYSQL_USER=root
+MYSQL_PASSWORD=your_password
+MYSQL_DATABASE=Scheduling
+SOLVER_MAX_TIME_IN_SECONDS=30
+SOLVER_NUM_SEARCH_WORKERS=12
+SOLVER_LOG_SEARCH_PROGRESS=false
+```
 
 ## 配置
 

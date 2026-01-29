@@ -1,0 +1,10 @@
+{
+  "name": "壓力測試 - 20 批次循環",
+  "description": "執行 20 次循環，每次產生 10 個 Lot，批量隨機 1-4",
+  "cycles": 20,
+  "lots_per_cycle": 10,
+  "lot_quantity_min": 1,
+  "lot_quantity_max": 4,
+  "simulation_iterations": 200,
+  "simulation_timedelta": 60
+}

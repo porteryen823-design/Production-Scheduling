@@ -1,16 +1,16 @@
 {
     "statistics": {
-        "optimization_type": "weighted_delay",
-        "batch_count": 1,
-        "calculation_start": "2026-01-23T16:02:09",
-        "calculation_end": "2026-01-23T16:02:09",
-        "calculation_duration": "0:00:00.016995",
-        "earliest_input_time": "2026-01-24T17:04:00",
-        "latest_output_time": "2026-01-27T00:00:00",
-        "total_schedule_duration": "2:06:56",
-        "early_count": 0,
+        "optimization_type": "total_completion_time",
+        "batch_count": 5,
+        "calculation_start": "2026-01-29T10:51:52",
+        "calculation_end": "2026-01-29T10:51:52",
+        "calculation_duration": "0:00:00.012795",
+        "earliest_input_time": "2026-01-22T14:00:00",
+        "latest_output_time": "2026-01-25T23:00:00",
+        "total_schedule_duration": "3:09:00",
+        "early_count": 5,
         "on_time_count": 0,
-        "minor_delay_count": 1,
+        "minor_delay_count": 0,
         "major_delay_count": 0
     },
     "lot_results": [
@@ -18,9 +18,41 @@
             "Lot": "LOT_0001",
             "Product": "",
             "Priority": 100,
-            "Due Date": "2026-01-26T15:00:00",
-            "Plan Date": "2026-01-27T00:00:00",
-            "delay time": "0:09"
+            "Due Date": "2026-02-01T10:00:00",
+            "Plan Date": "2026-01-23T20:40:00",
+            "delay time": "-8:13"
+        },
+        {
+            "Lot": "LOT_0002",
+            "Product": "",
+            "Priority": 100,
+            "Due Date": "2026-02-01T10:00:00",
+            "Plan Date": "2026-01-24T09:15:00",
+            "delay time": "-8:00"
+        },
+        {
+            "Lot": "LOT_0003",
+            "Product": "",
+            "Priority": 100,
+            "Due Date": "2026-02-01T10:00:00",
+            "Plan Date": "2026-01-24T21:50:00",
+            "delay time": "-7:12"
+        },
+        {
+            "Lot": "LOT_0004",
+            "Product": "",
+            "Priority": 100,
+            "Due Date": "2026-02-01T10:00:00",
+            "Plan Date": "2026-01-25T10:25:00",
+            "delay time": "-6:23"
+        },
+        {
+            "Lot": "LOT_0005",
+            "Product": "",
+            "Priority": 100,
+            "Due Date": "2026-02-01T10:00:00",
+            "Plan Date": "2026-01-25T23:00:00",
+            "delay time": "-6:11"
         }
     ]
 }

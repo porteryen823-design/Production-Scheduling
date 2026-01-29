@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8" />
+    <title>Machine Usage Gantt - From Web API</title>
+    <link rel="stylesheet" href="css/dhtmlxgantt.css" />
+    <link rel="stylesheet" href="css/all.min.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <script src="js/dhtmlxgantt.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --header-bg: #f8f9fa;
+            --border-color: #dee2e6;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="gray"] {
+            --bg-color: #f5f5f5;
+            --text-color: #333333;
+            --header-bg: #e9ecef;
+            --border-color: #adb5bd;
+            --shadow: rgba(0, 0, 0, 0.15);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --header-bg: #1e1e1e;
+            --border-color: #333333;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        html, body {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container-fluid {
+            background-color: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px var(--shadow);
+            border-radius: 8px;
+            margin: 10px;
+            padding: 15px;
+            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+        }
+
+        #gantt_here {
+            width: 100%;
+            height: calc(100vh - 140px);
+            font-size: 14px;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px var(--shadow);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .btn-group .btn {
+            transition: all 0.3s;
+        }
+
+        h2 {
+            margin: 0;
+            color: var(--text-color);
+        }
+
+        /* 甘特圖主題覆蓋 */
+        .gantt_grid, .gantt_data_area, .gantt_task_row {
+            background-color: var(--bg-color) !important;
+        }
+
+        .gantt_grid_data .gantt_tree_content, .gantt_task_content {
+            color: var(--text-color) !important;
+        }
+
+        .gantt_grid_scale {
+            background-color: var(--header-bg) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .gantt_grid_scale .gantt_grid_head_cell {
+            color: var(--text-color) !important;
+        }
+
+        .legend-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px;
+            background-color: var(--header-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 10px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--text-color);
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+            border: 1px solid #000;
+        }
+
+        .loading-indicator {
+            display: none;
+            color: var(--text-color);
+            font-weight: bold;
+        }
+
+        .loading-indicator.active {
+            display: inline-block;
+        }
+
+        /* 自定義標記線樣式 */
+        .custom-marker {
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-3">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+            <h2><i class="fa-solid fa-chart-gantt"></i> Machine Usage Gantt - From Web API</h2>
+            <!-- 視圖切換 -->
+            <div class="btn-group me-3" role="group">
+                <button id="viewHour" class="btn btn-outline-primary btn-sm" onclick="setScale('hour')"><i class="fa-solid fa-clock"></i> 小時 </button>
+                <button id="viewDay" class="btn btn-outline-primary btn-sm" onclick="setScale('day')"><i class="fa-solid fa-calendar-day"></i> 天 </button>
+                <button id="viewWeek" class="btn btn-outline-primary btn-sm" onclick="setScale('week')"><i class="fa-solid fa-calendar-week"></i> 週 </button>
+                <button id="viewMonth" class="btn btn-outline-primary btn-sm" onclick="setScale('month')"><i class="fa-solid fa-calendar-alt"></i> 月 </button>
+            </div>
+
+            <!-- 資料庫導航按鈕 -->
+            <div class="btn-group me-3" role="group">
+                <button class="btn btn-outline-info btn-sm" id="prevBtn" onclick="loadPrevious()"><i class="fa-solid fa-chevron-left"></i> 讀取前一筆</button>
+                <button class="btn btn-outline-info btn-sm" id="nextBtn" onclick="loadNext()"><i class="fa-solid fa-chevron-right"></i> 讀取下一筆</button>
+            </div>
+
+            <!-- 讀取 JSON 按鈕 (保留) -->
+            <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
+            <button class="btn btn-outline-success btn-sm me-3" onclick="document.getElementById('jsonFileInput').click()"><i class="fa-solid fa-upload"></i> 讀取 JSON</button>
+
+            <!-- 載入指示器 -->
+            <span id="loadingIndicator" class="loading-indicator">
+                <i class="fa-solid fa-spinner fa-spin"></i> 載入中...
+            </span>
+
+            <!-- 排程資訊顯示 -->
+            <div class="d-flex align-items-center gap-3 ms-auto">
+                <span class="fw-semibold">排程 ID: <span id="scheduleIdDisplay" class="text-primary">N/A</span></span>
+                <span class="fw-semibold">建立時間: <span id="createDateDisplay" class="text-secondary">N/A</span></span>
+                <span class="fw-semibold">模擬結束時間: <span id="simulationEndTimeDisplay" class="text-danger">N/A</span></span>
+                <span class="fw-semibold">記錄數: <span id="recordCountDisplay" class="text-info">0 / 0</span></span>
+            </div>
+
+            <!-- 機台過濾器 -->
+            <div class="d-flex align-items-center gap-2">
+                <label for="machineFilter" class="fw-semibold mb-0">
+                    <i class="fa-solid fa-filter"></i> 機台過濾：
+                </label>
+                <select id="machineFilter" class="form-select form-select-sm" style="width: 150px;" onchange="applyMachineFilter()">
+                    <option value="ALL">全部</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div id="legend" class="legend-container"></div>
+
+        <!-- 甘特圖 -->
+        <div id="gantt_here"></div>
+    </div>
+
+    <script>
+        const COLOR_BY_BOOKING = {
+            1: "#FFE5B4",   // 已預約 / 進行中作業(WIP)
+            2:  "#00BFFF",    // 已鎖定 /已完成作業(COMPLETED)
+            3: "#A9A9A9",   // 已超過現在時間
+            1002: "#8A2BE2", // 凍結作業(FROZEN)
+            0:"#5DC85D",  // 新排程 (重排)
+            10: "#2C562C",  // 新排程 (新加入)
+            "-1": "#FF4500",  // 維修/維修計畫
+            "-2": "#B87333",  // 當機
+            "-20": "#808080", // 預留
+            "-21": "#C0C0C0", // 預留
+            "-22": "#FFFDD0", // 預留
+        };
+
+        // Web API 配置
+        const API_BASE_URL = 'http://localhost:8000';
+        const API_ENDPOINT = '/api/schedule';
+
+        let allData = [];
+        let currentScheduleIndex = -1; // 當前排程在所有排程中的索引 (0 是最舊, N 是最新)
+        let totalSchedules = -1; // 總排程數
+        let ganttShowMarker = false; // 是否顯示標記線
+
+        // 從 Web API 獲取排程資料
+        async function fetchScheduleData(offset) {
+            const url = `${API_BASE_URL}${API_ENDPOINT}?offset=${offset}&limit=1`;
+            console.log(`Fetching schedule data from API: ${url}`);
+            
+            try {
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('API Response:', data);
+                
+                return data;
+            } catch (error) {
+                console.error('API 呼叫失敗:', error);
+                throw error;
+            }
+        }
+        
+        // 從 Web API 獲取 UI 設定
+        async function fetchUISettings() {
+            const url = `${API_BASE_URL}/api/v1/ui-settings?skip=0&limit=100&parameter_name=gantt_show_marker`;
+            console.log(`Fetching UI settings from API: ${url}`);
+            
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const settings = await response.json();
+                console.log('UI Settings Response:', settings);
+                
+                // 檢查是否有名為 gantt_show_marker 且值為 "True" 的設定
+                ganttShowMarker = settings.some(s => s.parameter_name === 'gantt_show_marker' && s.parameter_value === 'True');
+                console.log('Gantt Show Marker:', ganttShowMarker);
+            } catch (error) {
+                console.error('獲取 UI 設定失敗:', error);
+                ganttShowMarker = false; // 發生錯誤時預設不顯示
+            }
+        }
+
+        // 載入並渲染排程資料
+        async function loadSchedule(offset) {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            
+            try {
+                // 顯示載入指示器
+                loadingIndicator.classList.add('active');
+                
+                const data = await fetchScheduleData(offset);
+                
+                if (data && data.ScheduleId) {
+                    currentScheduleIndex = offset;
+                    totalSchedules = data.total || 0;
+                    
+                    document.getElementById('scheduleIdDisplay').textContent = data.ScheduleId;
+                    document.getElementById('createDateDisplay').textContent = formatDate(data.CreateDate);
+                    document.getElementById('simulationEndTimeDisplay').textContent = data.simulation_end_time ? formatDate(data.simulation_end_time) : 'N/A';
+                    document.getElementById('recordCountDisplay').textContent = `${offset + 1} / ${totalSchedules}`;
+
+                    let rawData;
+                    // 確保 machineTaskSegment 是陣列
+                    if (typeof data.machineTaskSegment === 'string') {
+                        rawData = JSON.parse(data.machineTaskSegment);
+                    } else if (Array.isArray(data.machineTaskSegment)) {
+                        rawData = data.machineTaskSegment;
+                    } else {
+                        rawData = [];
+                    }
+
+                    allData = rawData;
+                    updateMachineFilter(allData);
+                    applyMachineFilter(); // 應用過濾器並渲染甘特圖
+                    updateNavigationButtons();
+                } else {
+                    alert("找不到排程資料或 API 回應格式錯誤。");
+                }
+            } catch (error) {
+                console.error("載入排程數據時發生錯誤:", error);
+                alert("載入排程數據失敗: " + error.message + "\n\n請確認：\n1. 後端 API 服務已啟動 (http://localhost:8000)\n2. API 端點正確 (/api/schedule)\n3. 資料庫連線正常");
+            } finally {
+                // 隱藏載入指示器
+                loadingIndicator.classList.remove('active');
+            }
+        }
+
+        // 導航邏輯
+        function loadLastRecord() {
+            // 載入最新一筆 (offset 0)
+            loadSchedule(0);
+        }
+
+        function loadPrevious() {
+            if (currentScheduleIndex < totalSchedules - 1) {
+                loadSchedule(currentScheduleIndex + 1);
+            }
+        }
+
+        function loadNext() {
+            if (currentScheduleIndex > 0) {
+                loadSchedule(currentScheduleIndex - 1);
+            }
+        }
+
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            // "讀取前一筆" (Previous) 應該是索引增加 (因為我們是 ORDER BY DESC)
+            // 當前索引 < 總數 - 1 時，可以讀取前一筆 (更舊的資料)
+            prevBtn.disabled = (currentScheduleIndex >= totalSchedules - 1);
+
+            // "讀取下一筆" (Next) 應該是索引減少 (因為我們是 ORDER BY DESC)
+            // 當前索引 > 0 時，可以讀取下一筆 (更新的資料)
+            nextBtn.disabled = (currentScheduleIndex <= 0);
+        }
+
+
+        // 設定主題
+        function setTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            // 重新渲染甘特圖以應用新主題
+            if (allData.length > 0) {
+                renderGantt(allData);
+            }
+        }
+
+        // 渲染圖例
+        function renderLegend() {
+            const legendContainer = document.getElementById('legend');
+            legendContainer.innerHTML = '';
+            const labels = {
+                1: "已預約 / 進行中作業(WIP)",
+                2: "已鎖定 /已完成作業(COMPLETED)",
+                3: "已超過現在時間",
+                1002: "凍結作業(FROZEN)",
+                0: "新排程 (重排)",
+                10: "新排程 (新加入)",
+                "-1": "維修/維修計畫",
+                "-2": "當機",
+                "-20": "預留",
+                "-21": "預留",
+                "-22": "預留"
+            };
+
+            const legendOrder = [1, 2, 3, 1002, 0, 10, -1, -2, -20, -21, -22];
+
+            for (const key of legendOrder) {
+                const color = COLOR_BY_BOOKING[key];
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                const colorDiv = document.createElement('div');
+                colorDiv.className = 'legend-color';
+                colorDiv.style.backgroundColor = color;
+                const label = document.createElement('span');
+                label.textContent = labels[key];
+                item.appendChild(colorDiv);
+                item.appendChild(label);
+                legendContainer.appendChild(item);
+            }
+        }
+
+        // 切換視圖
+        function setScale(mode) {
+            // 移除所有視圖按鈕的 active 狀態
+            document.getElementById('viewHour').classList.remove('active');
+            document.getElementById('viewDay').classList.remove('active');
+            document.getElementById('viewWeek').classList.remove('active');
+            document.getElementById('viewMonth').classList.remove('active');
+            
+            // 設定當前選中按鈕為 active
+            if (mode === "hour") {
+                document.getElementById('viewHour').classList.add('active');
+                gantt.config.scale_unit = "day";
+                gantt.config.date_scale = "%Y-%m-%d";
+                gantt.config.subscales = [{ unit: "hour", step: 1, date: "%H:%i" }];
+            } else if (mode === "day") {
+                document.getElementById('viewDay').classList.add('active');
+                gantt.config.scale_unit = "week";
+                gantt.config.date_scale = "第 %W 週";
+                gantt.config.subscales = [{ unit: "day", step: 1, date: "%m/%d" }];
+            } else if (mode === "week") {
+                document.getElementById('viewWeek').classList.add('active');
+                gantt.config.scale_unit = "month";
+                gantt.config.date_scale = "%Y-%m";
+                gantt.config.subscales = [{ unit: "week", step: 1, date: "第 %W 週" }];
+            } else if (mode === "month") {
+                document.getElementById('viewMonth').classList.add('active');
+                gantt.config.scale_unit = "year";
+                gantt.config.date_scale = "%Y";
+                gantt.config.subscales = [{ unit: "month", step: 1, date: "%m月" }];
+            }
+            gantt.config.scale_height = 60;
+            // 重新渲染數據以應用新的縮放設置
+            if (allData.length > 0) {
+                renderGantt(allData);
+            }
+            
+            // 添加標記線 (延遲執行以確保甘特圖完全渲染)
+            setTimeout(addMarker, 200);
+        }
+
+        // 應用機台過濾
+        function applyMachineFilter() {
+            const selectedMachine = document.getElementById("machineFilter").value;
+            const filtered = (selectedMachine === "ALL")
+                ? allData
+                : allData.filter(d => d.parent === selectedMachine || d.text === selectedMachine);
+            renderGantt(filtered);
+        }
+
+        // 更新機台過濾器
+        function updateMachineFilter(data) {
+            const select = document.getElementById("machineFilter");
+            select.innerHTML = '<option value="ALL">全部</option>';
+            const uniqueMachines = [...new Set(data.filter(d => d.parent === null || d.parent === undefined).map(d => d.text))].sort();
+            uniqueMachines.forEach(m => {
+                const opt = document.createElement("option");
+                opt.value = m;
+                opt.textContent = m;
+                select.appendChild(opt);
+            });
+        }
+
+        // 渲染甘特圖
+        function renderGantt(filteredData) {
+            let ganttData;
+            if (Array.isArray(filteredData)) {
+                const formattedData = filteredData.map(task => {
+                    const formattedTask = {
+                        ...task,
+                        start_date: formatDate(task.start_date)
+                    };
+                    if (task.duration !== undefined) {
+                        delete formattedTask.end_date;
+                    } else {
+                        formattedTask.end_date = formatDate(task.end_date);
+                    }
+                    return formattedTask;
+                });
+                ganttData = { data: formattedData, links: [] };
+            } else {
+                ganttData = filteredData;
+            }
+
+            gantt.clearAll();
+            gantt.parse(ganttData);
+            
+            // 添加標記線
+            setTimeout(addMarker, 200);
+        }
+
+        // 添加標記線
+        function addMarker() {
+            // 移除現有的標記線
+            const existingMarker = document.querySelector('.custom-marker');
+            if (existingMarker) {
+                existingMarker.remove();
+            }
+
+            // 如果設定為不顯示，則直接返回
+            if (!ganttShowMarker) {
+                return;
+            }
+
+            const simulationEndTimeStr = document.getElementById('simulationEndTimeDisplay').textContent;
+            if (simulationEndTimeStr === 'N/A') {
+                return;
+            }
+
+            const markerDate = new Date(simulationEndTimeStr);
+            if (isNaN(markerDate.getTime())) {
+                return;
+            }
+
+            // 確保甘特圖容器存在
+            const ganttContainer = document.getElementById('gantt_here');
+            if (!ganttContainer) {
+                setTimeout(addMarker, 100);
+                return;
+            }
+
+            // 獲取時間軸區域的實際位置
+            const timelineArea = ganttContainer.querySelector('.gantt_task');
+            if (!timelineArea) {
+                setTimeout(addMarker, 100);
+                return;
+            }
+
+            // 計算標記線的位置（相對於時間軸區域）
+            const markerPos = gantt.posFromDate(markerDate);
+            
+            // 獲取左側網格寬度
+            const gridWidth = ganttContainer.querySelector('.gantt_grid')?.offsetWidth || 0;
+            
+            // 最終位置 = 網格寬度 + 時間軸內的相對位置
+            const finalPos = gridWidth + markerPos;
+
+            // 創建標記線元素
+            const marker = document.createElement('div');
+            marker.className = 'custom-marker';
+            marker.style.position = 'absolute';
+            marker.style.left = finalPos + 'px';
+            marker.style.top = '0';
+            marker.style.bottom = '0';
+            marker.style.width = '1px';
+            marker.style.backgroundColor = '#FF6B6B';
+            marker.style.zIndex = '10';
+            marker.style.pointerEvents = 'none';
+
+            // 添加標籤
+            const label = document.createElement('div');
+            label.style.position = 'absolute';
+            label.style.top = '-20px';
+            label.style.left = '50%';
+            label.style.transform = 'translateX(-50%)';
+            label.style.background = '#FF6B6B';
+            label.style.color = 'white';
+            label.style.padding = '4px 8px';
+            label.style.borderRadius = '16px';
+            label.style.fontSize = '10px';
+            label.style.textAlign = 'center';
+            label.style.whiteSpace = 'nowrap';
+            
+            const m = String(markerDate.getMonth() + 1).padStart(2, '0');
+            const d = String(markerDate.getDate()).padStart(2, '0');
+            const hh = String(markerDate.getHours()).padStart(2, '0');
+            const mm = String(markerDate.getMinutes()).padStart(2, '0');
+            label.innerHTML = m + '/' + d + ' ' + hh + ':' + mm + '<br>▼';
+
+            marker.appendChild(label);
+            ganttContainer.appendChild(marker);
+        }
+
+        gantt.config.duration_unit = "hour"; // 預設
+        gantt.config.date_format = "%Y-%m-%d %H:%i";
+        gantt.plugins({ tooltip: true });// 開啟 tooltip
+
+        // 自定義 tooltip 顯示 start date 和 end date
+        gantt.templates.tooltip_text = function(start, end, task) {
+            const startStr = gantt.date.date_to_str("%Y-%m-%d %H:%i")(start);
+            const endStr = gantt.date.date_to_str("%Y-%m-%d %H:%i")(end);
+            return "<b>" + task.text + "</b><br/>Start: " + startStr + "<br/>End: " + endStr;
+        };
+        gantt.config.columns = [
+            { name: "text", label: "Machine", tree: true, width: 200 },
+            { name: "start_date", label: "Start", align: "center" }
+        ];
+
+        gantt.templates.task_class = function (start, end, task) {
+            let cssClass = "";
+            if (task.color) {
+                cssClass += "task-" + task.color;
+            }
+            if (task.title) {
+                var el = gantt.getTaskNode(task.id);
+                if (el) el.setAttribute("title", task.title);
+            }
+            return cssClass;
+        };
+
+        // 格式化日期從 ISO 到 YYYY-MM-DD HH:MM
+        function formatDate(isoString) {
+            if (!isoString) return null;
+            const date = new Date(isoString);
+            if (isNaN(date.getTime())) return null;
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            const hh = String(date.getHours()).padStart(2, '0');
+            const mm = String(date.getMinutes()).padStart(2, '0');
+            return `${y}-${m}-${d} ${hh}:${mm}`;
+        }
+
+        gantt.init("gantt_here");
+        renderLegend(); // 渲染圖例
+        setTheme('light'); // 預設亮色主題
+        setScale("day");
+
+        // 檔案輸入事件監聽器 (保留)
+        document.getElementById('jsonFileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        let rawData;
+                        if (Array.isArray(data)) {
+                            rawData = data;
+                        } else if (typeof data === 'object' && data !== null && data.data) {
+                            rawData = data.data;
+                        } else {
+                            rawData = [];
+                        }
+
+                        allData = rawData;
+                        updateMachineFilter(allData);
+                        renderGantt(allData);
+                        
+                        // 清除 DB 資訊顯示
+                        document.getElementById('scheduleIdDisplay').textContent = 'N/A (File Load)';
+                        document.getElementById('createDateDisplay').textContent = 'N/A (File Load)';
+                        document.getElementById('simulationEndTimeDisplay').textContent = 'N/A';
+                        document.getElementById('recordCountDisplay').textContent = '0 / 0';
+                        currentScheduleIndex = -1;
+                        totalSchedules = -1;
+                        updateNavigationButtons();
+
+                    } catch (error) {
+                        alert("解析 JSON 失敗: " + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // 初始載入：從 Web API 載入最新一筆資料
+        async function initialize() {
+            await fetchUISettings();
+            await loadLastRecord();
+        }
+
+        initialize();
+    </script>
+</body>
+</html>

@@ -28,15 +28,16 @@ db_config = {
 # 基本設定
 # =====================================================
 SCHEDULE_START = datetime.strptime(args.start_time, '%Y-%m-%d %H:%M:%S')
-OBJECTIVE_TYPE = "weighted_delay"   # "makespan" | "weighted_delay"
+OBJECTIVE_TYPE = "total_completion_time"   # "makespan" | "weighted_delay" | "total_completion_time"
 
 class BookingColorMap:
     COLOR_BY_BOOKING = {
-        0: "#00BFFF",   # 新排程
         1: "#FFE5B4",   # 已預約 / 進行中作業(WIP)
-        2: "#32CD32",   # 已鎖定 /已完成作業(COMPLETED)
+        2:  "#00BFFF",    # 已鎖定 /已完成作業(COMPLETED)
         3: "#A9A9A9",   # 已超過現在時間
         1002: "#8A2BE2", # 凍結作業(FROZEN)
+        0:"#5DC85D",  # 新排程 (重排)
+        10: "#2C562C",  # 新排程 (新加入)        
         -1: "#FF4500",  # 維修/維修計畫
         -2: "#B87333",  # 當機
         -20: "#808080", # 預留
@@ -89,6 +90,8 @@ def load_machine_unavailable_periods():
         return {}
 
 def load_jobs_from_database():
+    NEWLY_SCHEDULED = 10  # 新增狀態標籤
+  
     """從資料庫載入 jobs_data"""
     try:
         conn = mysql.connector.connect(**db_config)
@@ -105,13 +108,17 @@ def load_jobs_from_database():
         jobs_data = []
 
         for lot in lots_data:
-            lot_id = lot['LotId']
+            lot_id = lot.get('LotId', None)
+            if not lot_id:
+                print("Error: Missing LotId in lot data")
+                continue
 
             # 載入該 Lot 的作業資料
             cursor.execute("""
                 SELECT Step, MachineGroup, Duration, Sequence, StepStatus, CheckInTime, CheckOutTime, PlanCheckInTime, PlanCheckOutTime, PlanMachineId
                 FROM LotOperations
                 WHERE LotId = %s
+                AND LotId IS NOT NULL
                 ORDER BY Sequence
             """, (lot_id,))
 
@@ -121,18 +128,30 @@ def load_jobs_from_database():
             completed_ops = {}
             wip_ops = {}
             frozen_ops = {}
+            new_schedule_type = {} # 用於存儲新排程的類型
 
             # 根據 StepStatus 判斷作業狀態
             for op in operations_data:
-                step = op['Step']
-                status = op['StepStatus']
-                check_in = op['CheckInTime']
-                check_out = op['CheckOutTime']
-                plan_check_in = op['PlanCheckInTime']
-                plan_check_out = op['PlanCheckOutTime']
-                machine = op['PlanMachineId']
+                step = op.get('Step', None)
+                if not step:
+                    print("Error: Missing Step in operation data")
+                    continue
+                status = op.get('StepStatus', None)
+                if status is None:
+                    print("Error: Missing StepStatus in operation data")
+                    continue
+                check_in = op.get('CheckInTime', None)
+                check_out = op.get('CheckOutTime', None)
+                plan_check_in = op.get('PlanCheckInTime', None)
+                plan_check_out = op.get('PlanCheckOutTime', None)
+                machine = op.get('PlanMachineId', None)
 
-                if status == 2: # Completed
+                if status == 0: # New Schedule
+                    if plan_check_in is None:
+                        new_schedule_type[step] = 0 # 新排程 (重排)
+                    else:
+                        new_schedule_type[step] = 10 # 新排程 (新加入)
+                elif status == 2: # Completed
                     completed_ops[step] = {
                         "start_time": plan_check_in,  # 使用計劃時間
                         "end_time": plan_check_out,
@@ -183,6 +202,7 @@ def load_jobs_from_database():
                 "CompletedOps": completed_ops,
                 "WIPOps": wip_ops,
                 "FrozenOps": frozen_ops,
+                "NewScheduleType": new_schedule_type,
             }
 
             jobs_data.append(job)
@@ -620,6 +640,11 @@ for m, intervals in machines.items():
 # Objective
 # =====================================================
 delay_vars = []
+makespan = model.NewIntVar(0, horizon, "makespan")
+model.AddMaxEquality(
+    makespan,
+    [all_tasks[(job["LotId"], "STEP5")]["end"] for job in jobs_data],
+)
 
 if OBJECTIVE_TYPE == "weighted_delay":
     for job in jobs_data:
@@ -632,21 +657,37 @@ if OBJECTIVE_TYPE == "weighted_delay":
         model.Add(delay >= 0)
         delay_vars.append(delay * job["Priority"])
 
-    model.Minimize(sum(delay_vars))
+    # 複合目標：最小化 (總加權延遲 * 1000) + Makespan
+    model.Minimize(sum(delay_vars) * 1000 + makespan)
+
+elif OBJECTIVE_TYPE == "total_completion_time":
+    # 最小化每批最後一站完成時間之總和 (Total Completion Time)
+    completion_times = []
+    for job in jobs_data:
+        lot = job["LotId"]
+        last_step = job["Operations"][-1][0]
+        completion_times.append(all_tasks[(lot, last_step)]["end"])
+    
+    # 同時稍微考慮 makespan 作為輔助目標，讓排程更緊湊
+    model.Minimize(sum(completion_times) * 10 + makespan)
 
 else:
-    makespan = model.NewIntVar(0, horizon, "makespan")
-    model.AddMaxEquality(
-        makespan,
-        [all_tasks[(job["LotId"], "STEP5")]["end"] for job in jobs_data],
-    )
     model.Minimize(makespan)
 
 # =====================================================
 # Solve
 # =====================================================
 solver = cp_model.CpSolver()
-solver.parameters.max_time_in_seconds = 30
+
+# 設定求解器參數以發揮 CPU 效能
+max_time = int(os.getenv('SOLVER_MAX_TIME_IN_SECONDS', 30))
+num_workers = int(os.getenv('SOLVER_NUM_SEARCH_WORKERS', 8))
+
+solver.parameters.max_time_in_seconds = max_time
+solver.parameters.num_search_workers = num_workers # 設定並行計算線程數
+solver.parameters.log_search_progress = os.getenv('SOLVER_LOG_SEARCH_PROGRESS', 'false').lower() == 'true'
+
+print(f"Solver parameters: max_time={max_time}s, num_workers={num_workers}")
 calc_start_time = datetime.now()
 status = solver.Solve(model)
 calc_end_time = datetime.now()
@@ -734,12 +775,20 @@ if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         priority = job_info["Priority"] if job_info else 0
         
         for step, result in operations.items():
-            # 判斷 Booking 狀態 (這裡簡化處理：Normal 為 0, 其他依狀態給予不同值)
+            # 判斷 Booking 狀態
             task_status = all_tasks[(lot_id, step)]["status"]
             booking = 0
-            if task_status == "Completed": booking = 2
-            elif task_status == "WIP": booking = 1
-            elif task_status == "Frozen": booking = 2
+            if task_status == "Completed":
+                booking = 2
+            elif task_status == "WIP":
+                booking = 1
+            elif task_status == "Frozen":
+                booking = 2
+            elif task_status == "Normal":
+                # 檢查新排程的類型
+                job_info = next((j for j in jobs_data if j["LotId"] == lot_id), None)
+                if job_info and step in job_info.get("NewScheduleType", {}):
+                    booking = job_info["NewScheduleType"][step]
             
             lot_step_results.append({
                 "LotId": lot_id,
@@ -925,11 +974,21 @@ if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
 
+        # 從 SimulationData 讀取最新的模擬時間
+        simulation_end_time = None
+        try:
+            cursor.execute("SELECT simulation_end_time FROM SimulationData ORDER BY id DESC LIMIT 1")
+            sim_result = cursor.fetchone()
+            if sim_result:
+                simulation_end_time = sim_result[0]
+        except Exception as sim_err:
+            print(f"Warning: Could not fetch simulation_end_time: {sim_err}")
+
         # 插入資料到 DynamicSchedulingJob 表
         cursor.execute("""
             INSERT INTO DynamicSchedulingJob
-            (ScheduleId, LotPlanRaw, CreateUser, PlanSummary, LotPlanResult, LotStepResult, machineTaskSegment)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            (ScheduleId, LotPlanRaw, CreateUser, PlanSummary, LotPlanResult, LotStepResult, machineTaskSegment, simulation_end_time)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """, (
             schedule_id,
             lot_plan_raw_data,
@@ -937,7 +996,8 @@ if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
             f"Auto-generated schedule for {len(jobs_data)} lots, PlanID: {plan_id}",
             lot_plan_result_data,
             lot_step_result_data,
-            machine_task_segment_data
+            machine_task_segment_data,
+            simulation_end_time
         ))
 
         conn.commit()

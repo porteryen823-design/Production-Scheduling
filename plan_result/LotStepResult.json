@@ -6,9 +6,9 @@
         "StepIdx": 1,
         "Step": "STEP1",
         "Machine": "M01-2",
-        "Start": "2026-01-24T17:04:00",
-        "End": "2026-01-24T21:04:00",
-        "Booking": 0
+        "Start": "2026-01-22T14:00:00",
+        "End": "2026-01-22T18:00:00",
+        "Booking": 2
     },
     {
         "LotId": "LOT_0001",
@@ -17,9 +17,9 @@
         "StepIdx": 2,
         "Step": "STEP2",
         "Machine": "M02-2",
-        "Start": "2026-01-25T21:20:00",
-        "End": "2026-01-25T23:20:00",
-        "Booking": 0
+        "Start": "2026-01-22T18:00:00",
+        "End": "2026-01-22T20:00:00",
+        "Booking": 2
     },
     {
         "LotId": "LOT_0001",
@@ -28,9 +28,9 @@
         "StepIdx": 3,
         "Step": "STEP3",
         "Machine": "M03-3",
-        "Start": "2026-01-25T23:20:00",
-        "End": "2026-01-26T04:20:00",
-        "Booking": 0
+        "Start": "2026-01-22T20:00:00",
+        "End": "2026-01-23T01:00:00",
+        "Booking": 2
     },
     {
         "LotId": "LOT_0001",
@@ -39,9 +39,9 @@
         "StepIdx": 4,
         "Step": "STEP4",
         "Machine": "M04-3",
-        "Start": "2026-01-26T04:20:00",
-        "End": "2026-01-26T09:00:00",
-        "Booking": 0
+        "Start": "2026-01-23T01:00:00",
+        "End": "2026-01-23T05:40:00",
+        "Booking": 2
     },
     {
         "LotId": "LOT_0001",
@@ -50,9 +50,9 @@
         "StepIdx": 5,
         "Step": "STEP5",
         "Machine": "M05-2",
-        "Start": "2026-01-26T09:00:00",
-        "End": "2026-01-26T15:00:00",
-        "Booking": 0
+        "Start": "2026-01-23T05:40:00",
+        "End": "2026-01-23T11:40:00",
+        "Booking": 2
     },
     {
         "LotId": "LOT_0001",
@@ -61,9 +61,9 @@
         "StepIdx": 6,
         "Step": "STEP6",
         "Machine": "M06-2",
-        "Start": "2026-01-26T15:00:00",
-        "End": "2026-01-26T18:20:00",
-        "Booking": 0
+        "Start": "2026-01-23T11:40:00",
+        "End": "2026-01-23T15:00:00",
+        "Booking": 2
     },
     {
         "LotId": "LOT_0001",
@@ -72,9 +72,9 @@
         "StepIdx": 7,
         "Step": "STEP7",
         "Machine": "M07-2",
-        "Start": "2026-01-26T18:20:00",
-        "End": "2026-01-26T21:20:00",
-        "Booking": 0
+        "Start": "2026-01-23T15:00:00",
+        "End": "2026-01-23T18:00:00",
+        "Booking": 2
     },
     {
         "LotId": "LOT_0001",
@@ -83,8 +83,360 @@
         "StepIdx": 8,
         "Step": "STEP8",
         "Machine": "M08-4",
-        "Start": "2026-01-26T21:20:00",
-        "End": "2026-01-27T00:00:00",
+        "Start": "2026-01-23T18:00:00",
+        "End": "2026-01-23T20:40:00",
+        "Booking": 2
+    },
+    {
+        "LotId": "LOT_0002",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 1,
+        "Step": "STEP1",
+        "Machine": "M01-3",
+        "Start": "2026-01-23T02:35:00",
+        "End": "2026-01-23T06:35:00",
+        "Booking": 2
+    },
+    {
+        "LotId": "LOT_0002",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 2,
+        "Step": "STEP2",
+        "Machine": "M02-2",
+        "Start": "2026-01-23T06:35:00",
+        "End": "2026-01-23T08:35:00",
+        "Booking": 2
+    },
+    {
+        "LotId": "LOT_0002",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 3,
+        "Step": "STEP3",
+        "Machine": "M03-3",
+        "Start": "2026-01-23T08:35:00",
+        "End": "2026-01-23T13:35:00",
+        "Booking": 2
+    },
+    {
+        "LotId": "LOT_0002",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 4,
+        "Step": "STEP4",
+        "Machine": "M04-1",
+        "Start": "2026-01-23T13:35:00",
+        "End": "2026-01-23T18:15:00",
+        "Booking": 2
+    },
+    {
+        "LotId": "LOT_0002",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 5,
+        "Step": "STEP5",
+        "Machine": "M05-2",
+        "Start": "2026-01-23T18:15:00",
+        "End": "2026-01-24T00:15:00",
+        "Booking": 2
+    },
+    {
+        "LotId": "LOT_0002",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 6,
+        "Step": "STEP6",
+        "Machine": "M06-2",
+        "Start": "2026-01-24T00:15:00",
+        "End": "2026-01-24T03:35:00",
+        "Booking": 2
+    },
+    {
+        "LotId": "LOT_0002",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 7,
+        "Step": "STEP7",
+        "Machine": "M07-2",
+        "Start": "2026-01-24T03:35:00",
+        "End": "2026-01-24T06:35:00",
+        "Booking": 2
+    },
+    {
+        "LotId": "LOT_0002",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 8,
+        "Step": "STEP8",
+        "Machine": "M08-4",
+        "Start": "2026-01-24T06:35:00",
+        "End": "2026-01-24T09:15:00",
+        "Booking": 2
+    },
+    {
+        "LotId": "LOT_0003",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 1,
+        "Step": "STEP1",
+        "Machine": "M01-3",
+        "Start": "2026-01-23T15:10:00",
+        "End": "2026-01-23T19:10:00",
+        "Booking": 2
+    },
+    {
+        "LotId": "LOT_0003",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 2,
+        "Step": "STEP2",
+        "Machine": "M02-2",
+        "Start": "2026-01-23T19:10:00",
+        "End": "2026-01-23T21:10:00",
+        "Booking": 2
+    },
+    {
+        "LotId": "LOT_0003",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 3,
+        "Step": "STEP3",
+        "Machine": "M03-3",
+        "Start": "2026-01-23T21:10:00",
+        "End": "2026-01-24T02:10:00",
+        "Booking": 2
+    },
+    {
+        "LotId": "LOT_0003",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 4,
+        "Step": "STEP4",
+        "Machine": "M04-1",
+        "Start": "2026-01-24T02:10:00",
+        "End": "2026-01-24T06:50:00",
+        "Booking": 2
+    },
+    {
+        "LotId": "LOT_0003",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 5,
+        "Step": "STEP5",
+        "Machine": "M05-2",
+        "Start": "2026-01-24T06:50:00",
+        "End": "2026-01-24T12:50:00",
+        "Booking": 2
+    },
+    {
+        "LotId": "LOT_0003",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 6,
+        "Step": "STEP6",
+        "Machine": "M06-2",
+        "Start": "2026-01-24T12:50:00",
+        "End": "2026-01-24T16:10:00",
+        "Booking": 2
+    },
+    {
+        "LotId": "LOT_0003",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 7,
+        "Step": "STEP7",
+        "Machine": "M07-2",
+        "Start": "2026-01-24T16:10:00",
+        "End": "2026-01-24T19:10:00",
+        "Booking": 1
+    },
+    {
+        "LotId": "LOT_0003",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 8,
+        "Step": "STEP8",
+        "Machine": "M08-4",
+        "Start": "2026-01-24T19:10:00",
+        "End": "2026-01-24T21:50:00",
+        "Booking": 10
+    },
+    {
+        "LotId": "LOT_0004",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 1,
+        "Step": "STEP1",
+        "Machine": "M01-3",
+        "Start": "2026-01-24T03:45:00",
+        "End": "2026-01-24T07:45:00",
+        "Booking": 2
+    },
+    {
+        "LotId": "LOT_0004",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 2,
+        "Step": "STEP2",
+        "Machine": "M02-2",
+        "Start": "2026-01-24T07:45:00",
+        "End": "2026-01-24T09:45:00",
+        "Booking": 2
+    },
+    {
+        "LotId": "LOT_0004",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 3,
+        "Step": "STEP3",
+        "Machine": "M03-3",
+        "Start": "2026-01-24T09:45:00",
+        "End": "2026-01-24T14:45:00",
+        "Booking": 2
+    },
+    {
+        "LotId": "LOT_0004",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 4,
+        "Step": "STEP4",
+        "Machine": "M04-1",
+        "Start": "2026-01-24T14:45:00",
+        "End": "2026-01-24T19:25:00",
+        "Booking": 1
+    },
+    {
+        "LotId": "LOT_0004",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 5,
+        "Step": "STEP5",
+        "Machine": "M05-2",
+        "Start": "2026-01-24T19:25:00",
+        "End": "2026-01-25T01:25:00",
+        "Booking": 10
+    },
+    {
+        "LotId": "LOT_0004",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 6,
+        "Step": "STEP6",
+        "Machine": "M06-2",
+        "Start": "2026-01-25T01:25:00",
+        "End": "2026-01-25T04:45:00",
+        "Booking": 10
+    },
+    {
+        "LotId": "LOT_0004",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 7,
+        "Step": "STEP7",
+        "Machine": "M07-2",
+        "Start": "2026-01-25T04:45:00",
+        "End": "2026-01-25T07:45:00",
+        "Booking": 10
+    },
+    {
+        "LotId": "LOT_0004",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 8,
+        "Step": "STEP8",
+        "Machine": "M08-4",
+        "Start": "2026-01-25T07:45:00",
+        "End": "2026-01-25T10:25:00",
+        "Booking": 10
+    },
+    {
+        "LotId": "LOT_0005",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 1,
+        "Step": "STEP1",
+        "Machine": "M01-3",
+        "Start": "2026-01-24T16:20:00",
+        "End": "2026-01-24T20:20:00",
+        "Booking": 0
+    },
+    {
+        "LotId": "LOT_0005",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 2,
+        "Step": "STEP2",
+        "Machine": "M02-2",
+        "Start": "2026-01-24T20:20:00",
+        "End": "2026-01-24T22:20:00",
+        "Booking": 0
+    },
+    {
+        "LotId": "LOT_0005",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 3,
+        "Step": "STEP3",
+        "Machine": "M03-3",
+        "Start": "2026-01-24T22:20:00",
+        "End": "2026-01-25T03:20:00",
+        "Booking": 0
+    },
+    {
+        "LotId": "LOT_0005",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 4,
+        "Step": "STEP4",
+        "Machine": "M04-1",
+        "Start": "2026-01-25T03:20:00",
+        "End": "2026-01-25T08:00:00",
+        "Booking": 0
+    },
+    {
+        "LotId": "LOT_0005",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 5,
+        "Step": "STEP5",
+        "Machine": "M05-2",
+        "Start": "2026-01-25T08:00:00",
+        "End": "2026-01-25T14:00:00",
+        "Booking": 0
+    },
+    {
+        "LotId": "LOT_0005",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 6,
+        "Step": "STEP6",
+        "Machine": "M06-2",
+        "Start": "2026-01-25T14:00:00",
+        "End": "2026-01-25T17:20:00",
+        "Booking": 0
+    },
+    {
+        "LotId": "LOT_0005",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 7,
+        "Step": "STEP7",
+        "Machine": "M07-2",
+        "Start": "2026-01-25T17:20:00",
+        "End": "2026-01-25T20:20:00",
+        "Booking": 0
+    },
+    {
+        "LotId": "LOT_0005",
+        "Product": "",
+        "Priority": 100,
+        "StepIdx": 8,
+        "Step": "STEP8",
+        "Machine": "M08-2",
+        "Start": "2026-01-25T20:20:00",
+        "End": "2026-01-25T23:00:00",
         "Booking": 0
     }
 ]

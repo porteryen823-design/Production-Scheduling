@@ -210,9 +210,15 @@ CREATE PROCEDURE sp_clean_lots()
 BEGIN
     -- 先刪除 LotOperations 表中的所有資料
     DELETE FROM LotOperations;
-
+    
     -- 然後刪除 Lots 表中的所有資料
     DELETE FROM Lots;
+
+    -- 然後刪除 DynamicSchedulingJob 表中的所有資料
+    DELETE FROM DynamicSchedulingJob;    
+   
+    -- 然後刪除 SimulationData 表中的所有資料
+    DELETE FROM  SimulationData;
 END
 ```
 
@@ -405,42 +411,61 @@ CREATE TABLE machine_unavailable_periods (
 
 
 
-### 10. DynamicSchedulingJob - 動態排程作業表
+### 11. ui_settings - UI 介面參數設定表
 ```sql
-CREATE TABLE DynamicSchedulingJob (
-    ScheduleId VARCHAR(50) NOT NULL PRIMARY KEY,
-    LotPlanRaw LONGTEXT,
-    CreateDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-    CreateUser VARCHAR(50),
-    PlanSummary VARCHAR(2500),
-    LotPlanResult JSON,
-    LotStepResult JSON,
-    machineTaskSegment JSON
+CREATE TABLE ui_settings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    parameter_name VARCHAR(255) UNIQUE NOT NULL,
+    parameter_value TEXT,
+    remark TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 ```
-- `ScheduleId` (VARCHAR(50), PK): 排程作業 ID
-- `LotPlanRaw` (LONGTEXT): 工單原始計劃資料
-- `CreateDate` (DATETIME): 建立日期 (預設為當前時間戳)
-- `CreateUser` (VARCHAR(50)): 建立使用者
-- `PlanSummary` (VARCHAR(2500)): 計劃摘要
-- `LotPlanResult` (JSON): 工單計劃結果資料
-- `LotStepResult` (JSON): 工單步驟結果資料
-- `machineTaskSegment` (JSON): 機器任務區段資料
+- `id` (INT, PK): 自動編號
+- `parameter_name` (VARCHAR, UNIQUE): 參數名稱 (如 `spin_lot_count`, `datetime_start`)
+- `parameter_value` (TEXT): 參數值 (字串格式儲存)
+- `remark` (TEXT): 備註說明
+- `created_at` (DATETIME): 建立時間
+- `updated_at` (DATETIME): 最後更新時間
+
+**常用參數清單**:
+- `spin_lot_count`: 預設產生的 Lot 數量
+- `datetime_start`: 模擬時鐘開始時間
+- `spin_iterations`: 模擬次數
+- `spin_timedelta`: 模擬時間增量 (秒)
+- `datetime_reschedule_start`: 重新排程設定的開始時間
+
+
+### 12. SimulationData - 模擬結果追蹤表
+```sql
+CREATE TABLE SimulationData (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    simulation_start_time DATETIME,
+    simulation_end_time DATETIME,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+- `id` (INT, PK): 自動編號
+- `simulation_start_time` (DATETIME): 該次模擬的啟始時間
+- `simulation_end_time` (DATETIME): 該次模擬的實際結束時間
+- `created_at` (TIMESTAMP): 紀錄建立時間
 
 **功能說明**:
-- 參照 ScheduleJob 表結構建立，用於動態排程作業
-- 新增三個 JSON 欄位用於儲存排程結果資料
-- 支援儲存複雜的排程計算結果和機器任務分配資訊
+- 用於記錄每次模擬時鐘運行後的結果範圍。
+- `qt_gui.py` 會自動讀取最後一筆紀錄的 `simulation_end_time` 並加上緩衝時間，作為下一次模擬或排程的預設起始點。
 
-## 📊 資料表功能說明對照表
+## 📊 資料表功能說明對照表 (更新)
 
 | 資料表名稱 | 英文名稱 | 主要用途 | 使用時機 | 資料範例 | 是否必要 |
 |-----------|---------|---------|---------|---------|---------|
 | 機台主檔表 | machines | 儲存所有機台的基本資料 | 系統初始化時建立,新增機台時使用 | M01-1, M01-2 屬於 M01 群組 | ✅ 必要 |
-| 機台不可用時段表 | machine_unavailable_periods | 記錄機台無法使用的時間區間，包含維修、保養、作業排程等 | 排程時需要避開這些時段，支援作業排程記錄 | M01-1 在 1/18 14:00-16:00 維修，或記錄 LOT001 STEP1 作業 | ✅ 必要 |
-| 動態排程作業表 | DynamicSchedulingJob | 儲存動態排程作業的計劃和結果資料 | 執行動態排程時使用，儲存排程結果 | 排程 ID: SCH001，包含 LotPlanResult、LotStepResult、machineTaskSegment | ✅ 必要 |
+| 機台不可用時段表 | machine_unavailable_periods | 記錄機台無法使用的時間區間 | 排程時避開維修、保養等 | M01-1 於 1/18 14:00-16:00 維修 | ✅ 必要 |
+| 動態排程作業表 | DynamicSchedulingJob | 儲存動態排程結果資料 | 執行動態排程時儲存結果 | 排程結果 JSON 格式儲存 | ✅ 必要 |
+| UI 介面參數設定表 | ui_settings | 跨工作階段保存介面輸入值 (鍵值對) | GUI 啟動與數值改變時同步 | parameter_name='spin_lot_count', parameter_value='5' | ✅ 必要 |
+| 模擬結果追蹤表 | SimulationData | 保存模擬時鐘的最後結束點 | 模擬完成時寫入,作為下次計算參考 | 模擬結束於 2026-01-22 15:30:00 | ✅ 必要 |
 
-## 更新後的資料表關聯圖
+## 更新後的資料表關聯圖 (Ver 1.2)
 
 ```
 Lots (1) ──── (N) LotOperations
@@ -455,8 +480,7 @@ MachineGroups (1) ──── (N) Machines
   │
   └─── (1) ──── (N) machine_unavailable_periods
 
-DynamicSchedulingJob (獨立表)
-  ├─── LotPlanResult (JSON)
-  ├─── LotStepResult (JSON)
-  └─── machineTaskSegment (JSON)
+DynamicSchedulingJob (獨立結果表)
+ui_settings (設定檔 / 鍵值對)
+SimulationData (模擬紀錄)
 ```

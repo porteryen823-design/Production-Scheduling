@@ -473,8 +473,11 @@ function changeMarkerDate(days) {
         console.log("甘特圖已初始化");
         
 
-        // 設置默認 active 按鈕
-        document.querySelector('button[onclick="setScale(\'day\')"]').classList.add('active');
+        // 設置默認 active 按鈕 (使用 'week' 因為 'day' 按鈕已被註解)
+        const defaultButton = document.querySelector('button[onclick="setScale(\'week\')"]');
+        if (defaultButton) {
+            defaultButton.classList.add('active');
+        }
 
         // 設置標記線控制的默認值
         document.getElementById('markerDate').value = markerDate.toISOString().split('T')[0];

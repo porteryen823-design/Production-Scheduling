@@ -1,0 +1,10 @@
+{
+  "name": "小批量測試 - 8 批次循環",
+  "description": "執行 8 次循環，每次產生 1 個 Lot，批量固定為 1",
+  "cycles": 8,
+  "lots_per_cycle": 1,
+  "lot_quantity_min": 1,
+  "lot_quantity_max": 1,
+  "simulation_iterations": 80,
+  "simulation_timedelta": 60
+}

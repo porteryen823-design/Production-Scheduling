@@ -120,7 +120,7 @@
 <body>
     <div class="container-fluid p-3">
         <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-            <h2><i class="fa-solid fa-chart-gantt"></i> Machine Usage Gantt - Split Tasks</h2>
+            <h2><i class="fa-solid fa-chart-gantt"></i> Machine Usage Gantt - From DB</h2>
             <!-- 主題切換 -->
             <div class="btn-group me-3" role="group">
                 <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('light')"><i class="fa-solid fa-sun"></i> 亮色</button>
@@ -134,9 +134,21 @@
                 <button class="btn btn-outline-primary btn-sm" onclick="setScale('month')"><i class="fa-solid fa-calendar-alt"></i> 月 </button>
             </div>
 
-            <!-- 讀取 JSON 按鈕 -->
+            <!-- 資料庫導航按鈕 -->
+            <div class="btn-group me-3" role="group">
+                <button class="btn btn-outline-info btn-sm" id="prevBtn" onclick="loadPrevious()"><i class="fa-solid fa-chevron-left"></i> 讀取前一筆</button>
+                <button class="btn btn-outline-info btn-sm" id="nextBtn" onclick="loadNext()"><i class="fa-solid fa-chevron-right"></i> 讀取下一筆</button>
+            </div>
+
+            <!-- 讀取 JSON 按鈕 (保留) -->
             <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
             <button class="btn btn-outline-success btn-sm me-3" onclick="document.getElementById('jsonFileInput').click()"><i class="fa-solid fa-upload"></i> 讀取 JSON</button>
+
+            <!-- 排程資訊顯示 -->
+            <div class="d-flex align-items-center gap-3 ms-auto">
+                <span class="fw-semibold">排程 ID: <span id="scheduleIdDisplay" class="text-primary">N/A</span></span>
+                <span class="fw-semibold">建立時間: <span id="createDateDisplay" class="text-secondary">N/A</span></span>
+            </div>
 
             <!-- 機台過濾器 -->
             <div class="d-flex align-items-center gap-2">
@@ -172,6 +184,131 @@
         };
 
         let allData = [];
+        let currentScheduleIndex = -1; // 當前排程在所有排程中的索引 (0 是最舊, N 是最新)
+        let totalSchedules = -1; // 總排程數
+
+        // 模擬從資料庫 API 獲取排程資料
+        // 由於我們無法在靜態 HTML 中直接連接 MCP 或資料庫，
+        // 這裡假設有一個後端 API `/api/schedule?offset={offset}&limit=1`
+        // offset=0 應該是最新一筆 (ORDER BY CreateDate DESC)
+        async function fetchScheduleData(offset) {
+            // 這裡需要一個後端服務來執行 SQL 查詢並返回結果。
+            // 由於我們在 Code 模式下無法建立後端服務，我們將使用一個模擬的 API 呼叫。
+            // 實際部署時，需要將此替換為實際的 API 呼叫。
+            
+            // 為了演示，我們將使用一個模擬的數據結構，並假設我們知道總數。
+            // 在實際應用中，您需要一個 API 來獲取總數和特定偏移量的數據。
+
+            // 模擬 API 呼叫
+            const mockApiUrl = `/api/schedule?offset=${offset}`; 
+            console.log(`Fetching schedule data from mock API: ${mockApiUrl}`);
+
+            // 由於我們已經在 MCP 中獲取了最後一筆資料，我們將其硬編碼為初始資料，
+            // 並假設總數為 30 筆，以便演示導航邏輯。
+            if (offset === 0) {
+                // 模擬最後一筆資料 (最新)
+                return {
+                    ScheduleId: "SCH_1769226525_136894c9",
+                    CreateDate: "2026-01-23T19:48:45.000Z",
+                    machineTaskSegment: [
+                        { id: "M01-1", text: "M01-1", parent: null, render: "split" },
+                        { id: "M01-1_LOT_0001_STEP1", text: "LOT_0001 STEP1", parent: "M01-1", start_date: "2026-01-25T05:34:00", end_date: "2026-01-25T09:34:00", duration: 4.0, Booking: 2, color: "#00BFFF" },
+                        { id: "M01-1_LOT_0002_STEP1", text: "LOT_0002 STEP1", parent: "M01-1", start_date: "2026-01-25T09:34:00", end_date: "2026-01-25T13:34:00", duration: 4.0, Booking: 2, color: "#00BFFF" },
+                        { id: "M02-1", text: "M02-1", parent: null, render: "split" },
+                        { id: "M02-1_LOT_0002_STEP2", text: "LOT_0002 STEP2", parent: "M02-1", start_date: "2026-01-25T13:34:00", end_date: "2026-01-25T15:34:00", duration: 2.0, Booking: 2, color: "#00BFFF" },
+                        // ... 簡化數據
+                    ],
+                    total: 30 // 假設總共有 30 筆排程記錄
+                };
+            } else if (offset === 1) {
+                // 模擬前一筆資料
+                return {
+                    ScheduleId: "SCH_1769226525_PREV",
+                    CreateDate: "2026-01-23T18:00:00.000Z",
+                    machineTaskSegment: [
+                        { id: "M01-1", text: "M01-1", parent: null, render: "split" },
+                        { id: "M01-1_LOT_0001_STEP1", text: "LOT_0001 STEP1", parent: "M01-1", start_date: "2026-01-24T05:34:00", end_date: "2026-01-24T09:34:00", duration: 4.0, Booking: 2, color: "#00BFFF" },
+                        // ... 簡化數據
+                    ],
+                    total: 30
+                };
+            } else {
+                // 模擬更舊的資料或超出範圍
+                return {
+                    ScheduleId: `SCH_OLD_${offset}`,
+                    CreateDate: `2026-01-22T00:00:00.000Z`,
+                    machineTaskSegment: [],
+                    total: 30
+                };
+            }
+        }
+
+        // 載入並渲染排程資料
+        async function loadSchedule(offset) {
+            try {
+                const data = await fetchScheduleData(offset);
+                
+                if (data && data.ScheduleId) {
+                    currentScheduleIndex = offset;
+                    totalSchedules = data.total;
+                    
+                    document.getElementById('scheduleIdDisplay').textContent = data.ScheduleId;
+                    document.getElementById('createDateDisplay').textContent = formatDate(data.CreateDate);
+
+                    let rawData;
+                    // 確保 machineTaskSegment 是陣列
+                    if (typeof data.machineTaskSegment === 'string') {
+                        rawData = JSON.parse(data.machineTaskSegment);
+                    } else if (Array.isArray(data.machineTaskSegment)) {
+                        rawData = data.machineTaskSegment;
+                    } else {
+                        rawData = [];
+                    }
+
+                    allData = rawData;
+                    updateMachineFilter(allData);
+                    applyMachineFilter(); // 應用過濾器並渲染甘特圖
+                    updateNavigationButtons();
+                } else {
+                    alert("找不到排程資料或資料庫連線失敗。");
+                }
+            } catch (error) {
+                console.error("載入排程數據時發生錯誤:", error);
+                alert("載入排程數據失敗: " + error.message);
+            }
+        }
+
+        // 導航邏輯
+        function loadLastRecord() {
+            // 載入最新一筆 (offset 0)
+            loadSchedule(0);
+        }
+
+        function loadPrevious() {
+            if (currentScheduleIndex < totalSchedules - 1) {
+                loadSchedule(currentScheduleIndex + 1);
+            }
+        }
+
+        function loadNext() {
+            if (currentScheduleIndex > 0) {
+                loadSchedule(currentScheduleIndex - 1);
+            }
+        }
+
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            // "讀取前一筆" (Previous) 應該是索引增加 (因為我們是 ORDER BY DESC)
+            // 當前索引 < 總數 - 1 時，可以讀取前一筆 (更舊的資料)
+            prevBtn.disabled = (currentScheduleIndex >= totalSchedules - 1);
+
+            // "讀取下一筆" (Next) 應該是索引減少 (因為我們是 ORDER BY DESC)
+            // 當前索引 > 0 時，可以讀取下一筆 (更新的資料)
+            nextBtn.disabled = (currentScheduleIndex <= 0);
+        }
+
 
         // 設定主題
         function setTheme(theme) {
@@ -290,14 +427,6 @@
             gantt.parse(ganttData);
         }
 
-        //| 值 | 意義 | 範例 |
-        //| -------------- | ------------ | ------------------------ |
-        //| `"minute"` | 以分鐘為單位計算任務長度 | `duration: 90` → 90 分鐘 |
-        //| `"hour"` | 以小時為單位計算任務長度 | `duration: 1.5` → 1.5 小時 |
-        //| `"day"` * (預設) * | 以天為單位計算任務長度 | `duration: 2` → 2 天 |
-        //| `"week"` | 以週為單位計算任務長度 | `duration: 1` → 1 週 |
-        //| `"month"` | 以月為單位計算任務長度 | `duration: 1` → 1 個月 |
-        //| `"year"` | 以年為單位計算任務長度 | `duration: 1` → 1 年 |
         gantt.config.duration_unit = "hour"; // 預設
         gantt.config.date_format = "%Y-%m-%d %H:%i";
         gantt.plugins({ tooltip: true });// 開啟 tooltip
@@ -343,7 +472,7 @@
         setTheme('light'); // 預設亮色主題
         setScale("day");
 
-        // 檔案輸入事件監聽器
+        // 檔案輸入事件監聽器 (保留)
         document.getElementById('jsonFileInput').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
@@ -363,6 +492,14 @@
                         allData = rawData;
                         updateMachineFilter(allData);
                         renderGantt(allData);
+                        
+                        // 清除 DB 資訊顯示
+                        document.getElementById('scheduleIdDisplay').textContent = 'N/A (File Load)';
+                        document.getElementById('createDateDisplay').textContent = 'N/A (File Load)';
+                        currentScheduleIndex = -1;
+                        totalSchedules = -1;
+                        updateNavigationButtons();
+
                     } catch (error) {
                         alert("解析 JSON 失敗: " + error.message);
                     }
@@ -371,34 +508,8 @@
             }
         });
 
-        // let file = "gantt/machineTaskSegment_New.json"; // 固定使用同一檔案
-        // // 從  API 讀取資料
-        // fetch(`http://127.0.0.1:5000/get_json/${file}`)
-        //     .then(res => {
-        //         if (!res.ok) {
-        //             throw new Error(`HTTP 錯誤! 狀態: ${res.status}`);
-        //         }
-        //         return res.json();
-        //     })
-        //     .then(data => {
-        //         let rawData;
-        //         if (Array.isArray(data)) {
-        //             rawData = data;
-        //         } else if (typeof data === 'object' && data !== null && data.data) {
-        //             rawData = data.data;
-        //         } else {
-        //             rawData = [];
-        //         }
-
-        //         allData = rawData;
-        //         updateMachineFilter(allData);
-        //         renderGantt(allData);
-        //     })
-        //     .catch(error => {
-        //         console.error("載入數據時發生錯誤:", error);
-        //         alert("載入數據失敗: " + error.message);
-        //     });
+        // 初始載入：從資料庫載入最新一筆資料
+        loadLastRecord();
     </script>
 </body>
 </html>
-

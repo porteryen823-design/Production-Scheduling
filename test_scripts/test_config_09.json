@@ -1,0 +1,10 @@
+{
+  "name": "高頻測試 - 25 批次循環",
+  "description": "執行 25 次循環，每次產生 3 個 Lot，批量隨機 1-3，高頻率測試",
+  "cycles": 25,
+  "lots_per_cycle": 3,
+  "lot_quantity_min": 1,
+  "lot_quantity_max": 3,
+  "simulation_iterations": 80,
+  "simulation_timedelta": 45
+}

@@ -1,0 +1,10 @@
+{
+  "name": "長時間測試 - 15 批次循環",
+  "description": "執行 15 次循環，每次產生 6 個 Lot，批量隨機 1-4，模擬時間較長",
+  "cycles": 15,
+  "lots_per_cycle": 6,
+  "lot_quantity_min": 1,
+  "lot_quantity_max": 4,
+  "simulation_iterations": 150,
+  "simulation_timedelta": 120
+}

@@ -1,0 +1,10 @@
+{
+  "name": "基本測試 - 5 批次循環",
+  "description": "執行 5 次循環，每次產生 1 個 Lot，批量隨機 1-4",
+  "cycles": 5,
+  "lots_per_cycle": 1,
+  "lot_quantity_min": 1,
+  "lot_quantity_max": 4,
+  "simulation_iterations": 50,
+  "simulation_timedelta": 60
+}

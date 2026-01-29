@@ -28,6 +28,40 @@ db_config = {
     'database': os.getenv('MYSQL_DATABASE')
 }
 
+def load_simulation_settings():
+    """從資料庫載入模擬設定"""
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT parameter_name, parameter_value FROM ui_settings WHERE parameter_name IN ('spin_iterations', 'spin_timedelta')")
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        # 將結果轉換為字典
+        settings = {row['parameter_name']: row['parameter_value'] for row in rows}
+        return settings
+    except Exception as e:
+        print(f"Warning: Could not load settings from database: {e}", flush=True)
+        return None
+
+# 嘗試從資料庫載入設定
+db_settings = load_simulation_settings()
+iterations = args.iterations
+time_delta = args.timedelta
+
+if db_settings:
+    try:
+        if 'spin_iterations' in db_settings:
+            iterations = int(db_settings['spin_iterations'])
+        if 'spin_timedelta' in db_settings:
+            time_delta = int(db_settings['spin_timedelta'])
+        print(f"Loaded settings from database: Iterations={iterations}, TimeDelta={time_delta}", flush=True)
+    except (ValueError, TypeError):
+        print(f"Warning: Settings in database are not valid numbers, using defaults.", flush=True)
+else:
+    print(f"Using command line/default settings: Iterations={iterations}, TimeDelta={time_delta}", flush=True)
+
 def load_lot_operations():
     """載入 LotOperations 資料"""
     try:
@@ -116,7 +150,7 @@ if not operations:
 
 # 模擬開始
 simulation_time = SIMULATE_START
-for i in range(args.iterations):
+for i in range(iterations):
     print(f"\nSimulation time: {simulation_time.strftime('%Y-%m-%d %H:%M:%S')}", flush=True)
 
     # 檢查每個作業步驟
@@ -137,8 +171,36 @@ for i in range(args.iterations):
             if update_operation_status(op, checkout_time=simulation_time, step_status=2):
                 print(f"  {lot_id} {step}: CheckOut - {simulation_time.strftime('%H:%M:%S')}", flush=True)
 
-    simulation_time += timedelta(seconds=args.timedelta)
-    time.sleep(0.1)  # 模擬延遲，方便觀察輸出
+    simulation_time += timedelta(seconds=time_delta)
+    time.sleep(0.02)  # 模擬延遲，方便觀察輸出
+
+
+
 
 
 print("\nSimulation completed", flush=True)
+
+# 更新 SimulationData 紀錄 (先刪除舊資料，再新增)
+try:
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    
+    # 計算最後模擬的時間點
+    final_time = simulation_time - timedelta(seconds=time_delta)
+    
+    # 1. 刪除所有舊紀錄
+    cursor.execute("DELETE FROM SimulationData")
+    print("Old simulation data cleared.", flush=True)
+    
+    # 2. 強制使用新增方式
+    query = "INSERT INTO SimulationData (simulation_start_time, simulation_end_time) VALUES (%s, %s)"
+    cursor.execute(query, (SIMULATE_START, final_time))
+    print(f"Inserted new SimulationData with Start: {SIMULATE_START}, End: {final_time}", flush=True)
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
+except mysql.connector.Error as err:
+    print(f"Database error during SimulationData update: {err}", flush=True)
+except Exception as e:
+    print(f"Error during SimulationData update: {e}", flush=True)

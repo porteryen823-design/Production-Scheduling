@@ -1,0 +1,10 @@
+{
+  "name": "極限測試 - 30 批次循環",
+  "description": "執行 30 次循環，每次產生 7 個 Lot，批量隨機 1-4，極限壓力測試",
+  "cycles": 30,
+  "lots_per_cycle": 7,
+  "lot_quantity_min": 1,
+  "lot_quantity_max": 4,
+  "simulation_iterations": 250,
+  "simulation_timedelta": 60
+}

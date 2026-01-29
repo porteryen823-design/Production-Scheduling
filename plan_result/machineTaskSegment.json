@@ -14,11 +14,65 @@
         "text": "LOT_0001 STEP1",
         "parent": "M01-2",
         "render": null,
-        "start_date": "2026-01-24T17:04:00",
-        "end_date": "2026-01-24T21:04:00",
+        "start_date": "2026-01-22T14:00:00",
+        "end_date": "2026-01-22T18:00:00",
+        "duration": 4.0,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M01-3",
+        "text": "M01-3",
+        "parent": null,
+        "render": "split",
+        "start_date": null,
+        "end_date": null,
+        "duration": 0,
+        "color": null
+    },
+    {
+        "id": "M01-3_LOT_0002_STEP1",
+        "text": "LOT_0002 STEP1",
+        "parent": "M01-3",
+        "render": null,
+        "start_date": "2026-01-23T02:35:00",
+        "end_date": "2026-01-23T06:35:00",
+        "duration": 4.0,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M01-3_LOT_0003_STEP1",
+        "text": "LOT_0003 STEP1",
+        "parent": "M01-3",
+        "render": null,
+        "start_date": "2026-01-23T15:10:00",
+        "end_date": "2026-01-23T19:10:00",
+        "duration": 4.0,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M01-3_LOT_0004_STEP1",
+        "text": "LOT_0004 STEP1",
+        "parent": "M01-3",
+        "render": null,
+        "start_date": "2026-01-24T03:45:00",
+        "end_date": "2026-01-24T07:45:00",
+        "duration": 4.0,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M01-3_LOT_0005_STEP1",
+        "text": "LOT_0005 STEP1",
+        "parent": "M01-3",
+        "render": null,
+        "start_date": "2026-01-24T16:20:00",
+        "end_date": "2026-01-24T20:20:00",
         "duration": 4.0,
         "Booking": 0,
-        "color": "#00BFFF"
+        "color": "#5DC85D"
     },
     {
         "id": "M02-2",
@@ -35,11 +89,55 @@
         "text": "LOT_0001 STEP2",
         "parent": "M02-2",
         "render": null,
-        "start_date": "2026-01-25T21:20:00",
-        "end_date": "2026-01-25T23:20:00",
+        "start_date": "2026-01-22T18:00:00",
+        "end_date": "2026-01-22T20:00:00",
+        "duration": 2.0,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M02-2_LOT_0002_STEP2",
+        "text": "LOT_0002 STEP2",
+        "parent": "M02-2",
+        "render": null,
+        "start_date": "2026-01-23T06:35:00",
+        "end_date": "2026-01-23T08:35:00",
+        "duration": 2.0,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M02-2_LOT_0003_STEP2",
+        "text": "LOT_0003 STEP2",
+        "parent": "M02-2",
+        "render": null,
+        "start_date": "2026-01-23T19:10:00",
+        "end_date": "2026-01-23T21:10:00",
+        "duration": 2.0,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M02-2_LOT_0004_STEP2",
+        "text": "LOT_0004 STEP2",
+        "parent": "M02-2",
+        "render": null,
+        "start_date": "2026-01-24T07:45:00",
+        "end_date": "2026-01-24T09:45:00",
+        "duration": 2.0,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M02-2_LOT_0005_STEP2",
+        "text": "LOT_0005 STEP2",
+        "parent": "M02-2",
+        "render": null,
+        "start_date": "2026-01-24T20:20:00",
+        "end_date": "2026-01-24T22:20:00",
         "duration": 2.0,
         "Booking": 0,
-        "color": "#00BFFF"
+        "color": "#5DC85D"
     },
     {
         "id": "M03-3",
@@ -56,11 +154,109 @@
         "text": "LOT_0001 STEP3",
         "parent": "M03-3",
         "render": null,
-        "start_date": "2026-01-25T23:20:00",
-        "end_date": "2026-01-26T04:20:00",
+        "start_date": "2026-01-22T20:00:00",
+        "end_date": "2026-01-23T01:00:00",
+        "duration": 5.0,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M03-3_LOT_0002_STEP3",
+        "text": "LOT_0002 STEP3",
+        "parent": "M03-3",
+        "render": null,
+        "start_date": "2026-01-23T08:35:00",
+        "end_date": "2026-01-23T13:35:00",
+        "duration": 5.0,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M03-3_LOT_0003_STEP3",
+        "text": "LOT_0003 STEP3",
+        "parent": "M03-3",
+        "render": null,
+        "start_date": "2026-01-23T21:10:00",
+        "end_date": "2026-01-24T02:10:00",
+        "duration": 5.0,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M03-3_LOT_0004_STEP3",
+        "text": "LOT_0004 STEP3",
+        "parent": "M03-3",
+        "render": null,
+        "start_date": "2026-01-24T09:45:00",
+        "end_date": "2026-01-24T14:45:00",
+        "duration": 5.0,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M03-3_LOT_0005_STEP3",
+        "text": "LOT_0005 STEP3",
+        "parent": "M03-3",
+        "render": null,
+        "start_date": "2026-01-24T22:20:00",
+        "end_date": "2026-01-25T03:20:00",
         "duration": 5.0,
         "Booking": 0,
+        "color": "#5DC85D"
+    },
+    {
+        "id": "M04-1",
+        "text": "M04-1",
+        "parent": null,
+        "render": "split",
+        "start_date": null,
+        "end_date": null,
+        "duration": 0,
+        "color": null
+    },
+    {
+        "id": "M04-1_LOT_0002_STEP4",
+        "text": "LOT_0002 STEP4",
+        "parent": "M04-1",
+        "render": null,
+        "start_date": "2026-01-23T13:35:00",
+        "end_date": "2026-01-23T18:15:00",
+        "duration": 4.666666666666667,
+        "Booking": 2,
         "color": "#00BFFF"
+    },
+    {
+        "id": "M04-1_LOT_0003_STEP4",
+        "text": "LOT_0003 STEP4",
+        "parent": "M04-1",
+        "render": null,
+        "start_date": "2026-01-24T02:10:00",
+        "end_date": "2026-01-24T06:50:00",
+        "duration": 4.666666666666667,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M04-1_LOT_0004_STEP4",
+        "text": "LOT_0004 STEP4",
+        "parent": "M04-1",
+        "render": null,
+        "start_date": "2026-01-24T14:45:00",
+        "end_date": "2026-01-24T19:25:00",
+        "duration": 4.666666666666667,
+        "Booking": 1,
+        "color": "#FFE5B4"
+    },
+    {
+        "id": "M04-1_LOT_0005_STEP4",
+        "text": "LOT_0005 STEP4",
+        "parent": "M04-1",
+        "render": null,
+        "start_date": "2026-01-25T03:20:00",
+        "end_date": "2026-01-25T08:00:00",
+        "duration": 4.666666666666667,
+        "Booking": 0,
+        "color": "#5DC85D"
     },
     {
         "id": "M04-3",
@@ -77,10 +273,10 @@
         "text": "LOT_0001 STEP4",
         "parent": "M04-3",
         "render": null,
-        "start_date": "2026-01-26T04:20:00",
-        "end_date": "2026-01-26T09:00:00",
+        "start_date": "2026-01-23T01:00:00",
+        "end_date": "2026-01-23T05:40:00",
         "duration": 4.666666666666667,
-        "Booking": 0,
+        "Booking": 2,
         "color": "#00BFFF"
     },
     {
@@ -98,11 +294,55 @@
         "text": "LOT_0001 STEP5",
         "parent": "M05-2",
         "render": null,
-        "start_date": "2026-01-26T09:00:00",
-        "end_date": "2026-01-26T15:00:00",
+        "start_date": "2026-01-23T05:40:00",
+        "end_date": "2026-01-23T11:40:00",
+        "duration": 6.0,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M05-2_LOT_0002_STEP5",
+        "text": "LOT_0002 STEP5",
+        "parent": "M05-2",
+        "render": null,
+        "start_date": "2026-01-23T18:15:00",
+        "end_date": "2026-01-24T00:15:00",
+        "duration": 6.0,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M05-2_LOT_0003_STEP5",
+        "text": "LOT_0003 STEP5",
+        "parent": "M05-2",
+        "render": null,
+        "start_date": "2026-01-24T06:50:00",
+        "end_date": "2026-01-24T12:50:00",
+        "duration": 6.0,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M05-2_LOT_0004_STEP5",
+        "text": "LOT_0004 STEP5",
+        "parent": "M05-2",
+        "render": null,
+        "start_date": "2026-01-24T19:25:00",
+        "end_date": "2026-01-25T01:25:00",
+        "duration": 6.0,
+        "Booking": 10,
+        "color": "#2C562C"
+    },
+    {
+        "id": "M05-2_LOT_0005_STEP5",
+        "text": "LOT_0005 STEP5",
+        "parent": "M05-2",
+        "render": null,
+        "start_date": "2026-01-25T08:00:00",
+        "end_date": "2026-01-25T14:00:00",
         "duration": 6.0,
         "Booking": 0,
-        "color": "#00BFFF"
+        "color": "#5DC85D"
     },
     {
         "id": "M06-2",
@@ -119,11 +359,55 @@
         "text": "LOT_0001 STEP6",
         "parent": "M06-2",
         "render": null,
-        "start_date": "2026-01-26T15:00:00",
-        "end_date": "2026-01-26T18:20:00",
+        "start_date": "2026-01-23T11:40:00",
+        "end_date": "2026-01-23T15:00:00",
+        "duration": 3.3333333333333335,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M06-2_LOT_0002_STEP6",
+        "text": "LOT_0002 STEP6",
+        "parent": "M06-2",
+        "render": null,
+        "start_date": "2026-01-24T00:15:00",
+        "end_date": "2026-01-24T03:35:00",
+        "duration": 3.3333333333333335,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M06-2_LOT_0003_STEP6",
+        "text": "LOT_0003 STEP6",
+        "parent": "M06-2",
+        "render": null,
+        "start_date": "2026-01-24T12:50:00",
+        "end_date": "2026-01-24T16:10:00",
+        "duration": 3.3333333333333335,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M06-2_LOT_0004_STEP6",
+        "text": "LOT_0004 STEP6",
+        "parent": "M06-2",
+        "render": null,
+        "start_date": "2026-01-25T01:25:00",
+        "end_date": "2026-01-25T04:45:00",
+        "duration": 3.3333333333333335,
+        "Booking": 10,
+        "color": "#2C562C"
+    },
+    {
+        "id": "M06-2_LOT_0005_STEP6",
+        "text": "LOT_0005 STEP6",
+        "parent": "M06-2",
+        "render": null,
+        "start_date": "2026-01-25T14:00:00",
+        "end_date": "2026-01-25T17:20:00",
         "duration": 3.3333333333333335,
         "Booking": 0,
-        "color": "#00BFFF"
+        "color": "#5DC85D"
     },
     {
         "id": "M07-2",
@@ -140,11 +424,76 @@
         "text": "LOT_0001 STEP7",
         "parent": "M07-2",
         "render": null,
-        "start_date": "2026-01-26T18:20:00",
-        "end_date": "2026-01-26T21:20:00",
+        "start_date": "2026-01-23T15:00:00",
+        "end_date": "2026-01-23T18:00:00",
+        "duration": 3.0,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M07-2_LOT_0002_STEP7",
+        "text": "LOT_0002 STEP7",
+        "parent": "M07-2",
+        "render": null,
+        "start_date": "2026-01-24T03:35:00",
+        "end_date": "2026-01-24T06:35:00",
+        "duration": 3.0,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M07-2_LOT_0003_STEP7",
+        "text": "LOT_0003 STEP7",
+        "parent": "M07-2",
+        "render": null,
+        "start_date": "2026-01-24T16:10:00",
+        "end_date": "2026-01-24T19:10:00",
+        "duration": 3.0,
+        "Booking": 1,
+        "color": "#FFE5B4"
+    },
+    {
+        "id": "M07-2_LOT_0004_STEP7",
+        "text": "LOT_0004 STEP7",
+        "parent": "M07-2",
+        "render": null,
+        "start_date": "2026-01-25T04:45:00",
+        "end_date": "2026-01-25T07:45:00",
+        "duration": 3.0,
+        "Booking": 10,
+        "color": "#2C562C"
+    },
+    {
+        "id": "M07-2_LOT_0005_STEP7",
+        "text": "LOT_0005 STEP7",
+        "parent": "M07-2",
+        "render": null,
+        "start_date": "2026-01-25T17:20:00",
+        "end_date": "2026-01-25T20:20:00",
         "duration": 3.0,
         "Booking": 0,
-        "color": "#00BFFF"
+        "color": "#5DC85D"
+    },
+    {
+        "id": "M08-2",
+        "text": "M08-2",
+        "parent": null,
+        "render": "split",
+        "start_date": null,
+        "end_date": null,
+        "duration": 0,
+        "color": null
+    },
+    {
+        "id": "M08-2_LOT_0005_STEP8",
+        "text": "LOT_0005 STEP8",
+        "parent": "M08-2",
+        "render": null,
+        "start_date": "2026-01-25T20:20:00",
+        "end_date": "2026-01-25T23:00:00",
+        "duration": 2.6666666666666665,
+        "Booking": 0,
+        "color": "#5DC85D"
     },
     {
         "id": "M08-4",
@@ -161,10 +510,43 @@
         "text": "LOT_0001 STEP8",
         "parent": "M08-4",
         "render": null,
-        "start_date": "2026-01-26T21:20:00",
-        "end_date": "2026-01-27T00:00:00",
+        "start_date": "2026-01-23T18:00:00",
+        "end_date": "2026-01-23T20:40:00",
         "duration": 2.6666666666666665,
-        "Booking": 0,
+        "Booking": 2,
         "color": "#00BFFF"
+    },
+    {
+        "id": "M08-4_LOT_0002_STEP8",
+        "text": "LOT_0002 STEP8",
+        "parent": "M08-4",
+        "render": null,
+        "start_date": "2026-01-24T06:35:00",
+        "end_date": "2026-01-24T09:15:00",
+        "duration": 2.6666666666666665,
+        "Booking": 2,
+        "color": "#00BFFF"
+    },
+    {
+        "id": "M08-4_LOT_0003_STEP8",
+        "text": "LOT_0003 STEP8",
+        "parent": "M08-4",
+        "render": null,
+        "start_date": "2026-01-24T19:10:00",
+        "end_date": "2026-01-24T21:50:00",
+        "duration": 2.6666666666666665,
+        "Booking": 10,
+        "color": "#2C562C"
+    },
+    {
+        "id": "M08-4_LOT_0004_STEP8",
+        "text": "LOT_0004 STEP8",
+        "parent": "M08-4",
+        "render": null,
+        "start_date": "2026-01-25T07:45:00",
+        "end_date": "2026-01-25T10:25:00",
+        "duration": 2.6666666666666665,
+        "Booking": 10,
+        "color": "#2C562C"
     }
 ]

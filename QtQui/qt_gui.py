@@ -2,6 +2,7 @@ import sys
 import os
 import subprocess
 import threading
+import json
 from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional, cast
 from PyQt5.QtWidgets import (
@@ -62,13 +63,14 @@ class MainWindow(QMainWindow):
         # 載入設定
         self.load_settings()
 
-        # 建立六個分頁
+        # 建立七個分頁
         self.create_tab1()  # 清空測試資料
         self.create_tab2()  # 產生 Lots
         self.create_tab3()  # 模擬時鐘
         self.create_tab4()  # 重新排成
         self.create_tab5()  # Lots 資料
         self.create_tab6()  # LotOperations 資料
+        self.create_tab7()  # 自動化測試
 
     def create_tab1(self):
         """第一個分頁：清空測試資料"""
@@ -791,6 +793,34 @@ class MainWindow(QMainWindow):
 
         if exit_code == 0:
             self.text_simulation_result.append('<span style="color: #28A745; font-weight: bold;">模擬完成</span>')
+            
+            # 從資料庫讀取最後的模擬時間
+            try:
+                conn = mysql.connector.connect(**db_config)
+                cursor = conn.cursor()
+                cursor.execute("SELECT simulation_end_time FROM SimulationData ORDER BY id DESC LIMIT 1")
+                result = cursor.fetchone()
+                cursor.close()
+                conn.close()
+
+                if result and result[0]:
+                    simulation_end_time = result[0]
+                    if isinstance(simulation_end_time, str):
+                        simulation_end_time = datetime.strptime(simulation_end_time, '%Y-%m-%d %H:%M:%S')
+                    
+                    # 新的開始時間 = 模擬結束時間 + 10 分鐘
+                    new_start_time = simulation_end_time + timedelta(minutes=10)
+                    
+                    # 更新 UI 控制項
+                    self.datetime_start.setDateTime(QDateTime(new_start_time))
+                    self.datetime_reschedule_start.setDateTime(QDateTime(new_start_time))
+                    
+                    # 儲存到資料庫設定
+                    self.save_settings()
+                    
+                    self.text_simulation_result.append(f'<span style="color: #6C757D;">自動更新下次開始時間為: {new_start_time.strftime("%Y-%m-%d %H:%M:%S")}</span>')
+            except Exception as e:
+                print(f"更新模擬結束時間失敗: {e}")
         else:
             self.text_simulation_result.append(f'<span style="color: #DC3545; font-weight: bold;">模擬異常結束 (代碼: {exit_code})</span>')
 
@@ -902,12 +932,14 @@ class MainWindow(QMainWindow):
                 conn = mysql.connector.connect(**db_config)
                 cursor = conn.cursor(dictionary=True)
 
-                cursor.execute("SELECT * FROM GUISettings WHERE id = 1")
-                settings = cursor.fetchone()
+                cursor.execute("SELECT parameter_name, parameter_value FROM ui_settings")
+                rows = cursor.fetchall()
 
                 cursor.close()
                 conn.close()
 
+                # 將結果轉換為字典
+                settings = {row['parameter_name']: row['parameter_value'] for row in rows}
                 return settings
 
             except mysql.connector.Error as err:
@@ -917,15 +949,29 @@ class MainWindow(QMainWindow):
                 print(f"載入設定錯誤: {e}")
                 return None
 
+        def convert_value(value, value_type, default):
+            """轉換資料型別"""
+            if value is None:
+                return default
+            try:
+                if value_type == 'int':
+                    return int(value)
+                elif value_type == 'str':
+                    return str(value)
+                else:
+                    return value
+            except (ValueError, TypeError):
+                return default
+
         # 載入設定
         settings = run_load_settings()
         if settings:
-            # 設定預設值
-            self.default_spin_lot_count = settings.get('spin_lot_count', 5)
-            self.default_datetime_start = settings.get('datetime_start', '2026-01-22 14:00:00')
-            self.default_spin_iterations = settings.get('spin_iterations', 50)
-            self.default_spin_timedelta = settings.get('spin_timedelta', 60)
-            self.default_datetime_reschedule_start = settings.get('datetime_reschedule_start', '2026-01-22 14:00:00')
+            # 設定預設值，並進行型別轉換
+            self.default_spin_lot_count = convert_value(settings.get('spin_lot_count'), 'int', 5)
+            self.default_datetime_start = convert_value(settings.get('datetime_start'), 'str', '2026-01-22 14:00:00')
+            self.default_spin_iterations = convert_value(settings.get('spin_iterations'), 'int', 50)
+            self.default_spin_timedelta = convert_value(settings.get('spin_timedelta'), 'int', 60)
+            self.default_datetime_reschedule_start = convert_value(settings.get('datetime_reschedule_start'), 'str', '2026-01-22 14:00:00')
         else:
             # 使用硬編碼預設值
             self.default_spin_lot_count = 5
@@ -954,16 +1000,22 @@ class MainWindow(QMainWindow):
                 spin_timedelta = self.spin_timedelta.value()
                 datetime_reschedule_start = self.datetime_reschedule_start.dateTime().toPyDateTime().strftime('%Y-%m-%d %H:%M:%S')
 
-                # 更新設定
-                cursor.execute("""
-                    UPDATE GUISettings SET
-                        spin_lot_count = %s,
-                        datetime_start = %s,
-                        spin_iterations = %s,
-                        spin_timedelta = %s,
-                        datetime_reschedule_start = %s
-                    WHERE id = 1
-                """, (spin_lot_count, datetime_start, spin_iterations, spin_timedelta, datetime_reschedule_start))
+                # 定義參數映射
+                parameters = [
+                    ('spin_lot_count', str(spin_lot_count)),
+                    ('datetime_start', datetime_start),
+                    ('spin_iterations', str(spin_iterations)),
+                    ('spin_timedelta', str(spin_timedelta)),
+                    ('datetime_reschedule_start', datetime_reschedule_start)
+                ]
+
+                # 使用 INSERT ... ON DUPLICATE KEY UPDATE 更新設定
+                for param_name, param_value in parameters:
+                    cursor.execute("""
+                        INSERT INTO ui_settings (parameter_name, parameter_value)
+                        VALUES (%s, %s)
+                        ON DUPLICATE KEY UPDATE parameter_value = %s
+                    """, (param_name, param_value, param_value))
 
                 conn.commit()
                 cursor.close()
@@ -982,6 +1034,331 @@ class MainWindow(QMainWindow):
         success = run_save_settings()
         if not success:
             QMessageBox.warning(self, "錯誤", "儲存設定失敗")
+
+    def create_tab7(self):
+        """第七個分頁：自動化測試"""
+        tab = QWidget()
+        layout = QVBoxLayout(tab)
+
+        # 標題
+        title = QLabel("自動化測試")
+        title.setFont(QFont("Arial", 14, QFont.Bold))
+        layout.addWidget(title)
+
+        # 說明文字
+        description = QLabel(
+            "選擇測試腳本並執行完整的自動化測試流程：\n"
+            "1. 清空測試資料\n"
+            "2. 產生 Lot（可設定批量）\n"
+            "3. 重新排程\n"
+            "4. 模擬時鐘\n"
+            "5. 重複步驟 2-4 共 N 次"
+        )
+        description.setStyleSheet("color: #6C757D; padding: 10px; background-color: #F8F9FA; border-radius: 5px;")
+        layout.addWidget(description)
+
+        # 測試腳本選擇區域
+        script_group = QGroupBox("測試腳本選擇")
+        script_layout = QVBoxLayout(script_group)
+
+        # 腳本列表
+        self.test_script_list = QListWidget()
+        self.test_script_list.setAlternatingRowColors(True)
+        self.test_script_list.currentItemChanged.connect(self.on_test_script_selected)
+        script_layout.addWidget(self.test_script_list)
+
+        # 腳本詳細資訊
+        self.test_script_info = QTextEdit()
+        self.test_script_info.setReadOnly(True)
+        self.test_script_info.setMaximumHeight(120)
+        self.test_script_info.setAcceptRichText(True)
+        script_layout.addWidget(self.test_script_info)
+
+        layout.addWidget(script_group)
+
+        # 控制按鈕
+        button_layout = QHBoxLayout()
+        
+        self.btn_refresh_scripts = QPushButton("🔄 重新載入腳本")
+        self.btn_refresh_scripts.clicked.connect(self.load_test_scripts)
+        button_layout.addWidget(self.btn_refresh_scripts)
+
+        self.btn_run_test = QPushButton("▶️ 執行測試")
+        self.btn_run_test.clicked.connect(self.run_automated_test)
+        self.btn_run_test.setEnabled(False)
+        self.btn_run_test.setStyleSheet("""
+            QPushButton {
+                background-color: #28A745;
+                color: white;
+                font-weight: bold;
+                padding: 8px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #218838;
+            }
+            QPushButton:disabled {
+                background-color: #6C757D;
+            }
+        """)
+        button_layout.addWidget(self.btn_run_test)
+
+        self.btn_stop_test = QPushButton("⏹️ 停止測試")
+        self.btn_stop_test.clicked.connect(self.stop_automated_test)
+        self.btn_stop_test.setEnabled(False)
+        self.btn_stop_test.setStyleSheet("""
+            QPushButton {
+                background-color: #DC3545;
+                color: white;
+                font-weight: bold;
+                padding: 8px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #C82333;
+            }
+            QPushButton:disabled {
+                background-color: #6C757D;
+            }
+        """)
+        button_layout.addWidget(self.btn_stop_test)
+
+        layout.addLayout(button_layout)
+
+        # 執行結果顯示區域
+        result_label = QLabel("執行結果")
+        result_label.setFont(QFont("Arial", 12, QFont.Bold))
+        layout.addWidget(result_label)
+
+        self.text_test_result = QTextEdit()
+        self.text_test_result.setReadOnly(True)
+        self.text_test_result.setAcceptRichText(True)
+        layout.addWidget(self.text_test_result)
+
+        # QProcess 相關變數
+        self.test_process: Optional[QProcess] = None
+        self.selected_test_config: Optional[str] = None
+
+        self.tab_widget.addTab(tab, "自動化測試")
+
+        # 載入測試腳本
+        self.load_test_scripts()
+
+    def load_test_scripts(self):
+        """載入測試腳本列表"""
+        self.test_script_list.clear()
+        self.test_script_info.clear()
+        
+        # 取得測試腳本目錄
+        test_scripts_dir = os.path.join(os.path.dirname(__file__), '..', 'test_scripts')
+        
+        if not os.path.exists(test_scripts_dir):
+            self.test_script_info.setHtml(
+                '<span style="color: #DC3545; font-weight: bold;">❌ 測試腳本目錄不存在</span>'
+            )
+            return
+        
+        # 讀取所有 JSON 配置檔案
+        config_files = []
+        for filename in os.listdir(test_scripts_dir):
+            if filename.endswith('.json'):
+                filepath = os.path.join(test_scripts_dir, filename)
+                try:
+                    with open(filepath, 'r', encoding='utf-8') as f:
+                        config = json.load(f)
+                        config_files.append({
+                            'filename': filename,
+                            'filepath': filepath,
+                            'config': config
+                        })
+                except Exception as e:
+                    print(f"載入配置檔案 {filename} 失敗: {e}")
+        
+        # 排序並加入列表
+        config_files.sort(key=lambda x: x['filename'])
+        
+        for item in config_files:
+            config = item['config']
+            display_name = f"{config['name']} ({item['filename']})"
+            list_item = self.test_script_list.addItem(display_name)
+            # 將完整路徑存儲在 item 的 data 中
+            self.test_script_list.item(self.test_script_list.count() - 1).setData(256, item['filepath'])
+        
+        if config_files:
+            self.test_script_info.setHtml(
+                f'<span style="color: #28A745;">✅ 載入了 {len(config_files)} 個測試腳本</span>'
+            )
+        else:
+            self.test_script_info.setHtml(
+                '<span style="color: #FFC107;">⚠️ 沒有找到測試腳本</span>'
+            )
+
+    def on_test_script_selected(self, current, previous):
+        """當選擇測試腳本時"""
+        if current is None:
+            self.btn_run_test.setEnabled(False)
+            self.selected_test_config = None
+            return
+        
+        # 取得配置檔案路徑
+        config_path = current.data(256)
+        self.selected_test_config = config_path
+        
+        # 讀取並顯示配置詳情
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+            
+            info_html = f"""
+            <div style="padding: 10px; background-color: #F8F9FA; border-radius: 5px;">
+                <h3 style="color: #2E86AB; margin-top: 0;">{config['name']}</h3>
+                <p style="color: #6C757D; margin: 5px 0;"><strong>描述：</strong>{config['description']}</p>
+                <p style="color: #333; margin: 5px 0;"><strong>循環次數：</strong>{config['cycles']}</p>
+                <p style="color: #333; margin: 5px 0;"><strong>每次產生 Lot 數：</strong>{config['lots_per_cycle']}</p>
+                <p style="color: #333; margin: 5px 0;"><strong>批量範圍：</strong>{config['lot_quantity_min']}-{config['lot_quantity_max']}</p>
+                <p style="color: #333; margin: 5px 0;"><strong>模擬次數：</strong>{config['simulation_iterations']}</p>
+                <p style="color: #333; margin: 5px 0;"><strong>時間增量：</strong>{config['simulation_timedelta']} 秒</p>
+                <p style="color: #28A745; margin: 5px 0; font-weight: bold;">
+                    總計將產生 {config['cycles'] * config['lots_per_cycle']} 個 Lot
+                </p>
+            </div>
+            """
+            
+            self.test_script_info.setHtml(info_html)
+            self.btn_run_test.setEnabled(True)
+            
+        except Exception as e:
+            self.test_script_info.setHtml(
+                f'<span style="color: #DC3545;">❌ 讀取配置失敗: {e}</span>'
+            )
+            self.btn_run_test.setEnabled(False)
+
+    def run_automated_test(self):
+        """執行自動化測試"""
+        if self.test_process is not None:
+            return
+        
+        if self.selected_test_config is None:
+            QMessageBox.warning(self, "錯誤", "請先選擇測試腳本")
+            return
+        
+        # 確認執行
+        reply = QMessageBox.question(
+            self,
+            "確認執行",
+            "確定要執行自動化測試嗎？\n這將清空所有測試資料並重新開始。",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        
+        if reply != QMessageBox.Yes:
+            return
+        
+        # 建構命令
+        runner_script_path = os.path.join(os.path.dirname(__file__), '..', 'automated_test_runner.py')
+        args = [
+            sys.executable,
+            '-u',  # 強制無緩衝輸出
+            runner_script_path,
+            '--config', self.selected_test_config
+        ]
+        
+        # 啟動 QProcess
+        self.test_process = QProcess()
+        self.test_process.readyReadStandardOutput.connect(self.handle_test_output)
+        self.test_process.readyReadStandardError.connect(self.handle_test_error)
+        self.test_process.finished.connect(self.on_test_finished)
+        
+        self.test_process.start(args[0], args[1:])
+        
+        # 更新 UI
+        self.btn_run_test.setEnabled(False)
+        self.btn_stop_test.setEnabled(True)
+        self.btn_refresh_scripts.setEnabled(False)
+        self.test_script_list.setEnabled(False)
+        
+        self.text_test_result.clear()
+        self.text_test_result.append(
+            '<span style="color: #28A745; font-weight: bold; font-size: 14px;">🚀 開始執行自動化測試...</span>'
+        )
+
+    def stop_automated_test(self):
+        """停止自動化測試"""
+        if self.test_process is not None:
+            self.test_process.terminate()
+            if not self.test_process.waitForFinished(3000):  # 等待3秒
+                self.test_process.kill()
+            self.test_process = None
+        
+        self.btn_run_test.setEnabled(True)
+        self.btn_stop_test.setEnabled(False)
+        self.btn_refresh_scripts.setEnabled(True)
+        self.test_script_list.setEnabled(True)
+        
+        self.text_test_result.append(
+            '<br><span style="color: #DC3545; font-weight: bold;">⏹️ 測試已停止</span>'
+        )
+
+    def handle_test_output(self):
+        """處理測試程式的標準輸出"""
+        if self.test_process is not None:
+            output = self.test_process.readAllStandardOutput().data().decode('utf-8', errors='ignore')
+            if output:
+                # 美化輸出
+                html_output = output
+                
+                # 替換特殊符號和關鍵字
+                html_output = html_output.replace('✅', '<span style="color: #28A745; font-weight: bold;">✅</span>')
+                html_output = html_output.replace('❌', '<span style="color: #DC3545; font-weight: bold;">❌</span>')
+                html_output = html_output.replace('⚠️', '<span style="color: #FFC107; font-weight: bold;">⚠️</span>')
+                html_output = html_output.replace('📊', '<span style="color: #2E86AB; font-weight: bold;">📊</span>')
+                html_output = html_output.replace('🚀', '<span style="color: #17A2B8; font-weight: bold;">🚀</span>')
+                
+                # 高亮顯示步驟標題
+                html_output = html_output.replace('步驟 1:', '<span style="color: #2E86AB; font-weight: bold;">步驟 1:</span>')
+                html_output = html_output.replace('步驟 2:', '<span style="color: #2E86AB; font-weight: bold;">步驟 2:</span>')
+                html_output = html_output.replace('步驟 3:', '<span style="color: #2E86AB; font-weight: bold;">步驟 3:</span>')
+                html_output = html_output.replace('步驟 4:', '<span style="color: #2E86AB; font-weight: bold;">步驟 4:</span>')
+                
+                # 高亮顯示循環標題
+                import re
+                html_output = re.sub(r'循環 (\d+)/(\d+)', 
+                                    r'<span style="color: #17A2B8; font-weight: bold; font-size: 13px;">🔄 循環 \1/\2</span>', 
+                                    html_output)
+                
+                # 將換行符轉換為 HTML 換行
+                html_output = html_output.replace('\n', '<br>')
+                
+                self.text_test_result.append(html_output)
+                
+                # 自動滾動到底部
+                scrollbar = self.text_test_result.verticalScrollBar()
+                scrollbar.setValue(scrollbar.maximum())
+
+    def handle_test_error(self):
+        """處理測試程式的錯誤輸出"""
+        if self.test_process is not None:
+            error = self.test_process.readAllStandardError().data().decode('utf-8', errors='ignore')
+            if error:
+                html_error = f'<span style="color: #DC3545;">{error.replace(chr(10), "<br>")}</span>'
+                self.text_test_result.append(html_error)
+
+    def on_test_finished(self, exit_code, exit_status):
+        """測試程式完成時的處理"""
+        self.test_process = None
+        self.btn_run_test.setEnabled(True)
+        self.btn_stop_test.setEnabled(False)
+        self.btn_refresh_scripts.setEnabled(True)
+        self.test_script_list.setEnabled(True)
+        
+        if exit_code == 0:
+            self.text_test_result.append(
+                '<br><span style="color: #28A745; font-weight: bold; font-size: 14px;">🎉 自動化測試完成！</span>'
+            )
+        else:
+            self.text_test_result.append(
+                f'<br><span style="color: #DC3545; font-weight: bold;">❌ 測試異常結束 (代碼: {exit_code})</span>'
+            )
 
 def main():
     app = QApplication(sys.argv)
