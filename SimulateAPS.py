@@ -8,11 +8,11 @@ from dotenv import load_dotenv
 # 載入環境變數
 load_dotenv()
 
-# 參數解析
-parser = argparse.ArgumentParser(description='APS 模擬程式')
-parser.add_argument('--iterations', type=int, default=100, help='模擬次數 (預設: 100)')
-parser.add_argument('--timedelta', type=int, default=120, help='每次模擬時間增量秒數 (預設: 120)')
-parser.add_argument('--start-time', type=str, default='2026-01-22 13:00:00', help='模擬起始時間 (格式: YYYY-MM-DD HH:MM:SS, 預設: 2026-01-22 13:00:00)')
+# Parameter Parsing
+parser = argparse.ArgumentParser(description='APS Simulation Program')
+parser.add_argument('--iterations', type=int, default=100, help='Number of iterations (default: 100)')
+parser.add_argument('--timedelta', type=int, default=120, help='Time delta per iteration in seconds (default: 120)')
+parser.add_argument('--start-time', type=str, default='2026-01-22 13:00:00', help='Simulation start time (format: YYYY-MM-DD HH:MM:SS, default: 2026-01-22 13:00:00)')
 args = parser.parse_args()
 
 # 解析起始時間
@@ -69,10 +69,11 @@ def load_lot_operations():
         cursor = conn.cursor(dictionary=True)
 
         cursor.execute("""
-            SELECT LotId, Step, PlanCheckInTime, PlanCheckOutTime, StepStatus, CheckInTime, CheckOutTime
-            FROM LotOperations
-            WHERE PlanCheckInTime IS NOT NULL AND PlanCheckOutTime IS NOT NULL
-            ORDER BY LotId, Step
+            SELECT lo.LotId, lo.Step, lo.PlanCheckInTime, lo.PlanCheckOutTime, lo.StepStatus, lo.CheckInTime, lo.CheckOutTime, lo.Sequence,
+                   (SELECT MAX(Sequence) FROM LotOperations WHERE LotId = lo.LotId) as MaxSequence
+            FROM LotOperations lo
+            WHERE lo.PlanCheckInTime IS NOT NULL AND lo.PlanCheckOutTime IS NOT NULL
+            ORDER BY lo.LotId, lo.Sequence
         """)
 
         operations = cursor.fetchall()
@@ -89,8 +90,8 @@ def load_lot_operations():
         print(f"Error: {e}", flush=True)
         return []
 
-def update_operation_status(operation, checkin_time=None, checkout_time=None, step_status=None):
-    """更新作業狀態"""
+def update_operation_status(operation, checkin_time=None, checkout_time=None, step_status=None, is_last_step=False):
+    """更新作業狀態，若為最後一步則同步更新 Lots 表的 ActualFinishDate"""
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
@@ -116,6 +117,12 @@ def update_operation_status(operation, checkin_time=None, checkout_time=None, st
             query = f"UPDATE LotOperations SET {', '.join(updates)} WHERE LotId = %s AND Step = %s"
             params.extend([lot_id, step])
             cursor.execute(query, params)
+            
+            # 若是最後一步且正在 CheckOut，則更新 Lots 表的 ActualFinishDate
+            if checkout_time is not None and is_last_step:
+                cursor.execute("UPDATE Lots SET ActualFinishDate = %s WHERE LotId = %s", (checkout_time, lot_id))
+                print(f"  -> Lot {lot_id} is completed. ActualFinishDate updated.", flush=True)
+
             conn.commit()
 
             # 同步更新本地 operation 物件
@@ -168,7 +175,8 @@ for i in range(iterations):
 
         # 條件 2: 若 StepStatus = 1，且 simulation_time >= PlanCheckOutTime 且 CheckInTime 不為null
         elif current_status == 1 and plan_checkout and simulation_time >= plan_checkout and op['CheckInTime'] is not None:
-            if update_operation_status(op, checkout_time=simulation_time, step_status=2):
+            is_last = (op['Sequence'] == op['MaxSequence'])
+            if update_operation_status(op, checkout_time=simulation_time, step_status=2, is_last_step=is_last):
                 print(f"  {lot_id} {step}: CheckOut - {simulation_time.strftime('%H:%M:%S')}", flush=True)
 
     simulation_time += timedelta(seconds=time_delta)
@@ -180,7 +188,7 @@ for i in range(iterations):
 
 print("\nSimulation completed", flush=True)
 
-# 更新 SimulationData 紀錄 (先刪除舊資料，再新增)
+# 更新 ui_settings 資料表 (simulation_start_time 和 simulation_end_time)
 try:
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
@@ -188,19 +196,32 @@ try:
     # 計算最後模擬的時間點
     final_time = simulation_time - timedelta(seconds=time_delta)
     
-    # 1. 刪除所有舊紀錄
-    cursor.execute("DELETE FROM SimulationData")
-    print("Old simulation data cleared.", flush=True)
+    # 將時間轉換為字串格式
+    start_time_str = SIMULATE_START.strftime('%Y-%m-%d %H:%M:%S')
+    end_time_str = final_time.strftime('%Y-%m-%d %H:%M:%S')
     
-    # 2. 強制使用新增方式
-    query = "INSERT INTO SimulationData (simulation_start_time, simulation_end_time) VALUES (%s, %s)"
-    cursor.execute(query, (SIMULATE_START, final_time))
-    print(f"Inserted new SimulationData with Start: {SIMULATE_START}, End: {final_time}", flush=True)
+    # 使用 UPSERT (INSERT ... ON DUPLICATE KEY UPDATE) 更新 simulation_start_time
+    query_start = """
+        INSERT INTO ui_settings (parameter_name, parameter_value, remark)
+        VALUES (%s, %s, %s)
+        ON DUPLICATE KEY UPDATE parameter_value = VALUES(parameter_value), updated_at = NOW()
+    """
+    cursor.execute(query_start, ('simulation_start_time', start_time_str, '模擬起始時間'))
+    print(f"Updated ui_settings: simulation_start_time = {start_time_str}", flush=True)
+    
+    # 使用 UPSERT 更新 simulation_end_time
+    query_end = """
+        INSERT INTO ui_settings (parameter_name, parameter_value, remark)
+        VALUES (%s, %s, %s)
+        ON DUPLICATE KEY UPDATE parameter_value = VALUES(parameter_value), updated_at = NOW()
+    """
+    cursor.execute(query_end, ('simulation_end_time', end_time_str, '模擬結束時間'))
+    print(f"Updated ui_settings: simulation_end_time = {end_time_str}", flush=True)
     
     conn.commit()
     cursor.close()
     conn.close()
 except mysql.connector.Error as err:
-    print(f"Database error during SimulationData update: {err}", flush=True)
+    print(f"Database error during ui_settings update: {err}", flush=True)
 except Exception as e:
-    print(f"Error during SimulationData update: {e}", flush=True)
+    print(f"Error during ui_settings update: {e}", flush=True)

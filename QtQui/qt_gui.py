@@ -1,15 +1,21 @@
 import sys
+import io
 import os
 import subprocess
 import threading
 import json
 from datetime import datetime, timedelta
+
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 from typing import List, Dict, Any, Optional, cast
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout,
     QHBoxLayout, QPushButton, QTextEdit, QListWidget, QLabel,
     QDateTimeEdit, QSpinBox, QGroupBox, QMessageBox, QTableWidget,
-    QTableWidgetItem, QLineEdit, QComboBox, QHeaderView
+    QTableWidgetItem, QLineEdit, QComboBox, QHeaderView, QFormLayout,
+    QRadioButton, QButtonGroup, QGridLayout, QCheckBox
 )
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal, QDateTime, QProcess
 from PyQt5.QtGui import QFont, QColor
@@ -71,6 +77,10 @@ class MainWindow(QMainWindow):
         self.create_tab5()  # Lots 資料
         self.create_tab6()  # LotOperations 資料
         self.create_tab7()  # 自動化測試
+        self.create_tab8()  # 機台數量調整
+        
+        # QProcess 相關變數初始化
+        self.machine_expansion_process: Optional[QProcess] = None
 
     def create_tab1(self):
         """第一個分頁：清空測試資料"""
@@ -109,7 +119,7 @@ class MainWindow(QMainWindow):
         control_layout = QHBoxLayout()
         control_layout.addWidget(QLabel("產生數量:"))
         self.spin_lot_count = QSpinBox()
-        self.spin_lot_count.setRange(1, 100)
+        self.spin_lot_count.setRange(1, 1000)
         self.spin_lot_count.setValue(self.default_spin_lot_count)
         self.spin_lot_count.valueChanged.connect(self.save_settings)
         control_layout.addWidget(self.spin_lot_count)
@@ -123,6 +133,20 @@ class MainWindow(QMainWindow):
         control_layout.addWidget(self.btn_show_stats)
 
         layout.addLayout(control_layout)
+        
+        # 指令設定區域
+        setting_layout = QHBoxLayout()
+        self.check_use_sp = QCheckBox("使用 Stored Procedure 啟動 (sp_InsertLot)")
+        self.check_use_sp.setChecked(getattr(self, 'default_use_sp', False))
+        self.check_use_sp.stateChanged.connect(self.save_settings)
+        setting_layout.addWidget(self.check_use_sp)
+
+        self.check_use_sim_end = QCheckBox("使用模擬時鐘結束時間作為基準")
+        self.check_use_sim_end.setChecked(getattr(self, 'default_use_sim_end', False))
+        self.check_use_sim_end.stateChanged.connect(self.save_settings)
+        setting_layout.addWidget(self.check_use_sim_end)
+        
+        layout.addLayout(setting_layout)
 
         # 結果顯示區域
         self.text_generate_result = QTextEdit()
@@ -798,7 +822,7 @@ class MainWindow(QMainWindow):
             try:
                 conn = mysql.connector.connect(**db_config)
                 cursor = conn.cursor()
-                cursor.execute("SELECT simulation_end_time FROM SimulationData ORDER BY id DESC LIMIT 1")
+                cursor.execute("SELECT parameter_value FROM ui_settings WHERE parameter_name = 'simulation_end_time'")
                 result = cursor.fetchone()
                 cursor.close()
                 conn.close()
@@ -808,8 +832,8 @@ class MainWindow(QMainWindow):
                     if isinstance(simulation_end_time, str):
                         simulation_end_time = datetime.strptime(simulation_end_time, '%Y-%m-%d %H:%M:%S')
                     
-                    # 新的開始時間 = 模擬結束時間 + 10 分鐘
-                    new_start_time = simulation_end_time + timedelta(minutes=10)
+                    # 新的開始時間 = 模擬結束時間 + 5 分鐘
+                    new_start_time = simulation_end_time + timedelta(minutes=5)
                     
                     # 更新 UI 控制項
                     self.datetime_start.setDateTime(QDateTime(new_start_time))
@@ -872,6 +896,9 @@ class MainWindow(QMainWindow):
 
     def reschedule(self):
         """執行重新排成"""
+        # 重新讀取環境變數 (例如 SOLVER 參數)
+        load_dotenv(override=True)
+        
         if self.reschedule_process is not None:
             return
 
@@ -883,7 +910,7 @@ class MainWindow(QMainWindow):
         start_datetime = self.datetime_reschedule_start.dateTime().toPyDateTime()
 
         # 建構命令
-        script_path = os.path.join(os.path.dirname(__file__), '..', 'Scheduler_Full_Example_Qtime_V1_Wip_DB.py')
+        script_path = os.path.join(os.path.dirname(__file__), '..', 'Scheduler_Full_Example_Qtime_V1_Wip_DB_Incremental_Scheduling.py')
         args = [
             sys.executable,
             '-u',  # 強制無緩衝輸出
@@ -972,6 +999,8 @@ class MainWindow(QMainWindow):
             self.default_spin_iterations = convert_value(settings.get('spin_iterations'), 'int', 50)
             self.default_spin_timedelta = convert_value(settings.get('spin_timedelta'), 'int', 60)
             self.default_datetime_reschedule_start = convert_value(settings.get('datetime_reschedule_start'), 'str', '2026-01-22 14:00:00')
+            self.default_use_sp = settings.get('use_sp_for_lot_insert') == 'True'
+            self.default_use_sim_end = settings.get('insert_lot_data_use_simulation_end_time') == 'True'
         else:
             # 使用硬編碼預設值
             self.default_spin_lot_count = 5
@@ -979,6 +1008,8 @@ class MainWindow(QMainWindow):
             self.default_spin_iterations = 50
             self.default_spin_timedelta = 60
             self.default_datetime_reschedule_start = '2026-01-22 14:00:00'
+            self.default_use_sp = False
+            self.default_use_sim_end = False
 
         # 確保 datetime 欄位為字串格式
         if isinstance(self.default_datetime_start, datetime):
@@ -1006,7 +1037,9 @@ class MainWindow(QMainWindow):
                     ('datetime_start', datetime_start),
                     ('spin_iterations', str(spin_iterations)),
                     ('spin_timedelta', str(spin_timedelta)),
-                    ('datetime_reschedule_start', datetime_reschedule_start)
+                    ('datetime_reschedule_start', datetime_reschedule_start),
+                    ('use_sp_for_lot_insert', 'True' if self.check_use_sp.isChecked() else 'False'),
+                    ('insert_lot_data_use_simulation_end_time', 'True' if self.check_use_sim_end.isChecked() else 'False')
                 ]
 
                 # 使用 INSERT ... ON DUPLICATE KEY UPDATE 更新設定
@@ -1209,17 +1242,21 @@ class MainWindow(QMainWindow):
             with open(config_path, 'r', encoding='utf-8') as f:
                 config = json.load(f)
             
+            initial_lots = config.get('initial_lots', 0)
+            total_lots = initial_lots + (config['cycles'] * config['lots_per_cycle'])
+            
             info_html = f"""
             <div style="padding: 10px; background-color: #F8F9FA; border-radius: 5px;">
                 <h3 style="color: #2E86AB; margin-top: 0;">{config['name']}</h3>
                 <p style="color: #6C757D; margin: 5px 0;"><strong>描述：</strong>{config['description']}</p>
+                <p style="color: #333; margin: 5px 0;"><strong>初始 Lot 數：</strong>{initial_lots}</p>
                 <p style="color: #333; margin: 5px 0;"><strong>循環次數：</strong>{config['cycles']}</p>
                 <p style="color: #333; margin: 5px 0;"><strong>每次產生 Lot 數：</strong>{config['lots_per_cycle']}</p>
                 <p style="color: #333; margin: 5px 0;"><strong>批量範圍：</strong>{config['lot_quantity_min']}-{config['lot_quantity_max']}</p>
                 <p style="color: #333; margin: 5px 0;"><strong>模擬次數：</strong>{config['simulation_iterations']}</p>
                 <p style="color: #333; margin: 5px 0;"><strong>時間增量：</strong>{config['simulation_timedelta']} 秒</p>
                 <p style="color: #28A745; margin: 5px 0; font-weight: bold;">
-                    總計將產生 {config['cycles'] * config['lots_per_cycle']} 個 Lot
+                    總計將產生 {total_lots} 個 Lot
                 </p>
             </div>
             """
@@ -1359,6 +1396,147 @@ class MainWindow(QMainWindow):
             self.text_test_result.append(
                 f'<br><span style="color: #DC3545; font-weight: bold;">❌ 測試異常結束 (代碼: {exit_code})</span>'
             )
+    def create_tab8(self):
+        """第八個分頁：機台數量調整"""
+        tab = QWidget()
+        layout = QVBoxLayout(tab)
+
+        # 標題
+        title = QLabel("機台數量調整")
+        title.setFont(QFont("Arial", 14, QFont.Bold))
+        layout.addWidget(title)
+
+        # 說明文字
+        description = QLabel(
+            "透過倍率快速擴充機台數量：\n"
+            "1. 設定擴充倍率 (例如 10 表示每種機台增加到 10 倍數量)\n"
+            "2. ⚠️ 系統會先清空現有的機台資料\n"
+            "3. 產生機台資料並自動更新資料庫\n"
+            "4. 系統會自動為機台編號 (例如 M01-1, M01-2...)"
+        )
+        description.setStyleSheet("color: #6C757D; padding: 10px; background-color: #FFF3E0; border: 1px solid #FFE0B2; border-radius: 5px;")
+        layout.addWidget(description)
+
+        # 設定區域：使用 Radio Buttons
+        radio_group_box = QGroupBox("選擇擴充倍率")
+        radio_layout = QGridLayout(radio_group_box)
+        self.multiplier_group = QButtonGroup(self)
+        
+        for i in range(1, 21):
+            rb = QRadioButton(f"{i} 倍")
+            if i == 1:
+                rb.setChecked(True)
+            self.multiplier_group.addButton(rb, i)
+            # 排成 4x5 的方格
+            row = (i - 1) // 5
+            col = (i - 1) % 5
+            radio_layout.addWidget(rb, row, col)
+            
+        layout.addWidget(radio_group_box)
+
+        # 按鈕
+        self.btn_expand_machines = QPushButton("🚀 執行機台擴充")
+        self.btn_expand_machines.setStyleSheet("""
+            QPushButton {
+                background-color: #0D6EFD;
+                color: white;
+                font-weight: bold;
+                padding: 10px;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #0B5ED7;
+            }
+        """)
+        self.btn_expand_machines.clicked.connect(self.run_machine_expansion)
+        layout.addWidget(self.btn_expand_machines)
+
+        # 結果顯示區域
+        result_label = QLabel("執行日誌")
+        result_label.setFont(QFont("Arial", 12, QFont.Bold))
+        layout.addWidget(result_label)
+
+        self.text_expansion_result = QTextEdit()
+        self.text_expansion_result.setReadOnly(True)
+        self.text_expansion_result.setAcceptRichText(True)
+        layout.addWidget(self.text_expansion_result)
+
+        self.tab_widget.addTab(tab, "機台調整")
+
+    def run_machine_expansion(self):
+        """執行機台擴充程序"""
+        if self.machine_expansion_process is not None:
+            return
+
+        multiplier = self.multiplier_group.checkedId()
+        
+        # 確認執行
+        reply = QMessageBox.question(
+            self,
+            "確認執行",
+            f"確定要執行機台擴充嗎？\n\n"
+            f"1. 倍率：{multiplier} 倍\n"
+            f"2. ⚠️ 警告：這將會先「清空」現有機台資料！\n\n"
+            f"是否繼續？",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        
+        if reply != QMessageBox.Yes:
+            return
+
+        # 建構命令
+        script_path = os.path.join(os.path.dirname(__file__), '..', 'expanded_machines.py')
+        args = [
+            sys.executable,
+            '-u',
+            script_path,
+            '--multiplier', str(multiplier),
+            '--apply'
+        ]
+
+        # 啟動 QProcess
+        self.machine_expansion_process = QProcess()
+        self.machine_expansion_process.readyReadStandardOutput.connect(self.handle_machine_expansion_output)
+        self.machine_expansion_process.readyReadStandardError.connect(self.handle_machine_expansion_error)
+        self.machine_expansion_process.finished.connect(self.on_machine_expansion_finished)
+
+        self.machine_expansion_process.start(args[0], args[1:])
+
+        # 更新 UI
+        self.btn_expand_machines.setEnabled(False)
+        self.btn_expand_machines.setText("正在擴充中...")
+        self.text_expansion_result.clear()
+        self.text_expansion_result.append(f'<span style="color: #0D6EFD; font-weight: bold;">🚀 開始機台擴充流程 (倍率: {multiplier})...</span>')
+
+    def handle_machine_expansion_output(self):
+        """處理擴充程式的標準輸出"""
+        if self.machine_expansion_process is not None:
+            output = self.machine_expansion_process.readAllStandardOutput().data().decode('utf-8', errors='ignore')
+            if output:
+                # 簡單美化輸出
+                formatted_output = output.replace('✅', '<span style="color: #28A745; font-weight: bold;">✅</span>')
+                formatted_output = formatted_output.replace('❌', '<span style="color: #DC3545; font-weight: bold;">❌</span>')
+                formatted_output = formatted_output.replace('\n', '<br>')
+                self.text_expansion_result.append(formatted_output)
+
+    def handle_machine_expansion_error(self):
+        """處理擴充程式的錯誤輸出"""
+        if self.machine_expansion_process is not None:
+            error = self.machine_expansion_process.readAllStandardError().data().decode('utf-8', errors='ignore')
+            if error:
+                self.text_expansion_result.append(f'<span style="color: #DC3545;">{error.replace(chr(10), "<br>")}</span>')
+
+    def on_machine_expansion_finished(self, exit_code, exit_status):
+        """擴充程式完成時的處理"""
+        self.machine_expansion_process = None
+        self.btn_expand_machines.setEnabled(True)
+        self.btn_expand_machines.setText("🚀 執行機台擴充")
+        
+        if exit_code == 0:
+            self.text_expansion_result.append('<br><span style="color: #28A745; font-weight: bold; font-size: 14px;">🎉 機台擴充作業成功完成！</span>')
+        else:
+            self.text_expansion_result.append(f'<br><span style="color: #DC3545; font-weight: bold;">❌ 擴充異常結束 (代碼: {exit_code})</span>')
 
 def main():
     app = QApplication(sys.argv)

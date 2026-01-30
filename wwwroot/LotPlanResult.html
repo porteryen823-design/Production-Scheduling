@@ -823,8 +823,9 @@
                         <th><i class="fa-solid fa-hashtag"></i> Lot</th>
                         <th><i class="fa-solid fa-box"></i> Product</th>
                         <th><i class="fa-solid fa-star"></i> Priority</th>
-                        <th><i class="fa-solid fa-calendar-times"></i> Due Date</th>
-                        <th><i class="fa-solid fa-calendar-check"></i> Plan Date</th>
+                        <th><i class="fa-solid fa-calendar-times"></i> DueDate</th>
+                        <th><i class="fa-solid fa-calendar-check"></i> PlanFinishDate</th>
+                        <th><i class="fa-solid fa-calendar-alt"></i> ActualFinishDate</th>
                         <th><i class="fa-solid fa-clock"></i> Delay Time</th>
                         <th><i class="fa-solid fa-info-circle"></i> Status</th>
                     </tr>
@@ -950,9 +951,18 @@
             updateStatus('spinner fa-spin', '從伺服器載入資料...', 'loading');
             showLoading(true);
 
-            let file = "Lot_Plan_result/Lot_Plan_Result.json"; // 固定使用同一檔案
+            // 修正檔案路徑以符合實際目錄與檔名
+            let file = "plan_result/LotPlanResult.json"; 
 
-            fetch(`http://127.0.0.1:5000/get_json/${file}`)
+            // 調整為使用相對路徑或正確的 API 端口，此處優先嘗試從當前主機抓取
+            fetch(`/${file}`)
+                .then(res => {
+                    if (!res.ok) {
+                        // 如果相對路徑失敗，嘗試 port 8000 (FastAPI 預設)
+                        return fetch(`http://127.0.0.1:8000/${file}`);
+                    }
+                    return res;
+                })
                 .then(res => {
                     if (!res.ok) {
                         throw new Error(`HTTP ${res.status}: ${res.statusText}`);
@@ -994,23 +1004,23 @@
 
             section.style.display = 'flex';
             
-            document.getElementById('optType').textContent = stats.optimization_type;
-            document.getElementById('batchCount').textContent = stats.batch_count;
-            document.getElementById('optGoal').textContent = stats.optimization_goal;
+            document.getElementById('optType').textContent = stats.optimization_type || 'N/A';
+            document.getElementById('batchCount').textContent = stats.batch_count || 0;
+            document.getElementById('optGoal').textContent = stats.optimization_goal || 'N/A';
             
-            const start = new Date(stats.calculation_start).toLocaleString('zh-TW');
-            const end = new Date(stats.calculation_end).toLocaleString('zh-TW');
+            const start = stats.calculation_start ? new Date(stats.calculation_start).toLocaleString('zh-TW') : 'N/A';
+            const end = stats.calculation_end ? new Date(stats.calculation_end).toLocaleString('zh-TW') : 'N/A';
             document.getElementById('calcTimeRange').textContent = `${start} ~ ${end}`;
-            document.getElementById('calcDuration').textContent = stats.calculation_duration;
+            document.getElementById('calcDuration').textContent = stats.calculation_duration || 'N/A';
             
-            document.getElementById('earliestInput').textContent = new Date(stats.earliest_input_time).toLocaleString('zh-TW');
-            document.getElementById('latestOutput').textContent = new Date(stats.latest_output_time).toLocaleString('zh-TW');
-            document.getElementById('totalDuration').textContent = stats.total_schedule_duration;
+            document.getElementById('earliestInput').textContent = stats.earliest_input_time ? new Date(stats.earliest_input_time).toLocaleString('zh-TW') : 'N/A';
+            document.getElementById('latestOutput').textContent = stats.latest_output_time ? new Date(stats.latest_output_time).toLocaleString('zh-TW') : 'N/A';
+            document.getElementById('totalDuration').textContent = stats.total_schedule_duration || 'N/A';
             
-            document.getElementById('earlyCount').textContent = stats.early_count;
-            document.getElementById('onTimeCount').textContent = stats.on_time_count;
-            document.getElementById('minorDelayCount').textContent = stats.minor_delay_count;
-            document.getElementById('majorDelayCount').textContent = stats.major_delay_count;
+            document.getElementById('earlyCount').textContent = stats.early_count !== undefined ? stats.early_count : '-';
+            document.getElementById('onTimeCount').textContent = stats.on_time_count !== undefined ? stats.on_time_count : '-';
+            document.getElementById('minorDelayCount').textContent = stats.minor_delay_count !== undefined ? stats.minor_delay_count : '-';
+            document.getElementById('majorDelayCount').textContent = stats.major_delay_count !== undefined ? stats.major_delay_count : '-';
         }
 
         // 更新過濾器選項
@@ -1075,17 +1085,23 @@
                 tdPriority.textContent = row.Priority;
                 tr.appendChild(tdPriority);
 
-                // Due Date
+                // DueDate
                 const tdDueDate = document.createElement('td');
-                const dueDate = new Date(row["Due Date"]);
-                tdDueDate.textContent = dueDate.toLocaleString('zh-TW');
+                const dueDate = row["DueDate"] ? new Date(row["DueDate"]) : null;
+                tdDueDate.textContent = (dueDate && !isNaN(dueDate.getTime())) ? dueDate.toLocaleString('zh-TW') : 'N/A';
                 tr.appendChild(tdDueDate);
 
-                // Plan Date
-                const tdPlanDate = document.createElement('td');
-                const planDate = new Date(row["Plan Date"]);
-                tdPlanDate.textContent = planDate.toLocaleString('zh-TW');
-                tr.appendChild(tdPlanDate);
+                // PlanFinishDate
+                const tdPlanFinishDate = document.createElement('td');
+                const planFinishDate = row["PlanFinishDate"] ? new Date(row["PlanFinishDate"]) : null;
+                tdPlanFinishDate.textContent = (planFinishDate && !isNaN(planFinishDate.getTime())) ? planFinishDate.toLocaleString('zh-TW') : 'N/A';
+                tr.appendChild(tdPlanFinishDate);
+
+                // ActualFinishDate
+                const tdActualFinishDate = document.createElement('td');
+                const actualFinishDate = row["ActualFinishDate"] ? new Date(row["ActualFinishDate"]) : null;
+                tdActualFinishDate.textContent = (actualFinishDate && !isNaN(actualFinishDate.getTime())) ? actualFinishDate.toLocaleString('zh-TW') : 'N/A';
+                tr.appendChild(tdActualFinishDate);
 
                 // Delay Time
                 const tdDelay = document.createElement('td');

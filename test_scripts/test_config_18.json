@@ -1,0 +1,11 @@
+{
+  "name": "初始800批 - 每次增加35批",
+  "description": "初始產生 800 個 Lot，之後每次循環產生 35 個 Lot，批量隨機 1-4",
+  "cycles": 20,
+  "lots_per_cycle": 35,
+  "lot_quantity_min": 1,
+  "lot_quantity_max": 4,
+  "simulation_iterations": 50,
+  "simulation_timedelta": 60,
+  "initial_lots": 800
+}

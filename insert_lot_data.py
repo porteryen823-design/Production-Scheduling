@@ -32,6 +32,13 @@ lot_template = {
         ("STEP6", "M06", 200),
         ("STEP7", "M07", 180),
         ("STEP8", "M08", 160),
+        ("STEP9", "M09", 140),
+        ("STEP10", "M10", 120),
+        ("STEP11", "M11", 100),
+        ("STEP12", "M12", 80),
+        ("STEP13", "M13", 160),
+        ("STEP14", "M14", 140),
+        ("STEP15", "M15", 120),
     ],
 }
 
@@ -51,46 +58,93 @@ def get_next_lot_id(cursor):
     # 格式化為四碼流水碼
     return f"LOT_{next_id:04d}"
 
-def calculate_due_date():
-    """計算 DueDate：目前日期 + 3天，時間到小時"""
-    now = datetime.now()
-    due_date = now + timedelta(days=3)
-    # 時間到小時，格式為 ISO 格式但時間只到小時
+def calculate_due_date(cursor):
+    """計算 DueDate：
+    若 insert_lot_data_use_simulation_end_time = 'True'，DueDate = simulation_end_time + 3天
+    否則 DueDate = 目前日期 + 3天，時間到小時
+    """
+    use_sim_end = False
+    sim_end_time = None
+
+    try:
+        # 讀取相關設定
+        cursor.execute("SELECT parameter_name, parameter_value FROM ui_settings WHERE parameter_name IN ('insert_lot_data_use_simulation_end_time', 'simulation_end_time')")
+        settings = {row[0]: row[1] for row in cursor.fetchall()}
+        
+        if settings.get('insert_lot_data_use_simulation_end_time') == 'True':
+            use_sim_end = True
+            if settings.get('simulation_end_time'):
+                sim_end_time = datetime.strptime(settings['simulation_end_time'], '%Y-%m-%d %H:%M:%S')
+    except Exception as e:
+        print(f"Warning: Could not read ui_settings for DueDate calculation: {e}")
+
+    if use_sim_end and sim_end_time:
+        base_date = sim_end_time
+        print(f"Using simulation_end_time as base: {base_date}")
+    else:
+        base_date = datetime.now()
+        print(f"Using current time as base: {base_date}")
+
+    due_date = base_date + timedelta(days=3)
+    # 格式化為 ISO 格式但時間只到小時
     return due_date.strftime("%Y-%m-%dT%H:00:00.0")
 
-def insert_lot_data():
+def insert_lot_data(count):
     """插入 Lot 資料到資料庫"""
     try:
         # 連接到資料庫
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
 
-        # 取得下一個 LotId
-        next_lot_id = get_next_lot_id(cursor)
-        print(f"Next LotId: {next_lot_id}")
+        # 讀取 use_sp_for_lot_insert 設定
+        cursor.execute("SELECT parameter_value FROM ui_settings WHERE parameter_name = 'use_sp_for_lot_insert'")
+        result = cursor.fetchone()
+        use_sp = result[0] == 'True' if result else False
 
-        # 計算 DueDate
-        due_date = calculate_due_date()
-        print(f"DueDate: {due_date}")
+        # 讀取 insert_lot_data_use_simulation_end_time 設定 (SP 也需要)
+        cursor.execute("SELECT parameter_value FROM ui_settings WHERE parameter_name = 'insert_lot_data_use_simulation_end_time'")
+        result = cursor.fetchone()
+        use_sim_end = result[0] == 'True' if result else False
 
-        # 插入 Lots 表
-        cursor.execute("""
-            INSERT INTO Lots (LotId, Priority, DueDate, ActualFinishDate, ProductID, ProductName, CustomerID, CustomerName, LotCreateDate)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (next_lot_id, lot_template["Priority"], due_date, None, f"PROD_{next_lot_id.split('_')[1]}", f"Product {next_lot_id.split('_')[1]}", f"CUST_{next_lot_id.split('_')[1]}", f"Customer {next_lot_id.split('_')[1]}", datetime.now()))
+        if use_sp:
+            print(f"Using Stored Procedure 'sp_InsertLot' to insert {count} records...")
+            # SP parameters: p_Count, p_Priority, p_UseSimEndTime
+            cursor.callproc('sp_InsertLot', (count, lot_template["Priority"], use_sim_end))
+            
+            # Get LotId returned from SP
+            for result in cursor.stored_results():
+                rows = result.fetchall()
+                for row in rows:
+                    print(f"Successfully inserted Lot: {row[0]} (via SP)")
+        else:
+            for i in range(count):
+                print(f"\nInserting Lot record #{i+1} (manual):")
+                # Get next LotId
+                next_lot_id = get_next_lot_id(cursor)
+                print(f"Next LotId: {next_lot_id}")
 
-        # 插入 LotOperations 表
-        for sequence, (step, machine_group, duration) in enumerate(lot_template["Operations"], 1):
-            cursor.execute("""
-                INSERT INTO LotOperations (LotId, Step, MachineGroup, Duration, Sequence, CheckInTime, CheckOutTime, StepStatus, PlanCheckInTime, PlanCheckOutTime, PlanMachineId, PlanHistory)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, (next_lot_id, step, machine_group, duration, sequence, None, None, 0, None, None, None, None))
+                # Calculate DueDate
+                due_date = calculate_due_date(cursor)
+                print(f"DueDate: {due_date}")
 
-        # 提交交易
+                # 插入 Lots 表
+                cursor.execute("""
+                    INSERT INTO Lots (LotId, Priority, DueDate, ActualFinishDate, ProductID, ProductName, CustomerID, CustomerName, LotCreateDate)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (next_lot_id, lot_template["Priority"], due_date, None, f"PROD_{next_lot_id.split('_')[1]}", f"Product {next_lot_id.split('_')[1]}", f"CUST_{next_lot_id.split('_')[1]}", f"Customer {next_lot_id.split('_')[1]}", datetime.now()))
+
+                # 插入 LotOperations 表
+                for sequence, (step, machine_group, duration) in enumerate(lot_template["Operations"], 1):
+                    cursor.execute("""
+                        INSERT INTO LotOperations (LotId, Step, MachineGroup, Duration, Sequence, CheckInTime, CheckOutTime, StepStatus, PlanCheckInTime, PlanCheckOutTime, PlanMachineId, PlanHistory)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """, (next_lot_id, step, machine_group, duration, sequence, None, None, 0, None, None, None, None))
+
+                print(f"Successfully inserted Lot: {next_lot_id}")
+
+        # Commit transaction
         conn.commit()
-
-        print(f"Successfully inserted Lot: {next_lot_id}")
-        print(f"Inserted {len(lot_template['Operations'])} operation steps")
+        print(f"\nTotal inserted {count} Lot records")
 
     except mysql.connector.Error as err:
         print(f"Database error: {err}")
@@ -107,7 +161,4 @@ def insert_lot_data():
             conn.close()
 
 if __name__ == "__main__":
-    for i in range(args.count):
-        print(f"\nInserting Lot data #{i+1}:")
-        insert_lot_data()
-    print(f"\nTotal inserted {args.count} Lot data")
+    insert_lot_data(args.count)

@@ -130,6 +130,38 @@
         .custom-marker {
             pointer-events: none;
         }
+
+        /* 空狀態樣式 */
+        .empty-state {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 100;
+            background: rgba(var(--bg-color), 0.8);
+            padding: 20px;
+            border-radius: 12px;
+            pointer-events: none;
+        }
+
+        .empty-state.active {
+            display: block;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
     </style>
 </head>
 <body>
@@ -146,9 +178,12 @@
 
             <!-- 資料庫導航按鈕 -->
             <div class="btn-group me-3" role="group">
+                <button class="btn btn-outline-info btn-sm" id="firstBtn" onclick="loadFirst()"><i class="fa-solid fa-angles-left"></i> 第一筆</button>
                 <button class="btn btn-outline-info btn-sm" id="prevBtn" onclick="loadPrevious()"><i class="fa-solid fa-chevron-left"></i> 讀取前一筆</button>
                 <button class="btn btn-outline-info btn-sm" id="nextBtn" onclick="loadNext()"><i class="fa-solid fa-chevron-right"></i> 讀取下一筆</button>
+                <button class="btn btn-outline-info btn-sm" id="lastBtn" onclick="loadLast()"><i class="fa-solid fa-angles-right"></i> 最後一筆</button>
             </div>
+
 
             <!-- 讀取 JSON 按鈕 (保留) -->
             <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
@@ -182,7 +217,12 @@
         <div id="legend" class="legend-container"></div>
 
         <!-- 甘特圖 -->
-        <div id="gantt_here"></div>
+        <div id="gantt_here" style="position: relative;">
+            <div id="emptyState" class="empty-state">
+                <i class="fa-solid fa-folder-open"></i>
+                <p>目前無排程資料</p>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -208,6 +248,7 @@
         let currentScheduleIndex = -1; // 當前排程在所有排程中的索引 (0 是最舊, N 是最新)
         let totalSchedules = -1; // 總排程數
         let ganttShowMarker = false; // 是否顯示標記線
+        let fetchTimeout = null; // 用於 Debounce
 
         // 從 Web API 獲取排程資料
         async function fetchScheduleData(offset) {
@@ -286,48 +327,85 @@
                     updateMachineFilter(allData);
                     applyMachineFilter(); // 應用過濾器並渲染甘特圖
                     updateNavigationButtons();
+
+
+                    document.getElementById('emptyState').classList.remove('active');
                 } else {
-                    alert("找不到排程資料或 API 回應格式錯誤。");
+                    // 顯示空狀態
+                    document.getElementById('emptyState').classList.add('active');
+                    gantt.clearAll();
+                    allData = [];
+                    updateNavigationButtons();
                 }
             } catch (error) {
                 console.error("載入排程數據時發生錯誤:", error);
-                alert("載入排程數據失敗: " + error.message + "\n\n請確認：\n1. 後端 API 服務已啟動 (http://localhost:8000)\n2. API 端點正確 (/api/schedule)\n3. 資料庫連線正常");
+                // 使用更友好的訊息顯示而不是只有 alert
+                const errorMsg = "載入失敗: " + error.message;
+                const indicator = document.getElementById('loadingIndicator');
+                indicator.innerHTML = `<i class="fa-solid fa-circle-exclamation text-danger"></i> <span class="text-danger">${errorMsg}</span>`;
+                setTimeout(() => {
+                    indicator.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 載入中...`;
+                    indicator.classList.remove('active');
+                }, 5000);
             } finally {
                 // 隱藏載入指示器
                 loadingIndicator.classList.remove('active');
             }
         }
 
+        // Debounce 函數
+        function debounceLoad(offset) {
+            if (fetchTimeout) clearTimeout(fetchTimeout);
+            fetchTimeout = setTimeout(() => {
+                loadSchedule(offset);
+            }, 300); // 300ms 防抖
+        }
+
         // 導航邏輯
-        function loadLastRecord() {
-            // 載入最新一筆 (offset 0)
-            loadSchedule(0);
+        function loadFirst() {
+            if (totalSchedules > 0) {
+                // 第一筆 = 最舊的一筆 (索引最高)
+                debounceLoad(totalSchedules - 1);
+            }
+        }
+
+        function loadLast() {
+            // 最後一筆 = 最新的一筆 (索引 0)
+            debounceLoad(0);
+        }
+
+        // 供初始化使用的載入最新一筆
+        async function loadLatestRecord() {
+            await loadSchedule(0);
         }
 
         function loadPrevious() {
             if (currentScheduleIndex < totalSchedules - 1) {
-                loadSchedule(currentScheduleIndex + 1);
+                debounceLoad(currentScheduleIndex + 1);
             }
         }
 
         function loadNext() {
             if (currentScheduleIndex > 0) {
-                loadSchedule(currentScheduleIndex - 1);
+                debounceLoad(currentScheduleIndex - 1);
             }
         }
 
         function updateNavigationButtons() {
+            const firstBtn = document.getElementById('firstBtn');
             const prevBtn = document.getElementById('prevBtn');
             const nextBtn = document.getElementById('nextBtn');
+            const lastBtn = document.getElementById('lastBtn');
 
-            // "讀取前一筆" (Previous) 應該是索引增加 (因為我們是 ORDER BY DESC)
-            // 當前索引 < 總數 - 1 時，可以讀取前一筆 (更舊的資料)
-            prevBtn.disabled = (currentScheduleIndex >= totalSchedules - 1);
+            const isOldest = (currentScheduleIndex >= totalSchedules - 1);
+            const isLatest = (currentScheduleIndex <= 0);
 
-            // "讀取下一筆" (Next) 應該是索引減少 (因為我們是 ORDER BY DESC)
-            // 當前索引 > 0 時，可以讀取下一筆 (更新的資料)
-            nextBtn.disabled = (currentScheduleIndex <= 0);
+            if (firstBtn) firstBtn.disabled = isOldest;
+            if (prevBtn) prevBtn.disabled = isOldest;
+            if (nextBtn) nextBtn.disabled = isLatest;
+            if (lastBtn) lastBtn.disabled = isLatest;
         }
+
 
 
         // 設定主題
@@ -632,7 +710,7 @@
         // 初始載入：從 Web API 載入最新一筆資料
         async function initialize() {
             await fetchUISettings();
-            await loadLastRecord();
+            await loadLatestRecord();
         }
 
         initialize();

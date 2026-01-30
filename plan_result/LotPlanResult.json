@@ -1,58 +1,550 @@
 {
     "statistics": {
-        "optimization_type": "total_completion_time",
-        "batch_count": 5,
-        "calculation_start": "2026-01-29T10:51:52",
-        "calculation_end": "2026-01-29T10:51:52",
-        "calculation_duration": "0:00:00.012795",
-        "earliest_input_time": "2026-01-22T14:00:00",
-        "latest_output_time": "2026-01-25T23:00:00",
-        "total_schedule_duration": "3:09:00",
-        "early_count": 5,
-        "on_time_count": 0,
-        "minor_delay_count": 0,
-        "major_delay_count": 0
+        "optimization_type": "incremental_scheduling",
+        "batch_count": 60,
+        "calculation_duration": "0:00:07.930793",
+        "calculation_end": "2026-01-30T17:03:05"
     },
     "lot_results": [
         {
             "Lot": "LOT_0001",
             "Product": "",
             "Priority": 100,
-            "Due Date": "2026-02-01T10:00:00",
-            "Plan Date": "2026-01-23T20:40:00",
-            "delay time": "-8:13"
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-22T16:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-11:00"
         },
         {
             "Lot": "LOT_0002",
             "Product": "",
             "Priority": 100,
-            "Due Date": "2026-02-01T10:00:00",
-            "Plan Date": "2026-01-24T09:15:00",
-            "delay time": "-8:00"
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-22T16:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-11:00"
         },
         {
             "Lot": "LOT_0003",
             "Product": "",
             "Priority": 100,
-            "Due Date": "2026-02-01T10:00:00",
-            "Plan Date": "2026-01-24T21:50:00",
-            "delay time": "-7:12"
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-22T16:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-11:00"
         },
         {
             "Lot": "LOT_0004",
             "Product": "",
             "Priority": 100,
-            "Due Date": "2026-02-01T10:00:00",
-            "Plan Date": "2026-01-25T10:25:00",
-            "delay time": "-6:23"
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-22T22:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-10:18"
         },
         {
             "Lot": "LOT_0005",
             "Product": "",
             "Priority": 100,
-            "Due Date": "2026-02-01T10:00:00",
-            "Plan Date": "2026-01-25T23:00:00",
-            "delay time": "-6:11"
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-22T16:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-11:00"
+        },
+        {
+            "Lot": "LOT_0006",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-22T22:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-10:18"
+        },
+        {
+            "Lot": "LOT_0007",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-22T22:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-10:18"
+        },
+        {
+            "Lot": "LOT_0008",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-22T22:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-10:18"
+        },
+        {
+            "Lot": "LOT_0009",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-23T04:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-10:12"
+        },
+        {
+            "Lot": "LOT_0010",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-23T04:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-10:12"
+        },
+        {
+            "Lot": "LOT_0011",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-23T04:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-10:12"
+        },
+        {
+            "Lot": "LOT_0012",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-23T04:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-10:12"
+        },
+        {
+            "Lot": "LOT_0013",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-23T10:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-10:06"
+        },
+        {
+            "Lot": "LOT_0014",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-23T10:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-10:06"
+        },
+        {
+            "Lot": "LOT_0015",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-23T10:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-10:06"
+        },
+        {
+            "Lot": "LOT_0016",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-23T10:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-10:06"
+        },
+        {
+            "Lot": "LOT_0017",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-23T16:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-10:00"
+        },
+        {
+            "Lot": "LOT_0018",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-23T16:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-10:00"
+        },
+        {
+            "Lot": "LOT_0019",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-23T16:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-10:00"
+        },
+        {
+            "Lot": "LOT_0020",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-23T16:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-10:00"
+        },
+        {
+            "Lot": "LOT_0021",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-23T22:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-9:18"
+        },
+        {
+            "Lot": "LOT_0022",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-23T22:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-9:18"
+        },
+        {
+            "Lot": "LOT_0023",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-23T22:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-9:18"
+        },
+        {
+            "Lot": "LOT_0024",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-23T22:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-9:18"
+        },
+        {
+            "Lot": "LOT_0025",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-24T04:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-9:12"
+        },
+        {
+            "Lot": "LOT_0026",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-24T04:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-9:12"
+        },
+        {
+            "Lot": "LOT_0027",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-24T04:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-9:12"
+        },
+        {
+            "Lot": "LOT_0028",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-24T04:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-9:12"
+        },
+        {
+            "Lot": "LOT_0029",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-24T10:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-9:06"
+        },
+        {
+            "Lot": "LOT_0030",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-24T10:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-9:06"
+        },
+        {
+            "Lot": "LOT_0031",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-24T10:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-9:06"
+        },
+        {
+            "Lot": "LOT_0032",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-24T10:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-9:06"
+        },
+        {
+            "Lot": "LOT_0033",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-24T16:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-9:00"
+        },
+        {
+            "Lot": "LOT_0034",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-24T16:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-9:00"
+        },
+        {
+            "Lot": "LOT_0035",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-24T16:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-9:00"
+        },
+        {
+            "Lot": "LOT_0036",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-24T16:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-9:00"
+        },
+        {
+            "Lot": "LOT_0037",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-24T22:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-8:18"
+        },
+        {
+            "Lot": "LOT_0038",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-24T22:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-8:18"
+        },
+        {
+            "Lot": "LOT_0039",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-24T22:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-8:18"
+        },
+        {
+            "Lot": "LOT_0040",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-24T22:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-8:18"
+        },
+        {
+            "Lot": "LOT_0041",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-25T04:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-8:12"
+        },
+        {
+            "Lot": "LOT_0042",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-25T04:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-8:12"
+        },
+        {
+            "Lot": "LOT_0043",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-25T04:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-8:12"
+        },
+        {
+            "Lot": "LOT_0044",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-25T04:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-8:12"
+        },
+        {
+            "Lot": "LOT_0045",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-25T10:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-8:06"
+        },
+        {
+            "Lot": "LOT_0046",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-25T10:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-8:06"
+        },
+        {
+            "Lot": "LOT_0047",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-25T10:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-8:06"
+        },
+        {
+            "Lot": "LOT_0048",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-25T10:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-8:06"
+        },
+        {
+            "Lot": "LOT_0049",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-25T16:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-8:00"
+        },
+        {
+            "Lot": "LOT_0050",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-25T16:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-8:00"
+        },
+        {
+            "Lot": "LOT_0051",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-25T16:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-8:00"
+        },
+        {
+            "Lot": "LOT_0052",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-25T16:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-8:00"
+        },
+        {
+            "Lot": "LOT_0053",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-25T22:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-7:18"
+        },
+        {
+            "Lot": "LOT_0054",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-25T22:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-7:18"
+        },
+        {
+            "Lot": "LOT_0055",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-25T22:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-7:18"
+        },
+        {
+            "Lot": "LOT_0056",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-25T22:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-7:18"
+        },
+        {
+            "Lot": "LOT_0057",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-26T04:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-7:12"
+        },
+        {
+            "Lot": "LOT_0058",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-26T04:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-7:12"
+        },
+        {
+            "Lot": "LOT_0059",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-26T04:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-7:12"
+        },
+        {
+            "Lot": "LOT_0060",
+            "Product": "",
+            "Priority": 100,
+            "DueDate": "2026-02-02T17:00:00",
+            "PlanFinishDate": "2026-01-26T04:50:00",
+            "ActualFinishDate": null,
+            "delay time": "-7:12"
         }
     ]
 }

@@ -1,3 +1,5 @@
+import sys
+import io
 import mysql.connector
 import os
 import json
@@ -5,6 +7,10 @@ import argparse
 from ortools.sat.python import cp_model
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 # 載入環境變數
 load_dotenv()
@@ -97,12 +103,26 @@ def load_jobs_from_database():
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
+        # 讀取排程設定：是否排除已完成的批次
+        cursor.execute("SELECT parameter_value FROM ui_settings WHERE parameter_name = 'scheduler_exclude_completed_lots'")
+        row = cursor.fetchone()
+        exclude_completed = True # 預設排除
+        if row:
+            exclude_completed = row['parameter_value'].lower() == 'true'
+            
+        print(f"Scheduler setting: exclude_completed_lots = {exclude_completed}")
+
         # 載入 Lots 資料
-        cursor.execute("""
-            SELECT LotId, Priority, DueDate
+        query = """
+            SELECT LotId, Priority, DueDate, ActualFinishDate, PlanFinishDate
             FROM Lots
-            ORDER BY LotId
-        """)
+        """
+        if exclude_completed:
+            query += " WHERE ActualFinishDate IS NULL"
+        
+        query += " ORDER BY LotId"
+        
+        cursor.execute(query)
         lots_data = cursor.fetchall()
 
         jobs_data = []
@@ -198,6 +218,8 @@ def load_jobs_from_database():
                 "LotId": lot_id,
                 "Priority": lot['Priority'],
                 "DueDate": lot['DueDate'].strftime("%Y-%m-%dT%H:%M:%S") if lot['DueDate'] else None,
+                "ActualFinishDate": lot['ActualFinishDate'].strftime("%Y-%m-%dT%H:%M:%S") if lot['ActualFinishDate'] else None,
+                "PlanFinishDate": lot['PlanFinishDate'].strftime("%Y-%m-%dT%H:%M:%S") if lot['PlanFinishDate'] else None,
                 "Operations": operations,
                 "CompletedOps": completed_ops,
                 "WIPOps": wip_ops,
@@ -275,6 +297,27 @@ def update_plan_times(lot_results, plan_id=None):
             plan_id = f"PLAN_{int(time.time())}"
 
         for lot_id, operations in lot_results.items():
+            # 更新 Lots 表的 PlanFinishDate (預計完工時間) 和 Delay_Days (延遲天數)
+            # 取該批號所有作業中最後一個結束時間
+            lot_finish_time = max((res['end_time'] for res in operations.values()), default=None)
+            if lot_finish_time:
+                # 從資料庫讀取 DueDate 以計算延遲天數
+                cursor.execute("SELECT DueDate FROM Lots WHERE LotId = %s", (lot_id,))
+                due_date_result = cursor.fetchone()
+                
+                delay_days = None
+                if due_date_result and due_date_result[0]:
+                    due_date = due_date_result[0]
+                    # 計算延遲天數 (包含小數兩位)
+                    time_diff = lot_finish_time - due_date
+                    delay_days = round(time_diff.total_seconds() / (24 * 3600), 2)
+                
+                # 同時更新 PlanFinishDate 和 Delay_Days
+                cursor.execute(
+                    "UPDATE Lots SET PlanFinishDate = %s, Delay_Days = %s WHERE LotId = %s", 
+                    (lot_finish_time, delay_days, lot_id)
+                )
+
             for step, result in operations.items():
                 # Only update plan times for Normal (schedulable) operations
                 # COMPLETED, WIP, and Frozen operations should preserve their original planned values
@@ -363,27 +406,63 @@ if not plan_id:
     print("Failed to save raw data to PlanRaw, program terminated")
     exit(1)
 
+def load_machine_groups():
+    """從資料庫動態載入機台分組清單"""
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("SELECT MachineId, GroupId FROM Machines WHERE is_active = 1 ORDER BY GroupId, MachineId")
+        rows = cursor.fetchall()
+        
+        groups = {}
+        for row in rows:
+            gid = row['GroupId']
+            mid = row['MachineId']
+            if gid not in groups:
+                groups[gid] = []
+            groups[gid].append(mid)
+            
+        cursor.close()
+        conn.close()
+        
+        if not groups:
+            print("Warning: No active machines found in database!")
+        else:
+            print(f"Loaded {len(rows)} machines in {len(groups)} groups from database")
+            
+        return groups
+
+    except Exception as e:
+        print(f"Error loading machine groups: {e}")
+        return {}
+
 # =====================================================
-# Machine Groups
+# Machine Groups - 動態載入
 # =====================================================
-MACHINE_GROUPS = {
-    "M01": ["M01-1", "M01-2", "M01-3"],
-    "M02": ["M02-1", "M02-2"],
-    "M03": ["M03-1", "M03-2", "M03-3"],
-    "M04": ["M04-1", "M04-2", "M04-3"],
-    "M05": ["M05-1", "M05-2"],
-    "M06": ["M06-1", "M06-2"],
-    "M07": ["M07-1", "M07-2"],
-    "M08": ["M08-1", "M08-2", "M08-3", "M08-4"],
-}
+MACHINE_GROUPS = load_machine_groups()
+
+# 如果資料庫讀取失敗，提供一個基礎備案 (可選，但建議維持動態)
+if not MACHINE_GROUPS:
+    print("Using fallback hardcoded machine groups")
+    MACHINE_GROUPS = {
+        "M01": ["M01-1", "M01-2", "M01-3"],
+        "M02": ["M02-1", "M02-2"],
+        "M03": ["M03-1", "M03-2", "M03-3"],
+        "M04": ["M04-1", "M04-2", "M04-3"],
+        "M05": ["M05-1", "M05-2"],
+        "M06": ["M06-1", "M06-2"],
+        "M07": ["M07-1", "M07-2"],
+        "M08": ["M08-1", "M08-2", "M08-3", "M08-4"],
+    }
 
 # =====================================================
 # OR-Tools Model
 # =====================================================
 model = cp_model.CpModel()
 
-# horizon
-horizon = sum(op[2] for job in jobs_data for op in job["Operations"]) * 2
+# horizon 總時間 內定2, 暫時改為200 避免無解
+horizon = sum(op[2] for job in jobs_data for op in job["Operations"]) * 500
 
 # machines[submachine] = [intervals...]
 machines = {m: [] for g in MACHINE_GROUPS.values() for m in g}
@@ -585,7 +664,6 @@ for job in jobs_data:
     lot = job["LotId"]
     ops = job["Operations"]
 
-    # Q-time 約束: STEP3 → STEP4 ≤ 200
     if ("STEP3" in [s for s, _, _ in ops]) and ("STEP4" in [s for s, _, _ in ops]):
         model.Add(
             all_tasks[(lot, "STEP4")]["start"]
@@ -669,7 +747,8 @@ elif OBJECTIVE_TYPE == "total_completion_time":
         completion_times.append(all_tasks[(lot, last_step)]["end"])
     
     # 同時稍微考慮 makespan 作為輔助目標，讓排程更緊湊
-    model.Minimize(sum(completion_times) * 10 + makespan)
+    # model.Minimize(sum(completion_times) * 10 + makespan)    
+    model.Minimize(sum(completion_times))
 
 else:
     model.Minimize(makespan)
@@ -678,11 +757,23 @@ else:
 # Solve
 # =====================================================
 solver = cp_model.CpSolver()
-
+solver.parameters.log_search_progress = True # 開啟日誌
 # 設定求解器參數以發揮 CPU 效能
 max_time = int(os.getenv('SOLVER_MAX_TIME_IN_SECONDS', 30))
 num_workers = int(os.getenv('SOLVER_NUM_SEARCH_WORKERS', 8))
 
+# 在模型求解前加入檢查
+print(f"Horizon: {horizon:,}")
+print(f"Total variables: {sum(len(job['Operations']) for job in jobs_data) * 3}")
+
+# 檢查目標函數的可能最大值
+if OBJECTIVE_TYPE == "total_completion_time":
+    max_objective = len(jobs_data) * horizon * 10
+    print(f"Maximum possible objective value: {max_objective:,}")
+    if max_objective > 1e9:
+        print("⚠️ WARNING: Objective value may exceed recommended limit!")
+
+sys.stdout.flush()        
 solver.parameters.max_time_in_seconds = max_time
 solver.parameters.num_search_workers = num_workers # 設定並行計算線程數
 solver.parameters.log_search_progress = os.getenv('SOLVER_LOG_SEARCH_PROGRESS', 'false').lower() == 'true'
@@ -691,6 +782,9 @@ print(f"Solver parameters: max_time={max_time}s, num_workers={num_workers}")
 calc_start_time = datetime.now()
 status = solver.Solve(model)
 calc_end_time = datetime.now()
+print(f"Scheduling calculation duration: {calc_end_time - calc_start_time}")
+# 強制刷新輸出，確保 GUI 能即時讀取
+sys.stdout.flush()
 
 # =====================================================
 # Output & Update Database
@@ -836,8 +930,9 @@ if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
                     "Lot": lot_id,
                     "Product": "",
                     "Priority": job["Priority"],
-                    "Due Date": job["DueDate"],
-                    "Plan Date": plan_date.strftime("%Y-%m-%dT%H:%M:%S"),
+                    "DueDate": job["DueDate"],
+                    "PlanFinishDate": plan_date.strftime("%Y-%m-%dT%H:%M:%S"),
+                    "ActualFinishDate": job["ActualFinishDate"],
                     "delay time": delay_time
                 })
 
@@ -974,15 +1069,16 @@ if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
 
-        # 從 SimulationData 讀取最新的模擬時間
+        # 從 ui_settings 讀取最新的模擬時間
         simulation_end_time = None
         try:
-            cursor.execute("SELECT simulation_end_time FROM SimulationData ORDER BY id DESC LIMIT 1")
+            cursor.execute("SELECT parameter_value FROM ui_settings WHERE parameter_name = 'simulation_end_time' LIMIT 1")
             sim_result = cursor.fetchone()
-            if sim_result:
-                simulation_end_time = sim_result[0]
+            if sim_result and sim_result[0]:
+                # 將字串轉換為 datetime 物件
+                simulation_end_time = datetime.strptime(sim_result[0], '%Y-%m-%d %H:%M:%S')
         except Exception as sim_err:
-            print(f"Warning: Could not fetch simulation_end_time: {sim_err}")
+            print(f"Warning: Could not fetch simulation_end_time from ui_settings: {sim_err}")
 
         # 插入資料到 DynamicSchedulingJob 表
         cursor.execute("""
