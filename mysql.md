@@ -160,19 +160,19 @@ MachineGroups (1) ──── (N) Machines
 
 這些表結構完整支援 `jobs_data` 中的所有資料類型：
 
-1. **正常作業 (Normal Operations)**: 存儲在 `LotOperations` 表中，可由排程系統動態分配機器
-2. **已完成作業 (Completed Operations)**: 存儲在 `CompletedOperations` 表中，包含確定的開始和結束時間
-3. **進行中作業 (WIP Operations)**: 存儲在 `WIPOperations` 表中，包含開始時間和已處理時間
-4. **凍結作業 (Frozen Operations)**: 存儲在 `FrozenOperations` 表中，已預先排程但尚未開始
+1.  **正常作業 (Normal Operations)**: 存儲在 `LotOperations` 表中，可由排程系統動態分配機器
+2.  **已完成作業 (Completed Operations)**: 存儲在 `CompletedOperations` 表中，包含確定的開始和結束時間
+3.  **進行中作業 (WIP Operations)**: 存儲在 `WIPOperations` 表中，包含開始時間和已處理時間
+4.  **凍結作業 (Frozen Operations)**: 存儲在 `FrozenOperations` 表中，已預先排程但尚未開始
 
 ## 作業步驟狀態追蹤
 
 `LotOperations` 表中的狀態欄位用於追蹤每個作業步驟的執行狀態：
 
 - `StepStatus`: 作業狀態
-  - `0`: 預設狀態 (尚未開始)
-  - `1`: CheckIn (作業已開始)
-  - `2`: CheckOut (作業已完成)
+    - `0`: 預設狀態 (尚未開始)
+    - `1`: CheckIn (作業已開始)
+    - `2`: CheckOut (作業已完成)
 
 - `CheckInTime`: 記錄作業開始檢查的時間戳
 - `CheckOutTime`: 記錄作業完成檢查的時間戳
@@ -218,7 +218,13 @@ BEGIN
     DELETE FROM DynamicSchedulingJob;    
    
     -- 然後刪除 SimulationData 表中的所有資料
-    DELETE FROM  SimulationData;
+    DELETE FROM SimulationData;
+
+    -- 然後刪除 SimulationPlanningJob 表中的所有資料
+    DELETE FROM SimulationPlanningJob;
+
+    -- 然後刪除 SimulationPlanningJob_Hist 表中的所有資料
+    DELETE FROM SimulationPlanningJob_Hist;
 END
 ```
 
@@ -322,6 +328,50 @@ CALL generate_random_pm_schedules();
 - 原因欄位會標記是第幾筆記錄 (如 "隨機產生的預防性保養 - M01-1 (1/3)")
 - 適用於測試環境產生模擬的保養排程資料，避免過度阻塞機台
 
+### sp_InsertLot
+用於批次產生測試批號（Lots）與對應作業（Operations）的預存程序。
+
+**功能更新**:
+- 支援隨機作業數量：每個批號會隨機產生 **9 到 15 個** 作業步驟。
+- 自動對應機台：步驟名稱（STEP1-STEP15）自動對應機台群組（M01-M15）。
+- 標準工時：根據範本設定每個步驟的 Duration。
+- 支援模擬時間：可選擇以 `simulation_end_time` 或當前時間作為交期（DueDate）的計算基準。
+
+```sql
+-- 使用方法 (產生 10 個批號，優先級 100，使用模擬結束時間計算交期)
+CALL sp_InsertLot(10, 100, TRUE);
+```
+
+### sp_UpdatePlanResultsJSON
+高效率的批次排程結果更新預存程序，使用 JSON 格式輸入以減少資料庫來回次數。
+
+**功能說明**:
+- 批次更新 `Lots` 表的預計完工時間（PlanFinishDate）。
+- 批次更新 `LotOperations` 表的排程時間、機台、以及歷史記錄。
+- 內部使用 JSON 導引技術，結合循環處理實現高性能更新。
+
+### sp_SaveDynamicSchedulingJob
+將完整的排程結果快照儲存至 `DynamicSchedulingJob` 表。
+
+**功能說明**:
+- 一次讀取所有排程結果 JSON。
+- 記錄排程 ID、摘要資訊以及詳細的甘特圖段數據。
+- 確保前端 API 可以快速讀取最後一次排程狀態。
+
+### sp_InsertSimulationPlanning
+將目前的動態排程結果（DynamicSchedulingJob）備份至模擬規劃表。
+
+**功能說明**:
+- 將 `DynamicSchedulingJob` 的所有記錄複製到 `SimulationPlanningJob`。
+- 支援傳入 `key_value` 與 `remark` 作為備份點的識別與註記。
+
+### sp_LoadSimulationToHist
+將特定的模擬規劃備份搬移至歷史表或還原至歷史區間。
+
+**功能說明**:
+- 將 `SimulationPlanningJob` 中符合特定 `key_value` 的資料搬移至歷史存檔。
+- 目前實作也支援將資料載入至 `DynamicSchedulingJob_Hist`（依據具體業務需求而定）。
+
 ## 機台管理相關資料表
 
 ### 8. Machines - 機台主檔表 (已更新)
@@ -409,7 +459,30 @@ CREATE TABLE machine_unavailable_periods (
 - `CreatedAt` (TIMESTAMP): 建立時間
 - `UpdatedAt` (TIMESTAMP): 更新時間
 
-
+### 10. DynamicSchedulingJob - 動態排程作業結果表
+```sql
+CREATE TABLE DynamicSchedulingJob (
+    ScheduleId VARCHAR(50) NOT NULL,
+    LotPlanRaw LONGTEXT DEFAULT NULL,
+    CreateDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CreateUser VARCHAR(50) DEFAULT NULL,
+    simulation_end_time DATETIME DEFAULT NULL,
+    PlanSummary VARCHAR(2500) DEFAULT NULL,
+    LotPlanResult LONGTEXT DEFAULT NULL,
+    LotStepResult LONGTEXT DEFAULT NULL,
+    machineTaskSegment LONGTEXT DEFAULT NULL,
+    PRIMARY KEY (ScheduleId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+- `ScheduleId` (VARCHAR(50), PK): 排程唯一編號
+- `LotPlanRaw` (LONGTEXT): 原始輸入工單資料 (JSON 格式)
+- `CreateDate` (DATETIME): 排程執行時間
+- `CreateUser` (VARCHAR): 執行者
+- `simulation_end_time` (DATETIME): 模擬時鐘結束點
+- `PlanSummary` (VARCHAR): 排程結果摘要說明
+- `LotPlanResult` (LONGTEXT): 完工時間預測結果 (JSON 格式)
+- `LotStepResult` (LONGTEXT): 各工序詳細排程結果 (JSON 格式)
+- `machineTaskSegment` (LONGTEXT): 甘特圖用的條狀資料 (JSON 格式)
 
 ### 11. ui_settings - UI 介面參數設定表
 ```sql
@@ -455,17 +528,101 @@ CREATE TABLE SimulationData (
 - 用於記錄每次模擬時鐘運行後的結果範圍。
 - `qt_gui.py` 會自動讀取最後一筆紀錄的 `simulation_end_time` 並加上緩衝時間，作為下一次模擬或排程的預設起始點。
 
-## 📊 資料表功能說明對照表 (更新)
+
+
+### 13. MachineGroupUtilization - 機台群組利用率統計表
+```sql
+CREATE TABLE MachineGroupUtilization (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    PlanID VARCHAR(50) NOT NULL,
+    GroupId VARCHAR(20) NOT NULL,
+    CalculationWindowStart DATETIME NOT NULL,
+    CalculationWindowEnd DATETIME NOT NULL,
+    MachineCount INT NOT NULL,
+    TotalUsedMinutes INT NOT NULL,
+    TotalCapacityMinutes INT NOT NULL,
+    UtilizationRate DECIMAL(5, 2) NOT NULL,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_plan (PlanID),
+    INDEX idx_group (GroupId)
+);
+```
+- `id` (INT, PK): 自動編號
+- `PlanID` (VARCHAR): 關聯的排程編號
+- `GroupId` (VARCHAR): 機台群組 ID (如 M01, M02)
+- `CalculationWindowStart/End` (DATETIME): 計算利用率所涵蓋的時間視窗
+- `MachineCount` (INT): 該群組內的機台總數
+- `TotalUsedMinutes` (INT): 該群組在視窗內實際被分配的總加工分鐘數
+- `TotalCapacityMinutes` (INT): 該群組在視窗內的總可用產能（分鐘）
+- `UtilizationRate` (DECIMAL): 利用率百分比 (如 85.50)
+- `CreatedAt` (TIMESTAMP): 紀錄建立時間
+
+### 14. SimulationPlanningJob - 模擬規劃備份表 (快照儲存)
+```sql
+CREATE TABLE SimulationPlanningJob (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    key_value VARCHAR(100) NOT NULL,
+    remark TEXT DEFAULT NULL,
+    
+    -- 複製自 DynamicSchedulingJob 的欄位
+    ScheduleId VARCHAR(50) DEFAULT NULL,
+    LotPlanRaw LONGTEXT DEFAULT NULL,
+    CreateDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CreateUser VARCHAR(50) DEFAULT NULL,
+    PlanSummary VARCHAR(2500) DEFAULT NULL,
+    LotPlanResult LONGTEXT DEFAULT NULL,
+    LotStepResult LONGTEXT DEFAULT NULL,
+    machineTaskSegment LONGTEXT DEFAULT NULL,
+    simulation_end_time DATETIME DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+- `id` (INT, PK): 自動編號 (備份點唯一 ID)
+- `key_value` (VARCHAR): 識別標籤，用於同時存入多筆記錄時作為關聯（已移除索引以支援彈性寫入）
+- `remark` (TEXT): 備份備註說明
+- `ScheduleId` (VARCHAR): 原排程編號
+- `LotPlanRaw` (LONGTEXT): 原始工單資料 JSON
+- `PlanSummary` (VARCHAR): 排程摘要
+- `LotPlanResult` (LONGTEXT): 完工時間結果 JSON
+- `LotStepResult` (LONGTEXT): 詳細工序結果 JSON
+- `machineTaskSegment` (LONGTEXT): 甘特圖段落 JSON
+- `simulation_end_time` (DATETIME): 當時的模擬結束時間
+
+### 15. SimulationPlanningJob_Hist - 模擬規劃歷史表 (封存儲存)
+```sql
+CREATE TABLE SimulationPlanningJob_Hist (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    key_value VARCHAR(100) NOT NULL,
+    remark TEXT DEFAULT NULL,
+    
+    -- 欄位與 SimulationPlanningJob 完全一致
+    ScheduleId VARCHAR(50) DEFAULT NULL,
+    LotPlanRaw LONGTEXT DEFAULT NULL,
+    CreateDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CreateUser VARCHAR(50) DEFAULT NULL,
+    PlanSummary VARCHAR(2500) DEFAULT NULL,
+    LotPlanResult LONGTEXT DEFAULT NULL,
+    LotStepResult LONGTEXT DEFAULT NULL,
+    machineTaskSegment LONGTEXT DEFAULT NULL,
+    simulation_end_time DATETIME DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+- **功能**: 用於存放已被執行過或已結案的規劃快照。
+- **結構**: 與 `SimulationPlanningJob` 完全相同，方便資料搬移與查詢。
+
+### 📊 資料表功能說明對照表 (更新)
 
 | 資料表名稱 | 英文名稱 | 主要用途 | 使用時機 | 資料範例 | 是否必要 |
 |-----------|---------|---------|---------|---------|---------|
 | 機台主檔表 | machines | 儲存所有機台的基本資料 | 系統初始化時建立,新增機台時使用 | M01-1, M01-2 屬於 M01 群組 | ✅ 必要 |
 | 機台不可用時段表 | machine_unavailable_periods | 記錄機台無法使用的時間區間 | 排程時避開維修、保養等 | M01-1 於 1/18 14:00-16:00 維修 | ✅ 必要 |
 | 動態排程作業表 | DynamicSchedulingJob | 儲存動態排程結果資料 | 執行動態排程時儲存結果 | 排程結果 JSON 格式儲存 | ✅ 必要 |
+| 模擬規劃備份表 | SimulationPlanningJob | 儲存模擬規劃的快照/備份 | 手動或自動備份排程結果以便還原 | 存儲特定版本排程結果 | ✅ 必要 |
 | UI 介面參數設定表 | ui_settings | 跨工作階段保存介面輸入值 (鍵值對) | GUI 啟動與數值改變時同步 | parameter_name='spin_lot_count', parameter_value='5' | ✅ 必要 |
 | 模擬結果追蹤表 | SimulationData | 保存模擬時鐘的最後結束點 | 模擬完成時寫入,作為下次計算參考 | 模擬結束於 2026-01-22 15:30:00 | ✅ 必要 |
+| 模擬規劃歷史表 | SimulationPlanningJob_Hist | 儲存已結案或歷史規劃紀錄 | 長期保存歷史資料，不影響主表查詢 | 封存的排程結果 | ✅ 必要 |
+| 機台群組利用率統計表 | MachineGroupUtilization | 紀錄排程後的資源平衡狀況 | 分析瓶頸與產能規劃 | M01 群組利用率 85.5% | ✅ 必要 |
 
-## 更新後的資料表關聯圖 (Ver 1.2)
+## 更新後的資料表關聯圖 (Ver 1.3)
 
 ```
 Lots (1) ──── (N) LotOperations
@@ -481,6 +638,11 @@ MachineGroups (1) ──── (N) Machines
   └─── (1) ──── (N) machine_unavailable_periods
 
 DynamicSchedulingJob (獨立結果表)
+  │
+  └─── (備份) ─── SimulationPlanningJob (快照快照)
+          │
+          └─── (結案/封存) ─── SimulationPlanningJob_Hist (歷史紀錄)
+
 ui_settings (設定檔 / 鍵值對)
 SimulationData (模擬紀錄)
 ```
