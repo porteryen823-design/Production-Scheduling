@@ -50,7 +50,7 @@ class AutomatedTestRunner:
         try:
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor(dictionary=True)
-            cursor.execute("SELECT parameter_name, parameter_value FROM ui_settings WHERE parameter_name IN ('spin_iterations', 'spin_timedelta')")
+            cursor.execute("SELECT parameter_name, parameter_value FROM ui_settings WHERE parameter_name IN ('spin_iterations', 'spin_timedelta', 'simulation_start_time', 'simulation_start_time_setting')")
             rows = cursor.fetchall()
             cursor.close()
             conn.close()
@@ -62,6 +62,8 @@ class AutomatedTestRunner:
                     value = row['parameter_value']
                     if name in ['spin_iterations', 'spin_timedelta']:
                         settings[name] = int(value)
+                    elif name in ['simulation_start_time', 'simulation_start_time_setting']:
+                        settings[name] = value
                 except (ValueError, TypeError):
                     continue
                     
@@ -109,6 +111,38 @@ class AutomatedTestRunner:
             return False
         except Exception as e:
             print(f"❌ Error: {e}", flush=True)
+            return False
+
+    def init_simulation_settings(self, start_time: datetime) -> bool:
+        """初始化模擬設定，確保同步"""
+        print(f"\nInitializing simulation settings to baseline (Start: {start_time.strftime('%Y-%m-%d %H:%M:%S')})...", flush=True)
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            
+            # 將基準時間同步到 simulation_start_time 和 simulation_end_time
+            # 並強制開啟模擬模式設定
+            settings = [
+                ('simulation_start_time', start_time.strftime('%Y-%m-%d %H:%M:%S')),
+                ('simulation_end_time', start_time.strftime('%Y-%m-%d %H:%M:%S')),
+                ('insert_lot_data_use_simulation_end_time', 'True'),
+                ('use_sp_for_lot_insert', 'True')
+            ]
+            
+            for name, value in settings:
+                cursor.execute("""
+                    INSERT INTO ui_settings (parameter_name, parameter_value)
+                    VALUES (%s, %s)
+                    ON DUPLICATE KEY UPDATE parameter_value = %s
+                """, (name, value, value))
+                
+            conn.commit()
+            cursor.close()
+            conn.close()
+            print("✅ Simulation settings initialized", flush=True)
+            return True
+        except Exception as e:
+            print(f"⚠️ Failed to initialize simulation settings: {e}", flush=True)
             return False
     
     def _run_script(self, args: list, step_name: str) -> bool:
@@ -188,6 +222,23 @@ class AutomatedTestRunner:
         ]
         return self._run_script(args, "Simulation Clock")
     
+    def get_simulation_start_time(self) -> datetime:
+        """從資料庫取得模擬起始點設定，優先使用 simulation_start_time_setting"""
+        # 優先選擇固定基準設定
+        baseline = self.db_settings.get('simulation_start_time_setting')
+        db_start = self.db_settings.get('simulation_start_time')
+        
+        target_str = baseline if baseline else db_start
+        
+        if target_str:
+            try:
+                return datetime.strptime(target_str, '%Y-%m-%d %H:%M:%S')
+            except Exception as e:
+                print(f"⚠️ Invalid time format in DB: {e}", flush=True)
+        
+        # 預設後備時間
+        return datetime(2026, 1, 22, 14, 0, 0)
+
     def get_simulation_end_time(self) -> datetime:
         """從資料庫取得最後的模擬結束時間"""
         try:
@@ -204,12 +255,12 @@ class AutomatedTestRunner:
                 simulation_end_time = datetime.strptime(simulation_end_time_str, '%Y-%m-%d %H:%M:%S')
                 return simulation_end_time
             else:
-                # 如果沒有資料，返回預設時間
-                return datetime(2026, 1, 22, 14, 0, 0)
+                # 如果沒有資料，返回模擬起始點
+                return self.get_simulation_start_time()
                 
         except Exception as e:
             print(f"⚠️ Failed to get simulation end time: {e}", flush=True)
-            return datetime(2026, 1, 22, 14, 0, 0)
+            return self.get_simulation_start_time()
     
     def run_cycle(self, cycle_num: int, total_cycles: int, current_time: datetime) -> datetime:
         """
@@ -287,8 +338,15 @@ class AutomatedTestRunner:
             print("\n❌ Test failed: Clean test data failed", flush=True)
             return
         
-        # 初始時間
-        current_time = datetime(2026, 1, 22, 14, 0, 0)
+        # 從資料庫取得起始時間 (simulation_start_time)
+        start_date = self.get_simulation_start_time()
+        current_time = start_date
+        
+        print(f"📍 Test Baseline Start Time: {start_date.strftime('%Y-%m-%d %H:%M:%S')}", flush=True)
+        
+        # 初始化資料庫中的時間設定，避免第一批次抓到 NOW()
+        if not self.init_simulation_settings(start_date):
+            print("\n⚠️ Warning: Simulation settings initialization failed, may cause time drift", flush=True)
         
         # Step 1.5: Generate initial Lot (if configured)
         initial_lots = self.config.get('initial_lots', 0)

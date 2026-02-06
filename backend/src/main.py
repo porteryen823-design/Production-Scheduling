@@ -3,6 +3,7 @@ FastAPI 主應用程式
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from core.config import settings
 from api.v1.routers import (
     lots,
@@ -13,6 +14,7 @@ from api.v1.routers import (
     dynamic_scheduling_job,
     ui_settings,
     simulation_data,
+    dynamic_scheduling_job_snap,
     schedule
 )
 
@@ -46,6 +48,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 設定 GZip 壓縮 (對於大型 JSON 如 machineTaskSegment 特別重要)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
 # 註冊路由
 app.include_router(lots.router, prefix=settings.API_PREFIX)
 app.include_router(lot_operations.router, prefix=settings.API_PREFIX)
@@ -55,6 +60,7 @@ app.include_router(machine_unavailable_periods.router, prefix=settings.API_PREFI
 app.include_router(dynamic_scheduling_job.router, prefix=settings.API_PREFIX)
 app.include_router(ui_settings.router, prefix=settings.API_PREFIX)
 app.include_router(simulation_data.router, prefix=settings.API_PREFIX)
+app.include_router(dynamic_scheduling_job_snap.router, prefix=settings.API_PREFIX)
 
 # 專為甘特圖設計的排程 API (在 /api 路徑下,不是 /api/v1)
 app.include_router(schedule.router, prefix="/api")

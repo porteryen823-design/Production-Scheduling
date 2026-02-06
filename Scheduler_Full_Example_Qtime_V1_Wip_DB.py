@@ -1,3 +1,5 @@
+# 整合 mySql 版本, 使用兩層架構, 程式直接讀寫資料庫,不透過 webapi
+
 import sys
 import io
 import mysql.connector
@@ -463,6 +465,7 @@ model = cp_model.CpModel()
 
 # horizon 總時間 內定2, 暫時改為200 避免無解
 horizon = sum(op[2] for job in jobs_data for op in job["Operations"]) * 500
+horizon = max(sum(op[2] for op in job["Operations"]) for job in jobs_data) + 60*24* 30 # 多增加 3天
 
 # machines[submachine] = [intervals...]
 machines = {m: [] for g in MACHINE_GROUPS.values() for m in g}

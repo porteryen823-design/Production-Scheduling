@@ -65,6 +65,7 @@ BEGIN
     DECLARE n INT DEFAULT 0;
     DECLARE v_LotId VARCHAR(50);
     DECLARE v_PlanFinishDate DATETIME;
+    DECLARE v_PlanStartTime DATETIME;
     DECLARE v_DueDate DATETIME;
     DECLARE v_DelayDays DOUBLE;
     
@@ -80,6 +81,7 @@ BEGIN
         WHILE i < n DO
             SET v_LotId = JSON_VALUE(p_LotsJson, CONCAT('$[', i, '].LotId'));
             SET v_PlanFinishDate = JSON_VALUE(p_LotsJson, CONCAT('$[', i, '].PlanFinishDate'));
+            SET v_PlanStartTime = JSON_VALUE(p_LotsJson, CONCAT('$[', i, '].PlanStartTime'));
             
             IF v_LotId IS NOT NULL THEN
                 -- Calculate delay days internally
@@ -92,6 +94,7 @@ BEGIN
 
                 UPDATE Lots 
                 SET PlanFinishDate = v_PlanFinishDate, 
+                    PlanStartTime = v_PlanStartTime,
                     Delay_Days = v_DelayDays 
                 WHERE LotId = v_LotId;
             END IF;

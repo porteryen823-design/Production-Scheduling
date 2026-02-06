@@ -10,6 +10,9 @@ from .machine_unavailable_periods import MachineUnavailablePeriod, UnavailableTy
 from .dynamic_scheduling_job import DynamicSchedulingJob
 from .ui_settings import UISetting
 from .simulation_data import SimulationData
+from .dynamic_scheduling_job_snap import DynamicSchedulingJobSnap
+from .dynamic_scheduling_job_snap_hist import DynamicSchedulingJob_Snap_Hist
+from .dynamic_scheduling_job_hist import DynamicSchedulingJobHist
 
 __all__ = [
     "Lot",
@@ -22,6 +25,9 @@ __all__ = [
     "MachineUnavailablePeriod",
     "UnavailableType",
     "DynamicSchedulingJob",
+    "DynamicSchedulingJobHist",
     "UISetting",
     "SimulationData",
+    "DynamicSchedulingJobSnap",
+    "DynamicSchedulingJob_Snap_Hist",
 ]

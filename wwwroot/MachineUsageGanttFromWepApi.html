@@ -184,6 +184,15 @@
                 <button class="btn btn-outline-info btn-sm" id="lastBtn" onclick="loadLast()"><i class="fa-solid fa-angles-right"></i> 最後一筆</button>
             </div>
 
+            <!-- 資料來源切換 -->
+            <div class="btn-group me-3" role="group">
+                <input type="radio" class="btn-check" name="dataSource" id="sourceCurrent" value="current" checked onchange="onSourceChange()">
+                <label class="btn btn-outline-secondary btn-sm" for="sourceCurrent">目前資料 (Current)</label>
+                
+                <input type="radio" class="btn-check" name="dataSource" id="sourceHistory" value="history" onchange="onSourceChange()">
+                <label class="btn btn-outline-secondary btn-sm" for="sourceHistory">載入資料 (History)</label>
+            </div>
+
 
             <!-- 讀取 JSON 按鈕 (保留) -->
             <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
@@ -252,7 +261,8 @@
 
         // 從 Web API 獲取排程資料
         async function fetchScheduleData(offset) {
-            const url = `${API_BASE_URL}${API_ENDPOINT}?offset=${offset}&limit=1`;
+            const source = document.querySelector('input[name="dataSource"]:checked').value;
+            const url = `${API_BASE_URL}${API_ENDPOINT}?offset=${offset}&limit=1&source=${source}`;
             console.log(`Fetching schedule data from API: ${url}`);
             
             try {
@@ -397,13 +407,19 @@
             const nextBtn = document.getElementById('nextBtn');
             const lastBtn = document.getElementById('lastBtn');
 
-            const isOldest = (currentScheduleIndex >= totalSchedules - 1);
+            const isOldest = (currentScheduleIndex >= totalSchedules - 1 || totalSchedules <= 0);
             const isLatest = (currentScheduleIndex <= 0);
 
             if (firstBtn) firstBtn.disabled = isOldest;
             if (prevBtn) prevBtn.disabled = isOldest;
             if (nextBtn) nextBtn.disabled = isLatest;
             if (lastBtn) lastBtn.disabled = isLatest;
+        }
+
+        function onSourceChange() {
+            console.log("Source changed, reloading...");
+            currentScheduleIndex = -1;
+            loadLatestRecord();
         }
 
 

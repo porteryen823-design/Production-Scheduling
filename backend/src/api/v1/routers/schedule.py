@@ -5,9 +5,9 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from infra.db.database import get_db
-from domain.models import DynamicSchedulingJob
+from domain.models import DynamicSchedulingJob, DynamicSchedulingJobHist
 from api.v1.schemas.dynamic_scheduling_job import DynamicSchedulingJobResponse
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 router = APIRouter(tags=["Schedule"])
 
@@ -16,6 +16,7 @@ router = APIRouter(tags=["Schedule"])
 def get_schedule_for_gantt(
     offset: int = Query(0, ge=0, description="偏移量 (0 是最新一筆)"),
     limit: int = Query(1, ge=1, le=10, description="限制數量"),
+    source: str = Query("current", description="資料來源: current (目前), history (歷史)"),
     db: Session = Depends(get_db)
 ) -> Dict[str, Any]:
     """
@@ -23,6 +24,7 @@ def get_schedule_for_gantt(
     
     - offset: 偏移量,0 是最新一筆,1 是第二新,依此類推
     - limit: 限制數量,預設 1
+    - source: 資料來源
     
     返回格式:
     {
@@ -34,12 +36,15 @@ def get_schedule_for_gantt(
         "total": 30
     }
     """
+    # 決定使用的 Model
+    model = DynamicSchedulingJobHist if source == "history" else DynamicSchedulingJob
+    
     # 計算總數
-    total = db.query(func.count(DynamicSchedulingJob.ScheduleId)).scalar()
+    total = db.query(func.count(model.ScheduleId)).scalar()
     
     # 查詢排程資料 (按 CreateDate DESC 排序)
-    jobs = db.query(DynamicSchedulingJob)\
-        .order_by(DynamicSchedulingJob.CreateDate.desc())\
+    jobs = db.query(model)\
+        .order_by(model.CreateDate.desc())\
         .offset(offset)\
         .limit(limit)\
         .all()
@@ -51,7 +56,8 @@ def get_schedule_for_gantt(
             "CreateUser": None,
             "PlanSummary": None,
             "machineTaskSegment": [],
-            "total": total
+            "total": total,
+            "source": source
         }
     
     # 取第一筆 (因為 limit 通常是 1)
@@ -66,5 +72,6 @@ def get_schedule_for_gantt(
         "LotPlanResult": job.LotPlanResult if job.LotPlanResult else {},
         "LotStepResult": job.LotStepResult if job.LotStepResult else {},
         "simulation_end_time": job.simulation_end_time.isoformat() if job.simulation_end_time else None,
-        "total": total
+        "total": total,
+        "source": source
     }

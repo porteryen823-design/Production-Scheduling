@@ -1,5 +1,16 @@
 from ortools.sat.python import cp_model
 from datetime import datetime, timedelta
+import time
+import sys
+import io
+
+# =====================================================
+# Windows Unicode Output Encoding Fix
+# =====================================================
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 
 # =====================================================
 # 基本設定
@@ -11,69 +22,70 @@ OBJECTIVE_TYPE = "weighted_delay"   # "makespan" | "weighted_delay"
 # =====================================================
 # Job 資料
 # =====================================================
-jobs_data = [
-    {
-        "LotId": "LOT_A001",
-        "Priority": 100,
-        "DueDate": "2026-01-20T18:38:48.970904",
-        "Operations": [
-            ("STEP1", "M01", 240),
-            ("STEP2", "M02", 120),
-            ("STEP3", "M03", 300),
-            ("STEP4", "M04", 280),
-            ("STEP5", "M05", 360),
-        ],
-        # 已完成作業（有 start_time 和 end_time）
-        "CompletedOps": {
-            "STEP1": {
-                "machine": "M01-1",
-                "start_time": datetime(2026, 1, 18, 7, 0, 0),
-                "end_time": datetime(2026, 1, 18, 11, 0, 0),
-            },
-        },
-        # 進行中作業（有 start_time 和 elapsed_minutes，但沒有 end_time）
-        "WIPOps": {
-            "STEP2": {
-                "machine": "M02-1",
-                "start_time": datetime(2026, 1, 18, 11, 0, 0),
-                "elapsed_minutes": 60,  # 已處理 60 分鐘，還需 60 分鐘
-            },
-        },
-        # 凍結時間窗（已排程但尚未開始，不可更改）
-        "FrozenOps": {
-            # 例如: STEP3 已經排定但還沒開始
-            # "STEP3": {
-            #     "machine": "M03-2",
-            #     "start_time": datetime(2026, 1, 18, 14, 0, 0),
-            #     "end_time": datetime(2026, 1, 18, 19, 0, 0),
-            # },
-        },
-    },
-    {
-        "LotId": "LOT_B001",
-        "Priority": 50,
-        "DueDate": "2026-01-19T11:46:01.205277",
-        "Operations": [
-            ("STEP1", "M01", 240),
-            ("STEP2", "M02", 120),
-            ("STEP3", "M03", 300),
-            ("STEP4", "M04", 180),
-            ("STEP5", "M05", 360),
-        ],
-    },
-    {
-        "LotId": "LOT_C001",
-        "Priority": 50,
-        "DueDate": "2026-01-19T08:39:49.243869",
-        "Operations": [
-            ("STEP1", "M01", 240),
-            ("STEP2", "M02", 120),
-            ("STEP3", "M03", 230),
-            ("STEP4", "M04", 180),
-            ("STEP5", "M05", 360),
-        ],
-    },
-]
+# 動態生成 500 個 Job
+jobs_data = []
+for i in range(1, 501):
+    lot_id = f"LOT_{i:03d}"
+    # 循環使用範例中的三種模式
+    if i % 3 == 1:
+        # 模式 1: 比照原 LOT_A001 (包含 Completed/WIP)
+        job = {
+            "LotId": lot_id,
+            "Priority": 100 if i == 1 else 50,
+            "DueDate": (SCHEDULE_START + timedelta(days=2)).isoformat(),
+            "Operations": [
+                ("STEP1", "M01", 240),
+                ("STEP2", "M02", 120),
+                ("STEP3", "M03", 300),
+                ("STEP4", "M04", 280),
+                ("STEP5", "M05", 360),
+            ],
+        }
+        if i == 1: # 只有第一個保留 WIP/Completed 狀態作為示例
+            job["CompletedOps"] = {
+                "STEP1": {
+                    "machine": "M01-1",
+                    "start_time": datetime(2026, 1, 18, 7, 0, 0),
+                    "end_time": datetime(2026, 1, 18, 11, 0, 0),
+                },
+            }
+            job["WIPOps"] = {
+                "STEP2": {
+                    "machine": "M02-1",
+                    "start_time": datetime(2026, 1, 18, 11, 0, 0),
+                    "elapsed_minutes": 60,
+                },
+            }
+    elif i % 3 == 2:
+        # 模式 2: 比照原 LOT_B001
+        job = {
+            "LotId": lot_id,
+            "Priority": 50,
+            "DueDate": (SCHEDULE_START + timedelta(days=1)).isoformat(),
+            "Operations": [
+                ("STEP1", "M01", 240),
+                ("STEP2", "M02", 120),
+                ("STEP3", "M03", 300),
+                ("STEP4", "M04", 180),
+                ("STEP5", "M05", 360),
+            ],
+        }
+    else:
+        # 模式 3: 比照原 LOT_C001
+        job = {
+            "LotId": lot_id,
+            "Priority": 50,
+            "DueDate": (SCHEDULE_START + timedelta(days=1)).isoformat(),
+            "Operations": [
+                ("STEP1", "M01", 240),
+                ("STEP2", "M02", 120),
+                ("STEP3", "M03", 230),
+                ("STEP4", "M04", 180),
+                ("STEP5", "M05", 360),
+            ],
+        }
+    jobs_data.append(job)
+
 
 # =====================================================
 # Machine Groups
@@ -172,8 +184,9 @@ for job in jobs_data:
                 "remaining_minutes": remaining,
             }
             
-            print(f"[WIP] {lot} {step} 在 {info['machine']}: "
-                  f"已處理 {elapsed} 分鐘, 還需 {remaining} 分鐘")
+#             print(f"[WIP] {lot} {step} on {info['machine']}: "
+#                   f"Processed {elapsed} min, {remaining} min remaining")
+
             continue
 
         # -------------------------------------------------
@@ -202,8 +215,9 @@ for job in jobs_data:
                 "status": "Frozen",
             }
             
-            print(f"[Frozen] {lot} {step} 在 {info['machine']}: "
-                  f"{info['start_time']} → {info['end_time']}")
+#             print(f"[Frozen] {lot} {step} on {info['machine']}: "
+#                   f"{info['start_time']} → {info['end_time']}")
+
             continue
 
         # -------------------------------------------------
@@ -300,73 +314,81 @@ else:
 # =====================================================
 solver = cp_model.CpSolver()
 solver.parameters.max_time_in_seconds = 30
+
+# Start timing
+start_solve_time = time.perf_counter()
 status = solver.Solve(model)
+end_solve_time = time.perf_counter()
+solve_duration = end_solve_time - start_solve_time
 
 # =====================================================
 # Output
 # =====================================================
-if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
-    print(f"\n{'='*60}")
-    print(f"求解狀態: {solver.StatusName(status)}")
-    print(f"{'='*60}")
+print("============================================================")
+print(f"Solver Status: {solver.StatusName(status)}")
+print(f"Solve Duration: {solve_duration:.4f} seconds")
+print("============================================================")
 
-    for job in jobs_data:
-        lot = job["LotId"]
-        print(f"\n工單 {lot} (Priority: {job['Priority']})")
-        print(f"{'─'*60}")
 
-        for step, group, dur in job["Operations"]:
-            t = all_tasks[(lot, step)]
-            st = solver.Value(t["start"])
-            et = solver.Value(t["end"])
-
-            # 取得機台名稱
-            if t["status"] in ["Completed", "WIP", "Frozen"]:
-                machine = t["machine"]
-            else:
-                idx = solver.Value(t["machine_choice"])
-                machine = MACHINE_GROUPS[group][idx]
-
-            # 格式化時間
-            start_time = SCHEDULE_START + timedelta(minutes=st)
-            end_time = SCHEDULE_START + timedelta(minutes=et)
-
-            status_tag = f"[{t['status']}]"
-            
-            print(f"  {step:6} | {machine:6} | {status_tag:12} | "
-                  f"{start_time.strftime('%m-%d %H:%M')} → "
-                  f"{end_time.strftime('%m-%d %H:%M')} "
-                  f"({dur} min)")
-
-    # Summary
-    print(f"\n{'='*60}")
-    print("完工時間 vs DueDate")
-    print(f"{'='*60}")
-    
-    for job in jobs_data:
-        lot = job["LotId"]
-        due = datetime.fromisoformat(job["DueDate"])
-        completion_min = solver.Value(all_tasks[(lot, "STEP5")]["end"])
-        completion = SCHEDULE_START + timedelta(minutes=completion_min)
-
-        if completion <= due:
-            delta = (due - completion).total_seconds() / (3600 * 24)
-            status_str = f"✓ 超前 {delta:.1f} 天"
-        else:
-            delta = (completion - due).total_seconds() / (3600 * 24)
-            status_str = f"✗ 延遲 {delta:.1f} 天"
-
-        print(f"{lot}: 完成 {completion.strftime('%m-%d %H:%M')} | "
-              f"DueDate {due.strftime('%m-%d %H:%M')} | {status_str}")
-
-    # Makespan
-    makespan_min = max(
-        solver.Value(all_tasks[(job["LotId"], "STEP5")]["end"]) 
-        for job in jobs_data
-    )
-    makespan_time = SCHEDULE_START + timedelta(minutes=makespan_min)
-    print(f"\n總 Makespan: {makespan_time.strftime('%Y-%m-%d %H:%M:%S')} "
-          f"({makespan_min} 分鐘)")
-
-else:
-    print("無可行解")
+# if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+# 
+#     for job in jobs_data:
+#         lot = job["LotId"]
+#         print(f"\nJob {lot} (Priority: {job['Priority']})")
+#         print(f"{'─'*60}")
+# 
+#         for step, group, dur in job["Operations"]:
+#             t = all_tasks[(lot, step)]
+#             st = solver.Value(t["start"])
+#             et = solver.Value(t["end"])
+# 
+#             # 取得機台名稱
+#             if t["status"] in ["Completed", "WIP", "Frozen"]:
+#                 machine = t["machine"]
+#             else:
+#                 idx = solver.Value(t["machine_choice"])
+#                 machine = MACHINE_GROUPS[group][idx]
+# 
+#             # 格式化時間
+#             start_time = SCHEDULE_START + timedelta(minutes=st)
+#             end_time = SCHEDULE_START + timedelta(minutes=et)
+# 
+#             status_tag = f"[{t['status']}]"
+#             
+#             print(f"  {step:6} | {machine:6} | {status_tag:12} | "
+#                   f"{start_time.strftime('%m-%d %H:%M')} → "
+#                   f"{end_time.strftime('%m-%d %H:%M')} "
+#                   f"({dur} min)")
+# 
+#     # Summary
+#     print(f"\n{'='*60}")
+#     print("Completion Time vs DueDate")
+#     print(f"{'='*60}")
+#     
+#     for job in jobs_data:
+#         lot = job["LotId"]
+#         due = datetime.fromisoformat(job["DueDate"])
+#         completion_min = solver.Value(all_tasks[(lot, "STEP5")]["end"])
+#         completion = SCHEDULE_START + timedelta(minutes=completion_min)
+# 
+#         if completion <= due:
+#             delta = (due - completion).total_seconds() / (3600 * 24)
+#             status_str = f"✓ Early {delta:.1f} days"
+#         else:
+#             delta = (completion - due).total_seconds() / (3600 * 24)
+#             status_str = f"✗ Delayed {delta:.1f} days"
+# 
+#         print(f"{lot}: Finished {completion.strftime('%m-%d %H:%M')} | "
+#               f"DueDate {due.strftime('%m-%d %H:%M')} | {status_str}")
+# 
+#     # Makespan
+#     makespan_min = max(
+#         solver.Value(all_tasks[(job["LotId"], "STEP5")]["end"]) 
+#         for job in jobs_data
+#     )
+#     makespan_time = SCHEDULE_START + timedelta(minutes=makespan_min)
+#     print(f"\nTotal Makespan: {makespan_time.strftime('%Y-%m-%d %H:%M:%S')} "
+#           f"({makespan_min} minutes)")
+# 
+# else:
+#     print("No feasible solution found")

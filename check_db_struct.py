@@ -29,6 +29,16 @@ def check_structure():
     cursor.execute("DESCRIBE LotOperations")
     for row in cursor.fetchall():
         print(row)
+
+    print("\n--- DynamicSchedulingJob table ---")
+    cursor.execute("DESCRIBE DynamicSchedulingJob")
+    for row in cursor.fetchall():
+        print(row)
+
+    print("\n--- SimulationPlanningJob table ---")
+    cursor.execute("DESCRIBE SimulationPlanningJob")
+    for row in cursor.fetchall():
+        print(row)
         
     cursor.close()
     conn.close()

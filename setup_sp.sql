@@ -75,7 +75,7 @@ BEGIN
         UPDATE Lots 
         SET PlanFinishDate = v_PlanFinishDate, 
             Delay_Days = v_DelayDays 
-        WHERE LotId = v_LotId;
+        WHERE LotId COLLATE utf8mb4_general_ci = v_LotId COLLATE utf8mb4_general_ci;
         
         SET i = i + 1;
     END WHILE;
@@ -96,7 +96,8 @@ BEGIN
             PlanCheckOutTime = v_End,
             PlanMachineId = v_Machine,
             PlanHistory = JSON_ARRAY_APPEND(IFNULL(PlanHistory, '[]'), '$', CAST(v_HistoryInfo AS JSON))
-        WHERE LotId = v_LotId AND Step = v_Step;
+        WHERE LotId COLLATE utf8mb4_general_ci = v_LotId COLLATE utf8mb4_general_ci 
+          AND Step COLLATE utf8mb4_general_ci = v_Step COLLATE utf8mb4_general_ci;
 
         SET i = i + 1;
     END WHILE;

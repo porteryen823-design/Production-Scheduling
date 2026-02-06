@@ -2,7 +2,7 @@
 本程式用於在 MySQL 資料庫中建立 `sp_InsertSimulationPlanning` 預存程序 (Stored Procedure)。
 主要功能：
 1. 讀取 .env 或環境變數中的資料庫連線配置。
-2. 建立預存程序，該程序負責將目前的動態排程結果 (DynamicSchedulingJob) 的快照儲存至模擬規劃表 (SimulationPlanningJob)。
+2. 建立預存程序，該程序負責將目前的動態排程結果 (DynamicSchedulingJob) 的快照儲存至模擬規劃表 (DynamicSchedulingJob_Snap)。
 3. 此程序支援傳入自定義的標籤 (key_value) 與備註 (remark)。
 """
 import sys
@@ -43,7 +43,7 @@ def create_stored_procedure():
         IN p_remark TEXT
     )
     BEGIN
-        INSERT INTO SimulationPlanningJob (
+        INSERT INTO DynamicSchedulingJob_Snap (
             key_value, 
             remark, 
             ScheduleId, 

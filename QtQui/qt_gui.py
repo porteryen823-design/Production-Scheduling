@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 if sys.platform == 'win32':
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+import requests
 from typing import List, Dict, Any, Optional, cast
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout,
@@ -78,9 +79,17 @@ class MainWindow(QMainWindow):
         self.create_tab6()  # LotOperations 資料
         self.create_tab7()  # 自動化測試
         self.create_tab8()  # 機台數量調整
+        self.create_tab9()  # 模擬規劃載入與儲存
         
         # QProcess 相關變數初始化
         self.machine_expansion_process: Optional[QProcess] = None
+        self.test_process: Optional[QProcess] = None
+        
+        # 日誌相關初始化
+        self.log_dir = os.path.join(os.getcwd(), 'logs')
+        if not os.path.exists(self.log_dir):
+            os.makedirs(self.log_dir)
+        self.test_log_handle = None
 
     def create_tab1(self):
         """第一個分頁：清空測試資料"""
@@ -88,7 +97,7 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(tab)
 
         # 標題
-        title = QLabel("清空測試資料")
+        title = QLabel("1.清空測試資料")
         title.setFont(QFont("Arial", 14, QFont.Bold))
         layout.addWidget(title)
 
@@ -111,7 +120,7 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(tab)
 
         # 標題
-        title = QLabel("產生 Lots")
+        title = QLabel("2.產生 Lots")
         title.setFont(QFont("Arial", 14, QFont.Bold))
         layout.addWidget(title)
 
@@ -166,7 +175,7 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(tab)
 
         # 標題
-        title = QLabel("模擬時鐘")
+        title = QLabel("3.模擬時鐘")
         title.setFont(QFont("Arial", 14, QFont.Bold))
         layout.addWidget(title)
 
@@ -231,7 +240,7 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(tab)
 
         # 標題
-        title = QLabel("重新排程")
+        title = QLabel("4.重新排程")
         title.setFont(QFont("Arial", 14, QFont.Bold))
         layout.addWidget(title)
 
@@ -273,7 +282,7 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(tab)
 
         # 標題
-        title = QLabel("Lots 資料")
+        title = QLabel("5.Lots 資料")
         title.setFont(QFont("Arial", 14, QFont.Bold))
         layout.addWidget(title)
 
@@ -318,7 +327,7 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(tab)
 
         # 標題
-        title = QLabel("LotOperations 資料")
+        title = QLabel("6.LotOperations 資料")
         title.setFont(QFont("Arial", 14, QFont.Bold))
         layout.addWidget(title)
 
@@ -995,7 +1004,7 @@ class MainWindow(QMainWindow):
         if settings:
             # 設定預設值，並進行型別轉換
             self.default_spin_lot_count = convert_value(settings.get('spin_lot_count'), 'int', 5)
-            self.default_datetime_start = convert_value(settings.get('datetime_start'), 'str', '2026-01-22 14:00:00')
+            self.default_datetime_start = convert_value(settings.get('datetime_plan_start'), 'str', '2026-01-22 14:00:00')
             self.default_spin_iterations = convert_value(settings.get('spin_iterations'), 'int', 50)
             self.default_spin_timedelta = convert_value(settings.get('spin_timedelta'), 'int', 60)
             self.default_datetime_reschedule_start = convert_value(settings.get('datetime_reschedule_start'), 'str', '2026-01-22 14:00:00')
@@ -1034,7 +1043,7 @@ class MainWindow(QMainWindow):
                 # 定義參數映射
                 parameters = [
                     ('spin_lot_count', str(spin_lot_count)),
-                    ('datetime_start', datetime_start),
+                    ('datetime_plan_start', datetime_start),
                     ('spin_iterations', str(spin_iterations)),
                     ('spin_timedelta', str(spin_timedelta)),
                     ('datetime_reschedule_start', datetime_reschedule_start),
@@ -1074,7 +1083,7 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(tab)
 
         # 標題
-        title = QLabel("自動化測試")
+        title = QLabel("7.自動化測試")
         title.setFont(QFont("Arial", 14, QFont.Bold))
         layout.addWidget(title)
 
@@ -1103,7 +1112,7 @@ class MainWindow(QMainWindow):
         # 腳本詳細資訊
         self.test_script_info = QTextEdit()
         self.test_script_info.setReadOnly(True)
-        self.test_script_info.setMaximumHeight(120)
+        self.test_script_info.setMaximumHeight(60)
         self.test_script_info.setAcceptRichText(True)
         script_layout.addWidget(self.test_script_info)
 
@@ -1167,6 +1176,11 @@ class MainWindow(QMainWindow):
         self.text_test_result.setReadOnly(True)
         self.text_test_result.setAcceptRichText(True)
         layout.addWidget(self.text_test_result)
+
+        # 當前狀態顯示
+        self.label_test_status = QLabel("等待執行...")
+        self.label_test_status.setStyleSheet("color: #2E86AB; font-weight: bold; padding: 5px;")
+        layout.addWidget(self.label_test_status)
 
         # QProcess 相關變數
         self.test_process: Optional[QProcess] = None
@@ -1306,6 +1320,17 @@ class MainWindow(QMainWindow):
         self.test_process.readyReadStandardError.connect(self.handle_test_error)
         self.test_process.finished.connect(self.on_test_finished)
         
+        # 建立測試日誌檔案
+        try:
+            log_filename = f"test_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+            log_path = os.path.join(self.log_dir, log_filename)
+            self.test_log_handle = open(log_path, 'a', encoding='utf-8')
+            self.test_log_handle.write(f"=== Automated Test Started at {datetime.now()} ===\n")
+            self.test_log_handle.write(f"Config: {self.selected_test_config}\n\n")
+            self.test_log_handle.flush()
+        except Exception as e:
+            print(f"Failed to create log file: {e}")
+
         self.test_process.start(args[0], args[1:])
         
         # 更新 UI
@@ -1318,6 +1343,7 @@ class MainWindow(QMainWindow):
         self.text_test_result.append(
             '<span style="color: #28A745; font-weight: bold; font-size: 14px;">🚀 開始執行自動化測試...</span>'
         )
+        self.label_test_status.setText("🚀 測試中: 準備開始...")
 
     def stop_automated_test(self):
         """停止自動化測試"""
@@ -1327,6 +1353,13 @@ class MainWindow(QMainWindow):
                 self.test_process.kill()
             self.test_process = None
         
+        # 關閉日誌檔案
+        if self.test_log_handle:
+            self.test_log_handle.write(f"\n=== Automated Test Stopped at {datetime.now()} ===\n")
+            self.test_log_handle.close()
+            self.test_log_handle = None
+
+        
         self.btn_run_test.setEnabled(True)
         self.btn_stop_test.setEnabled(False)
         self.btn_refresh_scripts.setEnabled(True)
@@ -1335,6 +1368,7 @@ class MainWindow(QMainWindow):
         self.text_test_result.append(
             '<br><span style="color: #DC3545; font-weight: bold;">⏹️ 測試已停止</span>'
         )
+        self.label_test_status.setText("⏹️ 測試已停止")
 
     def handle_test_output(self):
         """處理測試程式的標準輸出"""
@@ -1357,16 +1391,38 @@ class MainWindow(QMainWindow):
                 html_output = html_output.replace('步驟 3:', '<span style="color: #2E86AB; font-weight: bold;">步驟 3:</span>')
                 html_output = html_output.replace('步驟 4:', '<span style="color: #2E86AB; font-weight: bold;">步驟 4:</span>')
                 
-                # 高亮顯示循環標題
+                # 高亮顯示循環標題 (支援 English "Cycle" 並更新狀態欄)
                 import re
-                html_output = re.sub(r'循環 (\d+)/(\d+)', 
-                                    r'<span style="color: #17A2B8; font-weight: bold; font-size: 13px;">🔄 循環 \1/\2</span>', 
+                # 匹配 Cycle 1/10 或 循環 1/10
+                cycle_match = re.search(r'(?:Cycle|循環) (\d+)/(\d+)', html_output)
+                if cycle_match:
+                    curr, total = cycle_match.groups()
+                    self.label_test_status.setText(f"🔄 執行中: 第 {curr} 循環 / 共 {total} 循環")
+                
+                html_output = re.sub(r'(Cycle|循環) (\d+)/(\d+)', 
+                                    r'<span style="color: #17A2B8; font-weight: bold; font-size: 13px;">🔄 \1 \2/\3</span>', 
                                     html_output)
                 
                 # 將換行符轉換為 HTML 換行
                 html_output = html_output.replace('\n', '<br>')
                 
+                # 寫入日誌檔案
+                if self.test_log_handle:
+                    self.test_log_handle.write(output)
+                    self.test_log_handle.flush()
+
+                # UI 效能優化：限制行數 (區塊數)
+                # 當超過 1000 行時，清除舊資料（例如清除前 200 行）
+                doc = self.text_test_result.document()
+                if doc.blockCount() > 1000:
+                    cursor = self.text_test_result.textCursor()
+                    cursor.movePosition(cursor.Start)
+                    for _ in range(200):
+                        cursor.movePosition(cursor.NextBlock, cursor.KeepAnchor)
+                    cursor.removeSelectedText()
+
                 self.text_test_result.append(html_output)
+
                 
                 # 自動滾動到底部
                 scrollbar = self.text_test_result.verticalScrollBar()
@@ -1377,8 +1433,14 @@ class MainWindow(QMainWindow):
         if self.test_process is not None:
             error = self.test_process.readAllStandardError().data().decode('utf-8', errors='ignore')
             if error:
+                # 寫入日誌檔案
+                if self.test_log_handle:
+                    self.test_log_handle.write(f"\nERROR: {error}\n")
+                    self.test_log_handle.flush()
+
                 html_error = f'<span style="color: #DC3545;">{error.replace(chr(10), "<br>")}</span>'
                 self.text_test_result.append(html_error)
+
 
     def on_test_finished(self, exit_code, exit_status):
         """測試程式完成時的處理"""
@@ -1392,17 +1454,26 @@ class MainWindow(QMainWindow):
             self.text_test_result.append(
                 '<br><span style="color: #28A745; font-weight: bold; font-size: 14px;">🎉 自動化測試完成！</span>'
             )
+            self.label_test_status.setText("🎉 測試完成")
         else:
             self.text_test_result.append(
                 f'<br><span style="color: #DC3545; font-weight: bold;">❌ 測試異常結束 (代碼: {exit_code})</span>'
             )
+            self.label_test_status.setText(f"❌ 測試異常結束 (代碼: {exit_code})")
+        
+        # 關閉日誌檔案
+        if self.test_log_handle:
+            self.test_log_handle.write(f"\n=== Automated Test Finished at {datetime.now()} with exit code {exit_code} ===\n")
+            self.test_log_handle.close()
+            self.test_log_handle = None
+
     def create_tab8(self):
         """第八個分頁：機台數量調整"""
         tab = QWidget()
         layout = QVBoxLayout(tab)
 
         # 標題
-        title = QLabel("機台數量調整")
+        title = QLabel("8.機台數量調整")
         title.setFont(QFont("Arial", 14, QFont.Bold))
         layout.addWidget(title)
 
@@ -1450,6 +1521,31 @@ class MainWindow(QMainWindow):
         """)
         self.btn_expand_machines.clicked.connect(self.run_machine_expansion)
         layout.addWidget(self.btn_expand_machines)
+
+        # PM 排程區域
+        pm_group = QGroupBox("機台維修排程 (PM)")
+        pm_layout = QVBoxLayout(pm_group)
+        
+        pm_desc = QLabel("隨機為現有機台產生維修計畫 (PM Schedule)\n會先清空 MachineSchedules 表中 ScheduleType=1 的資料。")
+        pm_desc.setStyleSheet("color: #666; font-size: 11px; margin-bottom: 5px;")
+        pm_layout.addWidget(pm_desc)
+        
+        self.btn_gen_pm = QPushButton("🛠️ 產生機台維修排程 (PM)")
+        self.btn_gen_pm.setStyleSheet("""
+            QPushButton {
+                background-color: #6F42C1;
+                color: white;
+                font-weight: bold;
+                padding: 10px;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #59359A;
+            }
+        """)
+        self.btn_gen_pm.clicked.connect(self.run_gen_pm)
+        pm_layout.addWidget(self.btn_gen_pm)
+        layout.addWidget(pm_group)
 
         # 結果顯示區域
         result_label = QLabel("執行日誌")
@@ -1537,6 +1633,265 @@ class MainWindow(QMainWindow):
             self.text_expansion_result.append('<br><span style="color: #28A745; font-weight: bold; font-size: 14px;">🎉 機台擴充作業成功完成！</span>')
         else:
             self.text_expansion_result.append(f'<br><span style="color: #DC3545; font-weight: bold;">❌ 擴充異常結束 (代碼: {exit_code})</span>')
+
+    def run_gen_pm(self):
+        """執行產生 PM 排程"""
+        reply = QMessageBox.question(
+            self,
+            "確認執行",
+            "確定要重新產生隨機 PM 維修排程嗎？\n這將會清除現有的 PM 資料。",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        
+        if reply != QMessageBox.Yes:
+            return
+
+        def run_db_pm():
+            try:
+                conn = mysql.connector.connect(**db_config)
+                cursor = conn.cursor()
+                # 呼叫 Stored Procedure
+                cursor.callproc('generate_random_pm_schedules')
+                conn.commit()
+                cursor.close()
+                conn.close()
+                return True
+            except Exception as e:
+                return str(e)
+
+        self.btn_gen_pm.setEnabled(False)
+        self.btn_gen_pm.setText("正在產生 PM...")
+        self.text_expansion_result.append('<span style="color: #6F42C1; font-weight: bold;">🛠️ 開始產生隨機 PM 維修排程...</span>')
+        
+        self.worker = WorkerThread(run_db_pm)
+        self.worker.finished.connect(self.on_gen_pm_finished)
+        self.worker.start()
+
+    def on_gen_pm_finished(self, result):
+        self.btn_gen_pm.setEnabled(True)
+        self.btn_gen_pm.setText("🛠️ 產生機台維修排程 (PM)")
+        
+        if result is True:
+            self.text_expansion_result.append('<span style="color: #28A745; font-weight: bold;">✅ PM 維修排程產生成功！</span>')
+            QMessageBox.information(self, "成功", "機台維修排程已重新產生")
+        else:
+            self.text_expansion_result.append(f'<span style="color: #DC3545; font-weight: bold;">❌ 產生 PM 失敗: {result}</span>')
+            QMessageBox.critical(self, "失敗", f"產生 PM 失敗: {result}")
+
+    def create_tab9(self):
+        """第九個分頁：模擬規劃載入與儲存"""
+        tab = QWidget()
+        layout = QVBoxLayout(tab)
+
+        # 標題
+        title = QLabel("9.模擬規劃載入與儲存")
+        title.setFont(QFont("Arial", 14, QFont.Bold))
+        layout.addWidget(title)
+
+        # 儲存區域
+        save_group = QGroupBox("儲存當前規劃")
+        save_form = QFormLayout(save_group)
+        
+        self.edit_sim_key = QLineEdit()
+        self.edit_sim_key.setPlaceholderText("例如: Scenario_A_V1")
+        save_form.addRow("Key Value:", self.edit_sim_key)
+        
+        self.edit_sim_remark = QLineEdit()
+        self.edit_sim_remark.setPlaceholderText("備註資訊")
+        save_form.addRow("備註:", self.edit_sim_remark)
+        
+        self.btn_save_sim = QPushButton("💾 存入模擬規劃")
+        self.btn_save_sim.clicked.connect(self.save_sim_planning_job)
+        save_form.addRow("", self.btn_save_sim)
+        
+        layout.addWidget(save_group)
+
+        # 列表與載入區域
+        list_group = QGroupBox("已儲存模擬規劃列表")
+        list_layout = QVBoxLayout(list_group)
+        
+        self.table_sim_jobs = QTableWidget()
+        self.table_sim_jobs.setColumnCount(2)
+        self.table_sim_jobs.setHorizontalHeaderLabels(["Key Value", "備註"])
+        self.table_sim_jobs.setSelectionBehavior(QTableWidget.SelectRows)
+        self.table_sim_jobs.setEditTriggers(QTableWidget.NoEditTriggers)
+        list_layout.addWidget(self.table_sim_jobs)
+        
+        btn_layout = QHBoxLayout()
+        self.btn_refresh_sim_list = QPushButton("🔄 刷新列表")
+        self.btn_refresh_sim_list.clicked.connect(self.load_sim_planning_jobs)
+        btn_layout.addWidget(self.btn_refresh_sim_list)
+        
+        self.btn_restore_sim = QPushButton("📂 載入選中規劃 (還原)")
+        self.btn_restore_sim.clicked.connect(self.restore_sim_planning_job)
+        self.btn_restore_sim.setStyleSheet("background-color: #0D6EFD; color: white; font-weight: bold;")
+        btn_layout.addWidget(self.btn_restore_sim)
+        
+        self.btn_delete_sim = QPushButton("🗑️ 刪除選中規劃")
+        self.btn_delete_sim.clicked.connect(self.delete_sim_planning_job)
+        btn_layout.addWidget(self.btn_delete_sim)
+        
+        list_layout.addLayout(btn_layout)
+        layout.addWidget(list_group)
+
+        self.tab_widget.addTab(tab, "模擬規劃")
+        
+        # 初始載入列表
+        self.load_sim_planning_jobs()
+
+    def load_sim_planning_jobs(self):
+        """從 API 載入模擬規劃列表"""
+        def run_load():
+            try:
+                conn = mysql.connector.connect(**db_config)
+                cursor = conn.cursor(dictionary=True)
+                # 取得 distinct 的組合，並搭配一個代表性的 ID 用於之後的 Restore/Delete (API 會用該 ID 的 key_value 處理整批)
+                cursor.execute("""
+                    SELECT MIN(id) as id, key_value, remark 
+                    FROM DynamicSchedulingJob_Snap 
+                    GROUP BY key_value, remark 
+                    ORDER BY id DESC
+                """)
+                result = cursor.fetchall()
+                cursor.close()
+                conn.close()
+                return result
+            except Exception as e:
+                return f"資料庫錯誤: {e}"
+
+        self.worker = WorkerThread(run_load)
+        self.worker.finished.connect(self.on_sim_jobs_loaded)
+        self.worker.start()
+
+    def on_sim_jobs_loaded(self, result):
+        if isinstance(result, list):
+            self.table_sim_jobs.setRowCount(len(result))
+            for row, job in enumerate(result):
+                key_item = QTableWidgetItem(job['key_value'])
+                # 將代表性的 ID 存入 data 以供 Restore/Delete API 使用
+                key_item.setData(256, job['id']) 
+                self.table_sim_jobs.setItem(row, 0, key_item)
+                self.table_sim_jobs.setItem(row, 1, QTableWidgetItem(job['remark'] or ""))
+            
+            self.table_sim_jobs.setColumnWidth(0, 300)
+            self.table_sim_jobs.setColumnWidth(1, 750)
+            self.table_sim_jobs.horizontalHeader().setStretchLastSection(True)
+        else:
+            QMessageBox.warning(self, "載入失敗", str(result))
+
+    def save_sim_planning_job(self):
+        """呼叫 API 儲存當前規劃"""
+        key = self.edit_sim_key.text().strip()
+        remark = self.edit_sim_remark.text().strip()
+        
+        if not key:
+            QMessageBox.warning(self, "欄位限制", "請輸入 Key Value")
+            return
+            
+        def run_save():
+            try:
+                conn = mysql.connector.connect(**db_config)
+                cursor = conn.cursor()
+                # 呼叫 Stored Procedure 執行笛卡兒乘積寫入
+                cursor.callproc('sp_InsertSimulationPlanning', (key, remark))
+                conn.commit()
+                cursor.close()
+                conn.close()
+                return True
+            except Exception as e:
+                return str(e)
+
+        self.btn_save_sim.setEnabled(False)
+        self.worker = WorkerThread(run_save)
+        self.worker.finished.connect(self.on_sim_save_finished)
+        self.worker.start()
+
+    def on_sim_save_finished(self, result):
+        self.btn_save_sim.setEnabled(True)
+        if result is True:
+            QMessageBox.information(self, "成功", "模擬規劃已存入資料庫")
+            self.edit_sim_key.clear()
+            self.edit_sim_remark.clear()
+            self.load_sim_planning_jobs()
+        else:
+            QMessageBox.critical(self, "儲存失敗", str(result))
+
+    def restore_sim_planning_job(self):
+        """點選列表後還原規劃"""
+        selected_rows = self.table_sim_jobs.selectedItems()
+        if not selected_rows:
+            QMessageBox.warning(self, "提示", "請先從列表中選擇一個規劃")
+            return
+            
+        # 從 column 0 的 data 中取得預存的代表性 ID
+        job_id = self.table_sim_jobs.item(selected_rows[0].row(), 0).data(256)
+        key_val = self.table_sim_jobs.item(selected_rows[0].row(), 0).text()
+        
+        reply = QMessageBox.question(self, "確認還原", f"確定要將當前排程替換為 [{key_val}] 嗎？", 
+                                   QMessageBox.Yes | QMessageBox.No)
+        
+        if reply == QMessageBox.Yes:
+            def run_restore():
+                try:
+                    conn = mysql.connector.connect(**db_config)
+                    cursor = conn.cursor()
+                    # 呼叫 Stored Procedure 將資料載入至 DynamicSchedulingJob_Hist
+                    cursor.callproc('sp_LoadSimulationToHist', (key_val,))
+                    conn.commit()
+                    cursor.close()
+                    conn.close()
+                    return True
+                except Exception as e:
+                    return str(e)
+
+            self.worker = WorkerThread(run_restore)
+            self.worker.finished.connect(self.on_sim_restore_finished)
+            self.worker.start()
+
+    def on_sim_restore_finished(self, result):
+        if result is True:
+            QMessageBox.information(self, "成功", "規劃已載入，DynamicSchedulingJob_Hist 已更新")
+        else:
+            QMessageBox.critical(self, "還原失敗", str(result))
+
+    def delete_sim_planning_job(self):
+        """點選列表後刪除規劃"""
+        selected_rows = self.table_sim_jobs.selectedItems()
+        if not selected_rows:
+            QMessageBox.warning(self, "提示", "請先從列表中選擇一個規劃")
+            return
+            
+        # 取得選中列的 key_value
+        key_val = self.table_sim_jobs.item(selected_rows[0].row(), 0).text()
+        
+        reply = QMessageBox.question(self, "確認刪除", f"確定要刪除模擬規劃 [{key_val}] 嗎？", 
+                                   QMessageBox.Yes | QMessageBox.No)
+        
+        if reply == QMessageBox.Yes:
+            def run_delete():
+                try:
+                    conn = mysql.connector.connect(**db_config)
+                    cursor = conn.cursor()
+                    # 直接從資料庫刪除對應 key_value 的所有記錄
+                    query = "DELETE FROM DynamicSchedulingJob_Snap WHERE key_value = %s"
+                    cursor.execute(query, (key_val,))
+                    conn.commit()
+                    cursor.close()
+                    conn.close()
+                    return True
+                except Exception as e:
+                    return str(e)
+
+            self.worker = WorkerThread(run_delete)
+            self.worker.finished.connect(self.on_sim_delete_finished)
+            self.worker.start()
+
+    def on_sim_delete_finished(self, result):
+        if result is True:
+            self.load_sim_planning_jobs()
+        else:
+            QMessageBox.critical(self, "刪除失敗", str(result))
 
 def main():
     app = QApplication(sys.argv)

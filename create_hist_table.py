@@ -1,5 +1,5 @@
 """
-本程式用於建立模擬規劃歷史表 (SimulationPlanningJob_Hist)。
+本程式用於建立模擬規劃歷史表 (DynamicSchedulingJob_Snap_Hist)。
 主要功能：
 1. 讀取 .env 或環境變數中的資料庫連線資訊。
 2. 優先使用 MySQL 的 `CREATE TABLE ... LIKE` 語法，完整複製 `SimulationPlanningJob` 的結構。
@@ -31,11 +31,11 @@ DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB
 
 def create_hist_table():
     """執行歷史表建立邏輯"""
-    print("Creating table: SimulationPlanningJob_Hist...")
+    print("Creating table: DynamicSchedulingJob_Snap_Hist...")
     engine = create_engine(DATABASE_URL)
     
     # 優先嘗試 MySQL 特有的 LIKE 語法，以確保結構完全一致
-    sql = "CREATE TABLE IF NOT EXISTS SimulationPlanningJob_Hist LIKE SimulationPlanningJob;"
+    sql = "CREATE TABLE IF NOT EXISTS DynamicSchedulingJob_Snap_Hist LIKE SimulationPlanningJob;"
     
     try:
         with engine.connect() as conn:
@@ -47,8 +47,8 @@ def create_hist_table():
         print(f"Error creating table via LIKE: {e}")
         print("Attempting to create using SQLAlchemy metadata...")
         try:
-            from backend.src.domain.models.simulation_planning_job_hist import SimulationPlanningJobHist
-            SimulationPlanningJobHist.__table__.create(engine)
+            from backend.src.domain.models.dynamic_scheduling_job_snap_hist import DynamicSchedulingJob_Snap_Hist
+            DynamicSchedulingJob_Snap_Hist.__table__.create(engine)
             print("Table created via SQLAlchemy successfully.")
         except Exception as e2:
              print(f"Fallback create failed: {e2}")

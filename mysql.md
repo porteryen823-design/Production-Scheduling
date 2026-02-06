@@ -10,23 +10,29 @@ CREATE TABLE Lots (
     LotId VARCHAR(50) PRIMARY KEY,
     Priority INT NOT NULL,
     DueDate DATETIME NOT NULL,
+    PlanFinishDate DATETIME NULL,
     ActualFinishDate DATETIME NULL,
     ProductID VARCHAR(50) NULL,
     ProductName VARCHAR(100) NULL,
     CustomerID VARCHAR(50) NULL,
     CustomerName VARCHAR(100) NULL,
-    LotCreateDate DATETIME NULL
+    LotCreateDate DATETIME NULL,
+    Delay_Days DECIMAL(10,2) NULL,
+    PlanStartTime DATETIME NULL
 );
 ```
 - `LotId` (VARCHAR(50), PK): 工單 ID
 - `Priority` (INT): 優先權
 - `DueDate` (DATETIME): 到期日
+- `PlanFinishDate` (DATETIME): 計劃完成日期
 - `ActualFinishDate` (DATETIME): 實際完成日期
 - `ProductID` (VARCHAR(50)): 產品 ID
 - `ProductName` (VARCHAR(100)): 產品名稱
 - `CustomerID` (VARCHAR(50)): 客戶 ID
 - `CustomerName` (VARCHAR(100)): 客戶名稱
 - `LotCreateDate` (DATETIME): 工單建立日期
+- `Delay_Days` (DECIMAL(10,2)): 延遲天數
+- `PlanStartTime` (DATETIME): 計劃開始時間
 
 ### 2. LotOperations - 工單的作業步驟
 ```sql
@@ -220,11 +226,11 @@ BEGIN
     -- 然後刪除 SimulationData 表中的所有資料
     DELETE FROM SimulationData;
 
-    -- 然後刪除 SimulationPlanningJob 表中的所有資料
-    DELETE FROM SimulationPlanningJob;
+    -- 然後刪除 DynamicSchedulingJob_Snap 表中的所有資料
+    DELETE FROM DynamicSchedulingJob_Snap;
 
-    -- 然後刪除 SimulationPlanningJob_Hist 表中的所有資料
-    DELETE FROM SimulationPlanningJob_Hist;
+    -- 然後刪除 DynamicSchedulingJob_Snap_Hist 表中的所有資料
+    DELETE FROM DynamicSchedulingJob_Snap_Hist;
 END
 ```
 
@@ -258,6 +264,26 @@ BEGIN
     DECLARE cur CURSOR FOR SELECT MachineId FROM Machines ORDER BY MachineId;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
 
+    -- 1. 讀取 ui_settings 中的 simulation_start_time_setting
+    -- 強制字串常值使用 utf8mb4_general_ci 以匹配資料表欄位
+    SELECT parameter_value INTO date_str FROM ui_settings 
+    WHERE parameter_name = 'simulation_start_time_setting' COLLATE utf8mb4_general_ci 
+    LIMIT 1;
+
+    -- 2. 判斷並設定基準日期
+    IF date_str IS NOT NULL AND date_str != '' THEN
+        -- 嘗試轉換字串為 DATETIME
+        SET base_date = CAST(date_str AS DATETIME);
+    ELSE
+        -- 若無資料，使用當前時間作為基準
+        SET base_date = NOW();
+    END IF;
+
+    -- 若轉換失敗 (例如格式錯誤導致 NULL)，也 fallback 到 NOW()
+    IF base_date IS NULL THEN
+        SET base_date = NOW();
+    END IF;
+
     OPEN cur;
 
     read_loop: LOOP
@@ -272,9 +298,11 @@ BEGIN
         -- 內層迴圈：為每個機台產生多筆記錄
         SET i = 0;
         WHILE i < num_records DO
-            -- 隨機選擇開始日期：今天到 30 天後
+            -- 隨機選擇開始日期：基準日 到 30 天後
             SET random_days = FLOOR(RAND() * 31); -- 0-30 天
-            SET start_date = DATE_ADD(CURDATE(), INTERVAL random_days DAY);
+            
+            -- 使用 base_date 取代原本的 CURDATE()
+            SET start_date = DATE_ADD(base_date, INTERVAL random_days DAY);
 
             -- 隨機選擇持續時間：0.2 到 1 天 (4.8 到 24 小時)
             SET random_hours = 4.8 + (RAND() * 19.2); -- 4.8 到 24.0 小時
@@ -321,7 +349,7 @@ CALL generate_random_pm_schedules();
 
 **功能說明**:
 - 為資料庫中的每個機台隨機產生 1-4 筆預防性保養 (PM) 記錄
-- 每筆記錄的開始時間：從今天開始到 30 天後的隨機日期
+- 每筆記錄的開始時間：從 `simulation_start_time_setting` 開始到 30 天後的隨機日期
 - 每筆記錄的持續時間：0.2 到 1 天的隨機時長 (4.8 到 24 小時)
 - 確保每個機台的 PM 時間不會相互重疊
 - unavailable_type 設為 'PM'，source 設為 'AUTO'，created_by 設為 'SYSTEM'
@@ -362,14 +390,14 @@ CALL sp_InsertLot(10, 100, TRUE);
 將目前的動態排程結果（DynamicSchedulingJob）備份至模擬規劃表。
 
 **功能說明**:
-- 將 `DynamicSchedulingJob` 的所有記錄複製到 `SimulationPlanningJob`。
+- 將 `DynamicSchedulingJob` 的所有記錄複製到 `DynamicSchedulingJob_Snap`。
 - 支援傳入 `key_value` 與 `remark` 作為備份點的識別與註記。
 
 ### sp_LoadSimulationToHist
 將特定的模擬規劃備份搬移至歷史表或還原至歷史區間。
 
 **功能說明**:
-- 將 `SimulationPlanningJob` 中符合特定 `key_value` 的資料搬移至歷史存檔。
+- 將 `DynamicSchedulingJob_Snap` 中符合特定 `key_value` 的資料搬移至歷史存檔。
 - 目前實作也支援將資料載入至 `DynamicSchedulingJob_Hist`（依據具體業務需求而定）。
 
 ## 機台管理相關資料表
@@ -557,9 +585,9 @@ CREATE TABLE MachineGroupUtilization (
 - `UtilizationRate` (DECIMAL): 利用率百分比 (如 85.50)
 - `CreatedAt` (TIMESTAMP): 紀錄建立時間
 
-### 14. SimulationPlanningJob - 模擬規劃備份表 (快照儲存)
+### 14. DynamicSchedulingJob_Snap - 模擬規劃備份表 (快照儲存)
 ```sql
-CREATE TABLE SimulationPlanningJob (
+CREATE TABLE DynamicSchedulingJob_Snap (
     id INT AUTO_INCREMENT PRIMARY KEY,
     key_value VARCHAR(100) NOT NULL,
     remark TEXT DEFAULT NULL,
@@ -587,9 +615,9 @@ CREATE TABLE SimulationPlanningJob (
 - `machineTaskSegment` (LONGTEXT): 甘特圖段落 JSON
 - `simulation_end_time` (DATETIME): 當時的模擬結束時間
 
-### 15. SimulationPlanningJob_Hist - 模擬規劃歷史表 (封存儲存)
+### 15. DynamicSchedulingJob_Snap_Hist - 模擬規劃歷史表 (封存儲存)
 ```sql
-CREATE TABLE SimulationPlanningJob_Hist (
+CREATE TABLE DynamicSchedulingJob_Snap_Hist (
     id INT AUTO_INCREMENT PRIMARY KEY,
     key_value VARCHAR(100) NOT NULL,
     remark TEXT DEFAULT NULL,
@@ -607,7 +635,7 @@ CREATE TABLE SimulationPlanningJob_Hist (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```
 - **功能**: 用於存放已被執行過或已結案的規劃快照。
-- **結構**: 與 `SimulationPlanningJob` 完全相同，方便資料搬移與查詢。
+- **結構**: 與 `DynamicSchedulingJob_Snap` 完全相同，方便資料搬移與查詢。
 
 ### 📊 資料表功能說明對照表 (更新)
 
@@ -616,10 +644,10 @@ CREATE TABLE SimulationPlanningJob_Hist (
 | 機台主檔表 | machines | 儲存所有機台的基本資料 | 系統初始化時建立,新增機台時使用 | M01-1, M01-2 屬於 M01 群組 | ✅ 必要 |
 | 機台不可用時段表 | machine_unavailable_periods | 記錄機台無法使用的時間區間 | 排程時避開維修、保養等 | M01-1 於 1/18 14:00-16:00 維修 | ✅ 必要 |
 | 動態排程作業表 | DynamicSchedulingJob | 儲存動態排程結果資料 | 執行動態排程時儲存結果 | 排程結果 JSON 格式儲存 | ✅ 必要 |
-| 模擬規劃備份表 | SimulationPlanningJob | 儲存模擬規劃的快照/備份 | 手動或自動備份排程結果以便還原 | 存儲特定版本排程結果 | ✅ 必要 |
+| 模擬規劃備份表 | DynamicSchedulingJob_Snap | 儲存模擬規劃的快照/備份 | 手動或自動備份排程結果以便還原 | 存儲特定版本排程結果 | ✅ 必要 |
 | UI 介面參數設定表 | ui_settings | 跨工作階段保存介面輸入值 (鍵值對) | GUI 啟動與數值改變時同步 | parameter_name='spin_lot_count', parameter_value='5' | ✅ 必要 |
 | 模擬結果追蹤表 | SimulationData | 保存模擬時鐘的最後結束點 | 模擬完成時寫入,作為下次計算參考 | 模擬結束於 2026-01-22 15:30:00 | ✅ 必要 |
-| 模擬規劃歷史表 | SimulationPlanningJob_Hist | 儲存已結案或歷史規劃紀錄 | 長期保存歷史資料，不影響主表查詢 | 封存的排程結果 | ✅ 必要 |
+| 模擬規劃歷史表 | DynamicSchedulingJob_Snap_Hist | 儲存已結案或歷史規劃紀錄 | 長期保存歷史資料，不影響主表查詢 | 封存的排程結果 | ✅ 必要 |
 | 機台群組利用率統計表 | MachineGroupUtilization | 紀錄排程後的資源平衡狀況 | 分析瓶頸與產能規劃 | M01 群組利用率 85.5% | ✅ 必要 |
 
 ## 更新後的資料表關聯圖 (Ver 1.3)
@@ -639,9 +667,9 @@ MachineGroups (1) ──── (N) Machines
 
 DynamicSchedulingJob (獨立結果表)
   │
-  └─── (備份) ─── SimulationPlanningJob (快照快照)
+  └─── (備份) ─── DynamicSchedulingJob_Snap (快照快照)
           │
-          └─── (結案/封存) ─── SimulationPlanningJob_Hist (歷史紀錄)
+          └─── (結案/封存) ─── DynamicSchedulingJob_Snap_Hist (歷史紀錄)
 
 ui_settings (設定檔 / 鍵值對)
 SimulationData (模擬紀錄)

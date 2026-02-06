@@ -3,6 +3,11 @@ import os
 import argparse
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+import random
+import warnings
+
+# 隱藏特定版本的 MySQL Connector 廢棄警告
+warnings.filterwarnings("ignore", category=DeprecationWarning, message=".*stored_results.*")
 
 # 載入環境變數
 load_dotenv()
@@ -133,8 +138,13 @@ def insert_lot_data(count):
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """, (next_lot_id, lot_template["Priority"], due_date, None, f"PROD_{next_lot_id.split('_')[1]}", f"Product {next_lot_id.split('_')[1]}", f"CUST_{next_lot_id.split('_')[1]}", f"Customer {next_lot_id.split('_')[1]}", datetime.now()))
 
+                # 決定隨機作業數量 (9-15)
+                num_ops = random.randint(9, 15)
+                lot_ops = lot_template["Operations"][:num_ops]
+                print(f"Generating {num_ops} operations for this Lot")
+
                 # 插入 LotOperations 表
-                for sequence, (step, machine_group, duration) in enumerate(lot_template["Operations"], 1):
+                for sequence, (step, machine_group, duration) in enumerate(lot_ops, 1):
                     cursor.execute("""
                         INSERT INTO LotOperations (LotId, Step, MachineGroup, Duration, Sequence, CheckInTime, CheckOutTime, StepStatus, PlanCheckInTime, PlanCheckOutTime, PlanMachineId, PlanHistory)
                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)

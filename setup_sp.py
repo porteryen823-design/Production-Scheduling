@@ -44,6 +44,7 @@ def setup_database():
             DECLARE v_NextLotId VARCHAR(20);
             DECLARE v_NextIdNum INT;
             DECLARE v_DueDate DATETIME;
+            DECLARE v_PlanStartTime DATETIME;
             DECLARE v_BaseDate DATETIME;
             DECLARE v_SimEndTimeStr VARCHAR(100);
             DECLARE i INT DEFAULT 0;
@@ -73,12 +74,16 @@ def setup_database():
             WHILE i < p_Count DO
                 SET v_NextLotId = CONCAT('LOT_', LPAD(v_NextIdNum, 4, '0'));
                 
-                SET v_DueDate = DATE_ADD(v_BaseDate, INTERVAL 3 DAY);
+                -- Base DueDate is 3 days after BaseDate, plus 1 day for every 10 lots
+                SET v_DueDate = DATE_ADD(v_BaseDate, INTERVAL (3 + FLOOR(i / 10)) DAY);
                 -- Format to hour
                 SET v_DueDate = STR_TO_DATE(DATE_FORMAT(v_DueDate, '%Y-%m-%d %H:00:00'), '%Y-%m-%d %H:%i:%s');
+                
+                -- PlanStartTime is DueDate - 7 days
+                SET v_PlanStartTime = DATE_SUB(v_DueDate, INTERVAL 7 DAY);
 
                 -- Insert into Lots
-                INSERT INTO Lots (LotId, Priority, DueDate, ActualFinishDate, ProductID, ProductName, CustomerID, CustomerName, LotCreateDate)
+                INSERT INTO Lots (LotId, Priority, DueDate, ActualFinishDate, ProductID, ProductName, CustomerID, CustomerName, LotCreateDate, PlanStartTime)
                 VALUES (
                     v_NextLotId, 
                     p_Priority, 
@@ -88,7 +93,8 @@ def setup_database():
                     CONCAT('Product ', LPAD(v_NextIdNum, 4, '0')), 
                     CONCAT('CUST_', LPAD(v_NextIdNum, 4, '0')), 
                     CONCAT('Customer ', LPAD(v_NextIdNum, 4, '0')), 
-                    NOW()
+                    NOW(),
+                    v_PlanStartTime
                 );
 
                 -- Insert into LotOperations

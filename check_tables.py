@@ -30,8 +30,8 @@ db_config = {
 # 定義需要檢查的資料表清單
 tables_to_check = [
     'DynamicSchedulingJob_Hist',
-    'SimulationPlanningJob_Hist',
-    'SimulationPlanningJob'
+    'DynamicSchedulingJob_Snap',
+    'DynamicSchedulingJob_Snap_Hist',
 ]
 
 # 建立資料庫連線並執行檢查

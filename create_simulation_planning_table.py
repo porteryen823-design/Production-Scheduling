@@ -1,8 +1,8 @@
 """
-本程式用於建立模擬規劃主表 (SimulationPlanningJob)。
+本程式用於建立模擬規劃主表 (DynamicSchedulingJob_Snap)。
 主要功能：
 1. 從 .env 讀取資料庫連線資訊。
-2. 執行 SQL 指令建立 `SimulationPlanningJob` 資料表，用於儲存排程結果的快照。
+2. 執行 SQL 指令建立 `DynamicSchedulingJob_Snap` 資料表，用於儲存排程結果的快照。
 3. 若資料表已存在，則不會重複建立。
 """
 import mysql.connector
@@ -22,7 +22,7 @@ db_config = {
 
 # 定義建立資料表的 SQL 指令
 create_table_sql = """
-CREATE TABLE IF NOT EXISTS SimulationPlanningJob (
+CREATE TABLE IF NOT EXISTS DynamicSchedulingJob_Snap (
     id INT AUTO_INCREMENT PRIMARY KEY,
     key_value VARCHAR(100) NOT NULL,
     remark TEXT,
@@ -44,7 +44,7 @@ def main():
         # 建立與資料庫的連線
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
-        print("Creating SimulationPlanningJob table...")
+        print("Creating DynamicSchedulingJob_Snap table...")
         
         # 執行 SQL 指令
         cursor.execute(create_table_sql)
@@ -52,7 +52,7 @@ def main():
         
         cursor.close()
         conn.close()
-        print("Table SimulationPlanningJob created successfully or already exists.")
+        print("Table DynamicSchedulingJob_Snap created successfully or already exists.")
     except Exception as e:
         print(f"Error: {e}")
 

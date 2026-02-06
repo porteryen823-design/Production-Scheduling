@@ -60,12 +60,12 @@ def update_ui_setting(parameter_name: str, setting_update: UISettingUpdate, db: 
     db.refresh(db_setting)
     return db_setting
 
-@router.delete("/ui-settings/{parameter_name}", status_code=24)
+@router.delete("/ui-settings/{parameter_name}", status_code=204)
 def delete_ui_setting(parameter_name: str, db: Session = Depends(get_db)):
     """刪除 UI 設定"""
     db_setting = db.query(UISetting).filter(UISetting.parameter_name == parameter_name).first()
     if not db_setting:
-        raise HTTPException(status_code=44, detail=f"設定 {parameter_name} 不存在")
+        raise HTTPException(status_code=404, detail=f"設定 {parameter_name} 不存在")
     
     db.delete(db_setting)
     db.commit()

@@ -11,6 +11,8 @@ class DynamicSchedulingJobHist(Base):
     __tablename__ = "DynamicSchedulingJob_Hist"
     
     ScheduleId = Column(String(50), primary_key=True)
+    key_value = Column(String(100), nullable=False)
+    remark = Column(Text, nullable=True)
     LotPlanRaw = Column(Text, nullable=True)
     CreateDate = Column(DateTime, server_default=func.now())
     CreateUser = Column(String(50), nullable=True)

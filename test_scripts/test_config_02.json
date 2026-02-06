@@ -1,10 +1,10 @@
 {
   "name": "中等測試 - 10 批次循環",
-  "description": "執行 10 次循環，每次產生 54 個 Lot，批量隨機 1-4",
-  "cycles": 10,
-  "lots_per_cycle": 4,
+  "description": "執行 40 次循環， 出值化:Lots 12， 每次循環產生 1~4 個 Lots",
+  "cycles": 40,
+  "lots_per_cycle": 12,
   "lot_quantity_min": 1,
   "lot_quantity_max": 4,
-  "simulation_iterations": 100,
+  "simulation_iterations": 360,
   "simulation_timedelta": 60
 }

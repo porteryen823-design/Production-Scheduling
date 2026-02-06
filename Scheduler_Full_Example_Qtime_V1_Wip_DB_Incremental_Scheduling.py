@@ -1,3 +1,6 @@
+# 因應資料量可能會有幾百個 lots,作業站 20~30站, 會無法在限定時間內完成計算,需要用分批處理方式
+# 需要未來依照客戶需求調整參數
+
 import sys
 import io
 import mysql.connector
@@ -8,6 +11,7 @@ from ortools.sat.python import cp_model
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor
+import multiprocessing
 
 if sys.platform == 'win32':
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
@@ -37,6 +41,8 @@ db_config = {
 SCHEDULE_START = datetime.strptime(args.start_time, '%Y-%m-%d %H:%M:%S')
 OBJECTIVE_TYPE = "total_completion_time"   # "makespan" | "weighted_delay" | "total_completion_time"
 
+
+# 下面順序可以調整, 須注意與前端UI同步
 class BookingColorMap:
     COLOR_BY_BOOKING = {
         1: "#FFE5B4",   # 已預約 / 進行中作業(WIP)
@@ -103,7 +109,7 @@ def load_jobs_from_database():
             
         print(f"Scheduler setting: exclude_completed_lots = {exclude_completed}")
 
-        query = "SELECT LotId, Priority, DueDate, ActualFinishDate, PlanFinishDate FROM Lots"
+        query = "SELECT LotId, Priority, DueDate, ActualFinishDate, PlanFinishDate, PlanStartTime, LotCreateDate FROM Lots"
         if exclude_completed:
             query += " WHERE ActualFinishDate IS NULL"
         query += " ORDER BY LotId"
@@ -177,6 +183,8 @@ def load_jobs_from_database():
                 "DueDate": lot['DueDate'].strftime("%Y-%m-%dT%H:%M:%S") if lot['DueDate'] else None,
                 "ActualFinishDate": lot['ActualFinishDate'].strftime("%Y-%m-%dT%H:%M:%S") if lot['ActualFinishDate'] else None,
                 "PlanFinishDate": lot['PlanFinishDate'].strftime("%Y-%m-%dT%H:%M:%S") if lot['PlanFinishDate'] else None,
+                "PlanStartTime": lot['PlanStartTime'].strftime("%Y-%m-%dT%H:%M:%S") if lot['PlanStartTime'] else None,
+                "LotCreateDate": lot['LotCreateDate'].strftime("%Y-%m-%dT%H:%M:%S") if lot['LotCreateDate'] else None,
                 "Operations": operations,
                 "CompletedOps": completed_ops,
                 "WIPOps": wip_ops,
@@ -244,10 +252,13 @@ def update_plan_times(lot_results, plan_id, all_tasks_status):
 
         for lot_id, operations in lot_results.items():
             lot_finish_time = max((res['end_time'] for res in operations.values()), default=None)
+            lot_start_time = min((res['start_time'] for res in operations.values()), default=None)
+
             if lot_finish_time:
                 lots_json_list.append({
                     "LotId": lot_id,
-                    "PlanFinishDate": lot_finish_time.strftime("%Y-%m-%d %H:%M:%S")
+                    "PlanFinishDate": lot_finish_time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "PlanStartTime": lot_start_time.strftime("%Y-%m-%d %H:%M:%S") if lot_start_time else None
                 })
 
             for step, result in operations.items():
@@ -325,6 +336,75 @@ def load_machine_groups():
     except:
         return {}
 
+def calculate_and_save_utilization(final_lot_results, plan_id, machine_groups):
+    """計算並儲存機台群組利用率"""
+    if not final_lot_results:
+        return
+
+    all_starts = []
+    all_ends = []
+    
+    # 統計各群組的使用分鐘數
+    group_used_minutes = {g: 0 for g in machine_groups.keys()}
+    
+    for lot_id, operations in final_lot_results.items():
+        for step, res in operations.items():
+            all_starts.append(res['start_time'])
+            all_ends.append(res['end_time'])
+            
+            # 尋找機台所屬群組 (優化：預先建立 machine_to_group map)
+            machine = res['machine']
+            duration = (res['end_time'] - res['start_time']).total_seconds() / 60
+            
+            for gid, ms in machine_groups.items():
+                if machine in ms:
+                    group_used_minutes[gid] += duration
+                    break
+    
+    if not all_starts or not all_ends:
+        return
+        
+    window_start = min(all_starts)
+    window_end = max(all_ends)
+    window_duration = (window_end - window_start).total_seconds() / 60
+    
+    if window_duration <= 0:
+        return
+
+    print(f"\n=== Machine Group Utilizations (Plan: {plan_id}) ===")
+    print(f"Window: {window_start} to {window_end} ({window_duration:.1f} mins)")
+    
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        
+        insert_data = []
+        for gid, used_mins in group_used_minutes.items():
+            machine_count = len(machine_groups[gid])
+            total_capacity = machine_count * window_duration
+            utilization = (used_mins / total_capacity * 100) if total_capacity > 0 else 0
+            
+            print(f"- {gid}: {utilization:6.2f}% | Used: {used_mins:8.1f} min | Capacity: {total_capacity:8.1f} min")
+            
+            insert_data.append((
+                plan_id, gid, window_start, window_end, machine_count,
+                int(used_mins), int(total_capacity), float(utilization)
+            ))
+            
+        # 批次插入
+        cursor.executemany("""
+            INSERT INTO MachineGroupUtilization 
+            (PlanID, GroupId, CalculationWindowStart, CalculationWindowEnd, MachineCount, TotalUsedMinutes, TotalCapacityMinutes, UtilizationRate)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """, insert_data)
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        print(f"Successfully saved utilization results to database.")
+    except Exception as e:
+        print(f"Error saving utilization results: {e}")
+
 # =====================================================
 # Main Logic
 # =====================================================
@@ -369,7 +449,8 @@ for batch_idx, current_batch in enumerate(batches):
     
     model = cp_model.CpModel()
     # Horizon: Sum of durations of all lots * safety factor
-    horizon = sum(op[2] for job in jobs_data for op in job["Operations"]) * 10
+    #horizon = sum(op[2] for job in jobs_data for op in job["Operations"]) * 10
+    horizon = max(sum(op[2] for op in job["Operations"]) for job in jobs_data) + 60*24* 50 # 多增加 3天
     machines = {m: [] for g in MACHINE_GROUPS.values() for m in g}
     batch_tasks = {}
 
@@ -394,11 +475,32 @@ for batch_idx, current_batch in enumerate(batches):
     # 3. Add Current Batch Lots
     for job in current_batch:
         lot = job["LotId"]
+        
+        # Determine Release Time (Earliest Start)
+        release_min = 0
+        p_start = job.get("PlanStartTime")
+        l_create = job.get("LotCreateDate")
+        
+        target_release = None
+        if p_start:
+            target_release = datetime.fromisoformat(p_start)
+        elif l_create:
+            target_release = datetime.fromisoformat(l_create)
+            
+        if target_release:
+            # Calculate release minute relative to SCHEDULE_START
+            # If target_release is BEFORE SCHEDULE_START, it becomes 0 (ready immediatley)
+            # If target_release is AFTER SCHEDULE_START, it becomes positive delay
+            delta_min = int((target_release - SCHEDULE_START).total_seconds() / 60)
+            release_min = max(0, delta_min)
+
+        print(f"Lot {lot}: Release Constraint = {release_min} min (from {target_release})")
+
         completed_ops = job.get("CompletedOps", {})
         wip_ops = job.get("WIPOps", {})
         frozen_ops = job.get("FrozenOps", {})
 
-        prev_end = 0
+        prev_end = release_min
         for step, group, duration in job["Operations"]:
             submachines = MACHINE_GROUPS[group]
             
@@ -524,7 +626,9 @@ for batch_idx, current_batch in enumerate(batches):
     solver.parameters.max_time_in_seconds = int(os.getenv('SOLVER_MAX_TIME_IN_SECONDS', 30))
     solver.parameters.num_search_workers = int(os.getenv('SOLVER_NUM_SEARCH_WORKERS', 8))
     solver.parameters.log_search_progress = os.getenv('SOLVER_LOG_SEARCH_PROGRESS', 'false').lower() == 'true'
-    
+    solver.parameters.relative_gap_limit = 0.15
+
+
     batch_solve_start = datetime.now()
     status = solver.Solve(model)
     batch_solve_end = datetime.now()
@@ -685,6 +789,9 @@ try:
 except Exception as e:
     print(f"Error saving job: {e}")
     sys.stdout.flush()
+
+# Calculate and save Utilization metrics
+calculate_and_save_utilization(final_lot_results, plan_id, MACHINE_GROUPS)
 
 print(f"Total calculation duration: {calc_end_time - calc_start_time}")
 print("\nScheduling Complete.")
