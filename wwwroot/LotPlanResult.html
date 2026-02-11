@@ -31,15 +31,15 @@
         }
 
         [data-theme="gray"] {
-            --bg-color: #f8fafc;
-            --text-color: #334155;
-            --header-bg: #f1f5f9;
-            --border-color: #cbd5e1;
-            --shadow: rgba(0, 0, 0, 0.08);
-            --shadow-hover: rgba(0, 0, 0, 0.15);
-            --muted-text: #64748b;
-            --card-bg: rgba(255, 255, 255, 0.9);
-            --glass-bg: rgba(0, 0, 0, 0.05);
+            --bg-color: #e5e7eb;      /* Gray 200 - 明顯的灰色背景 */
+            --text-color: #1f2937;    /* Gray 800 */
+            --header-bg: #d1d5db;     /* Gray 300 - 較深的標題背景 */
+            --border-color: #9ca3af;  /* Gray 400 - 加深邊框 */
+            --shadow: rgba(0, 0, 0, 0.1);
+            --shadow-hover: rgba(0, 0, 0, 0.2);
+            --muted-text: #4b5563;
+            --card-bg: rgba(243, 244, 246, 0.9); /* Gray 100 with opacity */
+            --glass-bg: rgba(0, 0, 0, 0.08);
         }
 
         [data-theme="dark"] {
@@ -126,46 +126,21 @@
             color: white;
         }
 
-        /* 主題按鈕特殊樣式 */
-        .theme-btn-light {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
-            color: #0f172a !important;
-            border: 2px solid #e2e8f0 !important;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        .btn-outline-secondary {
+            background: var(--card-bg);
+            color: var(--secondary);
+            border: 1px solid var(--border-color) !important;
         }
 
-        .theme-btn-light:hover {
-            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%) !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        .btn-outline-secondary:hover:not(:disabled) {
+            background: var(--secondary) !important;
+            color: white !important;
         }
-
-        .theme-btn-gray {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
-            color: #334155 !important;
-            border: 2px solid #cbd5e1 !important;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
-        }
-
-        .theme-btn-gray:hover {
-            background: linear-gradient(135deg, #f1f5f9 0%, #f8fafc 100%) !important;
+        
+        .btn-outline-secondary.active {
+            background: var(--secondary) !important;
+            color: white !important;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
-        }
-
-        /* 當前主題指示器 */
-        .theme-active {
-            position: relative;
-        }
-
-        .theme-active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 3px;
-            background: var(--primary);
-            border-radius: 2px;
         }
 
         .btn-primary {
@@ -702,11 +677,14 @@
                 <div class="control-group">
                     <span class="control-label"><i class="fa-solid fa-palette"></i> 主題</span>
                     <div class="btn-group" role="group">
-                        <button class="btn btn-outline-secondary btn-sm theme-btn-light" id="themeLightBtn" onclick="setTheme('light')" title="亮色主題">
-                            <i class="fa-solid fa-sun"></i> 亮色
+                        <button class="btn btn-outline-secondary btn-sm" id="themeLightBtn" onclick="setTheme('light')" title="亮色主題">
+                            <i class="fa-solid fa-sun"></i>
                         </button>
-                        <button class="btn btn-outline-secondary btn-sm theme-btn-gray" id="themeGrayBtn" onclick="setTheme('gray')" title="灰色主題">
-                            <i class="fa-solid fa-adjust"></i> 灰色
+                        <button class="btn btn-outline-secondary btn-sm" id="themeGrayBtn" onclick="setTheme('gray')" title="灰色主題">
+                            <i class="fa-solid fa-adjust"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" id="themeDarkBtn" onclick="setTheme('dark')" title="暗色主題">
+                            <i class="fa-solid fa-moon"></i>
                         </button>
                     </div>
                 </div>
@@ -865,16 +843,20 @@
         function updateThemeButtons(activeTheme) {
             const lightBtn = document.getElementById('themeLightBtn');
             const grayBtn = document.getElementById('themeGrayBtn');
+            const darkBtn = document.getElementById('themeDarkBtn');
 
             // 移除所有激活狀態
-            lightBtn.classList.remove('theme-active');
-            grayBtn.classList.remove('theme-active');
+            lightBtn.classList.remove('active');
+            grayBtn.classList.remove('active');
+            darkBtn.classList.remove('active');
 
             // 添加當前主題的激活狀態
             if (activeTheme === 'light') {
-                lightBtn.classList.add('theme-active');
+                lightBtn.classList.add('active');
             } else if (activeTheme === 'gray') {
-                grayBtn.classList.add('theme-active');
+                grayBtn.classList.add('active');
+            } else if (activeTheme === 'dark') {
+                darkBtn.classList.add('active');
             }
         }
 

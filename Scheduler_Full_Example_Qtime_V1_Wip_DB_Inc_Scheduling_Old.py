@@ -1,5 +1,5 @@
-# 因應資料量可能會有幾百個 lots,作業站 20~30站, 會無法在限定時間內完成計算,需要用分批處理方式
-# 需要未來依照客戶需求調整參數, 依照客戶狀況調整參數
+# 測試  Batch Scheduling 功能, batch 問題比較多, 很容易找不出可行解, 需要更深入研究
+# 
 
 import sys
 import io
@@ -338,39 +338,52 @@ def load_machine_groups():
         return {}
 
 def calculate_and_save_utilization(final_lot_results, plan_id, machine_groups):
-    """計算並儲存機台群組利用率"""
+    """計算並儲存機台群組利用率，支援集批同步加工之修正計算"""
     if not final_lot_results:
         return
 
-    all_starts = []
-    all_ends = []
-    
-    # 統計各群組的使用分鐘數
-    group_used_minutes = {g: 0 for g in machine_groups.keys()}
+    # 1. 提取所有機台的唯一加工時段 (避免 Batch 重複計算)
+    # machine -> set of (start_time, end_time)
+    machine_unique_intervals = {}
+    all_times = []
     
     for lot_id, operations in final_lot_results.items():
         for step, res in operations.items():
-            all_starts.append(res['start_time'])
-            all_ends.append(res['end_time'])
+            m = res['machine']
+            st = res['start_time']
+            et = res['end_time']
+            all_times.extend([st, et])
             
-            # 尋找機台所屬群組 (優化：預先建立 machine_to_group map)
-            machine = res['machine']
-            duration = (res['end_time'] - res['start_time']).total_seconds() / 60
-            
-            for gid, ms in machine_groups.items():
-                if machine in ms:
-                    group_used_minutes[gid] += duration
-                    break
+            if m not in machine_unique_intervals:
+                machine_unique_intervals[m] = set()
+            machine_unique_intervals[m].add((st, et))
     
-    if not all_starts or not all_ends:
+    if not all_times:
         return
         
-    window_start = min(all_starts)
-    window_end = max(all_ends)
+    window_start = min(all_times)
+    window_end = max(all_times)
     window_duration = (window_end - window_start).total_seconds() / 60
     
     if window_duration <= 0:
         return
+
+    # 2. 統計各群組的使用分鐘數
+    group_used_minutes = {g: 0.0 for g in machine_groups.keys()}
+    machine_to_group = {}
+    for gid, ms in machine_groups.items():
+        for m in ms:
+            machine_to_group[m] = gid
+
+    for m, intervals in machine_unique_intervals.items():
+        gid = machine_to_group.get(m)
+        if not gid: continue
+        
+        # 加總該機台的所有唯一加工時段
+        m_used = 0.0
+        for st, et in intervals:
+            m_used += (et - st).total_seconds() / 60
+        group_used_minutes[gid] += m_used
 
     print(f"\n=== Machine Group Utilizations (Plan: {plan_id}) ===")
     print(f"Window: {window_start} to {window_end} ({window_duration:.1f} mins)")
@@ -392,7 +405,6 @@ def calculate_and_save_utilization(final_lot_results, plan_id, machine_groups):
                 int(used_mins), int(total_capacity), float(utilization)
             ))
             
-        # 批次插入
         cursor.executemany("""
             INSERT INTO MachineGroupUtilization 
             (PlanID, GroupId, CalculationWindowStart, CalculationWindowEnd, MachineCount, TotalUsedMinutes, TotalCapacityMinutes, UtilizationRate)
@@ -405,6 +417,7 @@ def calculate_and_save_utilization(final_lot_results, plan_id, machine_groups):
         print(f"Successfully saved utilization results to database.")
     except Exception as e:
         print(f"Error saving utilization results: {e}")
+
 
 # =====================================================
 # Main Logic
@@ -449,8 +462,13 @@ for batch_idx, current_batch in enumerate(batches):
     sys.stdout.flush()
     
     model = cp_model.CpModel()
+    
+    # 批次加工設定 (移至此處以便後續使用)
+    BATCH_STEP = "STEP5"  # 需要批次加工的作業站
+    MAX_BATCH_SIZE = int(os.getenv('BATCH_PROCESSING_MAX_SIZE', 2))  # 最多同時處理 N 批
+    MAX_WAIT_TIME = int(os.getenv('BATCH_PROCESSING_MAX_WAIT_MINUTES', 10))  # 等待時間上限（分鐘）
+
     # Horizon: Sum of durations of all lots * safety factor
-    #horizon = sum(op[2] for job in jobs_data for op in job["Operations"]) * 10
     horizon = max(sum(op[2] for op in job["Operations"]) for job in jobs_data) + 60*24* 50 # 多增加 3天
     machines = {m: [] for g in MACHINE_GROUPS.values() for m in g}
     batch_tasks = {}
@@ -502,7 +520,21 @@ for batch_idx, current_batch in enumerate(batches):
         frozen_ops = job.get("FrozenOps", {})
 
         prev_end = release_min
+        # 0. 獲取 STEP5 的統一加工時間 (用於當前子批次，解決持續時間衝突)
+        current_step5_duration = 300 # 預設
+        for lot_id in [j["LotId"] for j in current_batch]:
+            job_info = next(j for j in jobs_data if j["LotId"] == lot_id)
+            for s, _, dur in job_info["Operations"]:
+                if s == BATCH_STEP:
+                    current_step5_duration = dur
+                    break
+            if current_step5_duration != 300: break # 如果找到，就跳出
+
         for step, group, duration in job["Operations"]:
+            # 判斷是否為批次站點並統一持續時間
+            if step == BATCH_STEP:
+                duration = current_step5_duration
+
             submachines = MACHINE_GROUPS[group]
             
             # --- Completed ---
@@ -556,7 +588,10 @@ for batch_idx, current_batch in enumerate(batches):
             for i, m in enumerate(submachines):
                 p = model.NewBoolVar(f"{lot}_{step}_p_{i}")
                 itv = model.NewOptionalIntervalVar(start_var, duration, end_var, p, f"{lot}_{step}_{m}")
-                itvs.append(itv); presents.append(p); machines[m].append(itv)
+                itvs.append(itv); presents.append(p)
+                # 如果是批次加工站點，先不加入機台的 NoOverlap，由後續批次邏輯統一加入
+                if step != BATCH_STEP:
+                    machines[m].append(itv)
                 model.Add(machine_choice == i).OnlyEnforceIf(p)
                 model.Add(machine_choice != i).OnlyEnforceIf(p.Not())
             model.Add(sum(presents) == 1)
@@ -579,12 +614,138 @@ for batch_idx, current_batch in enumerate(batches):
             if (lot, "STEP3") in batch_tasks and (lot, "STEP4") in batch_tasks:
                 model.Add(batch_tasks[(lot, "STEP4")]["start"] - batch_tasks[(lot, "STEP3")]["end"] <= 200)
 
+    # 5.5. Batch Processing Constraints for STEP5
+    # 批次加工設定
+    BATCH_STEP = "STEP5"  # 需要批次加工的作業站
+    MAX_BATCH_SIZE = int(os.getenv('BATCH_PROCESSING_MAX_SIZE', 2))  # 最多同時處理 N 批
+    MAX_WAIT_TIME = int(os.getenv('BATCH_PROCESSING_MAX_WAIT_MINUTES', 10))  # 等待時間上限（分鐘）
+    
+    # 收集所有需要在 STEP5 進行批次加工的 Lots
+    step5_lots = []
+    for job in current_batch:
+        lot = job["LotId"]
+        ops_names = [s for s, _, _ in job["Operations"]]
+        if BATCH_STEP in ops_names:
+            if (lot, BATCH_STEP) in batch_tasks and batch_tasks[(lot, BATCH_STEP)]["status"] == "Normal":
+                step5_lots.append(lot)
+    
+    if len(step5_lots) > 0:
+        print(f"  Applying Batch Processing for {BATCH_STEP}: {len(step5_lots)} lots, max_batch={MAX_BATCH_SIZE}, max_wait={MAX_WAIT_TIME}min")
+        
+        # 0. 獲取機台資訊與持續時間
+        step5_duration = current_step5_duration
+        step5_group = None
+        # 從 step5_lots 所屬的 job 找站位資訊
+        for job in current_batch:
+            if job["LotId"] in step5_lots:
+                for s, g, _ in job["Operations"]:
+                    if s == BATCH_STEP:
+                        step5_group = g; break
+                if step5_group: break
+        
+        submachines = MACHINE_GROUPS[step5_group] if step5_group else []
+
+        # 1. 變數與優化上限
+        num_min_needed = (len(step5_lots) + MAX_BATCH_SIZE - 1) // MAX_BATCH_SIZE
+        num_possible_batches = min(len(step5_lots), num_min_needed + 10)
+        
+        batch_assignment = {}
+        for lot in step5_lots:
+            batch_assignment[lot] = model.NewIntVar(0, num_possible_batches - 1, f"{lot}_bi")
+        
+        batch_starts = {}
+        batch_ends = {}
+        batch_active = {}
+        batch_empty_slots = []
+        
+        is_lot_in_k = {} # (lot, k) -> BoolVar
+
+        for k in range(num_possible_batches):
+            batch_starts[k] = model.NewIntVar(0, horizon, f"b{k}_s")
+            batch_ends[k] = model.NewIntVar(0, horizon, f"b{k}_e")
+            batch_active[k] = model.NewBoolVar(f"b{k}_a")
+            
+            lots_in_k = []
+            for lot in step5_lots:
+                is_in_k = model.NewBoolVar(f"{lot}_in_b{k}")
+                model.Add(batch_assignment[lot] == k).OnlyEnforceIf(is_in_k)
+                model.Add(batch_assignment[lot] != k).OnlyEnforceIf(is_in_k.Not())
+                lots_in_k.append(is_in_k)
+                is_lot_in_k[(lot, k)] = is_in_k
+                
+                # 同步 Lot 與 Batch 的時間
+                model.Add(batch_tasks[(lot, BATCH_STEP)]["start"] == batch_starts[k]).OnlyEnforceIf(is_in_k)
+                model.Add(batch_tasks[(lot, BATCH_STEP)]["end"] == batch_ends[k]).OnlyEnforceIf(is_in_k)
+                
+                # 到達時間約束 (Arrival)
+                job = next(j for j in current_batch if j["LotId"] == lot)
+                ops = job["Operations"]
+                s5_idx = next(i for i, (s,_,_) in enumerate(ops) if s == BATCH_STEP)
+                arrival_time = 0
+                if s5_idx > 0:
+                    prev_s = ops[s5_idx-1][0]
+                    arrival_time = batch_tasks[(lot, prev_s)]["end"]
+                model.Add(batch_starts[k] >= arrival_time).OnlyEnforceIf(is_in_k)
+
+            # 負載與活躍狀態
+            load_k = model.NewIntVar(0, MAX_BATCH_SIZE, f"b{k}_load")
+            model.Add(load_k == sum(lots_in_k))
+            model.Add(load_k >= 1).OnlyEnforceIf(batch_active[k])
+            model.Add(load_k == 0).OnlyEnforceIf(batch_active[k].Not())
+            model.Add(load_k <= MAX_BATCH_SIZE)
+
+            # 罰項計算 (Empty Slots)
+            empty = model.NewIntVar(0, MAX_BATCH_SIZE, f"b{k}_emp")
+            model.Add(empty == batch_active[k] * MAX_BATCH_SIZE - load_k)
+            batch_empty_slots.append(empty)
+
+            # 持續時間與機台選擇同步
+            model.Add(batch_ends[k] == batch_starts[k] + step5_duration).OnlyEnforceIf(batch_active[k])
+            
+            b_m_choice = model.NewIntVar(0, len(submachines) - 1, f"b{k}_m")
+            p_on_m = []
+            for idx, m in enumerate(submachines):
+                p = model.NewBoolVar(f"b{k}_on_{m}")
+                p_on_m.append(p)
+                itv = model.NewOptionalIntervalVar(batch_starts[k], step5_duration, batch_ends[k], p, f"b{k}_itv_{m}")
+                machines[m].append(itv)
+                model.Add(b_m_choice == idx).OnlyEnforceIf(p)
+            
+            model.Add(sum(p_on_m) == 1).OnlyEnforceIf(batch_active[k])
+            model.Add(sum(p_on_m) == 0).OnlyEnforceIf(batch_active[k].Not())
+            
+            for lot in step5_lots:
+                model.Add(batch_tasks[(lot, BATCH_STEP)]["machine_choice"] == b_m_choice).OnlyEnforceIf(is_lot_in_k[(lot, k)])
+
+            # 湊批時間間距限制 (MAX_WAIT_TIME)
+            for i in range(len(step5_lots)):
+                for j in range(i + 1, len(step5_lots)):
+                    lot_i = step5_lots[i]; lot_j = step5_lots[j]
+                    
+                    # 取到達時間
+                    arr_i = 0; arr_j = 0
+                    ops_i = next(o for o in current_batch if o["LotId"] == lot_i)["Operations"]
+                    ops_j = next(o for o in current_batch if o["LotId"] == lot_j)["Operations"]
+                    s5_i = next(idx for idx, (s,_,_) in enumerate(ops_i) if s == BATCH_STEP)
+                    s5_j = next(idx for idx, (s,_,_) in enumerate(ops_j) if s == BATCH_STEP)
+                    if s5_i > 0: arr_i = batch_tasks[(lot_i, ops_i[s5_i-1][0])]["end"]
+                    if s5_j > 0: arr_j = batch_tasks[(lot_j, ops_j[s5_j-1][0])]["end"]
+                    
+                    # 條件：若 lot_i 與 lot_j 都在同一個批次 k
+                    model.Add(arr_i - arr_j <= MAX_WAIT_TIME).OnlyEnforceIf([is_lot_in_k[(lot_i, k)], is_lot_in_k[(lot_j, k)]])
+                    model.Add(arr_j - arr_i <= MAX_WAIT_TIME).OnlyEnforceIf([is_lot_in_k[(lot_i, k)], is_lot_in_k[(lot_j, k)]])
+
     # 6. Objective (per batch)
     is_fast_verification = os.getenv('SCHEDULER_FAST_VERIFICATION', 'true').lower() == 'true'
-    if is_fast_verification:
-        # Fast verification mode: no objective
-        pass
-    else:
+    
+    objective_terms = []
+    
+    # 加入批次優化獎勵/懲罰 (不論是否為 fast mode 都建議加入基本優化)
+    if 'batch_empty_slots' in locals() and batch_empty_slots:
+        # 高權重懲罰不滿批情況 (Soft Constraint for Full Batch)
+        objective_terms.append(sum(batch_empty_slots) * 5000)
+
+    if not is_fast_verification:
         # Calculate makespan for current batch
         batch_makespan = model.NewIntVar(0, horizon, f"batch_makespan_{batch_idx}")
         last_step_ends = []
@@ -592,9 +753,9 @@ for batch_idx, current_batch in enumerate(batches):
             last_step = job["Operations"][-1][0]
             last_step_ends.append(batch_tasks[(job["LotId"], last_step)]["end"])
         model.AddMaxEquality(batch_makespan, last_step_ends)
+        objective_terms.append(batch_makespan)
 
         if OBJECTIVE_TYPE == "weighted_delay":
-            delay_vars = []
             for job in current_batch:
                 lot = job["LotId"]
                 if job["DueDate"]:
@@ -605,22 +766,17 @@ for batch_idx, current_batch in enumerate(batches):
                     delay = model.NewIntVar(0, horizon, f"{lot}_delay_b{batch_idx}")
                     model.Add(delay >= batch_tasks[(lot, last_step)]["end"] - due_min)
                     model.Add(delay >= 0)
-                    delay_vars.append(delay * job["Priority"])
-            
-            if delay_vars:
-                model.Minimize(sum(delay_vars) * 1000 + batch_makespan)
-            else:
-                model.Minimize(batch_makespan)
-
+                    objective_terms.append(delay * job["Priority"] * 1000)
         elif OBJECTIVE_TYPE == "total_completion_time":
             completion_times = []
             for job in current_batch:
                 last_step = job["Operations"][-1][0]
                 completion_times.append(batch_tasks[(job["LotId"], last_step)]["end"])
-            model.Minimize(sum(completion_times))
+            objective_terms.append(sum(completion_times))
+        # else: makespan is already added
 
-        else: # makespan
-            model.Minimize(batch_makespan)
+    if objective_terms:
+        model.Minimize(sum(objective_terms))
 
     # 7. Solve
     solver = cp_model.CpSolver()
@@ -636,7 +792,10 @@ for batch_idx, current_batch in enumerate(batches):
 
     if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         print(f"Batch {batch_idx + 1} solved: {solver.StatusName(status)} (Time: {batch_duration.total_seconds():.2f}s)")
-        sys.stdout.flush()
+        try:
+            sys.stdout.flush()
+        except OSError:
+            pass
         for job in current_batch:
             lot = job["LotId"]
             lot_ops = {}
@@ -742,6 +901,8 @@ for r in lot_step_results:
 
 for m_id in sorted(machine_map.keys()):
     task_segments.append({"id": m_id, "text": m_id, "parent": None, "render": "split"})
+    
+    # 處理該機台的不可用時段
     if m_id in machine_unavailable:
         for p in machine_unavailable[m_id]:
             task_segments.append({
@@ -749,12 +910,40 @@ for m_id in sorted(machine_map.keys()):
                 "parent": m_id, "start_date": p["StartTime"].strftime("%Y-%m-%dT%H:%M:%S"),
                 "end_date": p["EndTime"].strftime("%Y-%m-%dT%H:%M:%S"), "Booking": -1, "color": BookingColorMap.get_color(-1)
             })
+            
+    # --- 優化點：合併相同時間的作業 (Batch Processing) ---
+    # 使用 (Start, End) 作為 key 來分組
+    time_grouped_tasks = {}
     for r in machine_map[m_id]:
+        time_key = (r["Start"], r["End"])
+        if time_key not in time_grouped_tasks:
+            time_grouped_tasks[time_key] = []
+        time_grouped_tasks[time_key].append(r)
+    
+    for (start, end), lots_in_time in time_grouped_tasks.items():
+        if len(lots_in_time) > 1:
+            # 這是集批生產 (Batch)
+            lot_ids = ", ".join([l["LotId"] for l in lots_in_time])
+            display_text = f"Batch: {lot_ids}"
+            batch_id = f"{m_id}_batch_{lots_in_time[0]['LotId']}_{lots_in_time[0]['Step']}"
+            booking_val = lots_in_time[0]["Booking"]
+        else:
+            # 單一加工
+            r = lots_in_time[0]
+            display_text = f"{r['LotId']} {r['Step']}"
+            batch_id = f"{r['Machine']}_{r['LotId']}_{r['Step']}"
+            booking_val = r["Booking"]
+
         task_segments.append({
-            "id": f"{r['Machine']}_{r['LotId']}_{r['Step']}", "text": f"{r['LotId']} {r['Step']}",
-            "parent": r["Machine"], "start_date": r["Start"], "end_date": r["End"],
-            "Booking": r["Booking"], "color": BookingColorMap.get_color(r["Booking"])
+            "id": batch_id, 
+            "text": display_text,
+            "parent": m_id, 
+            "start_date": start, 
+            "end_date": end,
+            "Booking": booking_val, 
+            "color": BookingColorMap.get_color(booking_val)
         })
+
 with open(os.path.join(plan_result_dir, "machineTaskSegment.json"), 'w', encoding='utf-8') as f:
     json.dump(task_segments, f, indent=4, ensure_ascii=False)
 

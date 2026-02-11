@@ -11,82 +11,167 @@
     <style>
         :root {
             --bg-color: #ffffff;
-            --text-color: #000000;
-            --header-bg: #f8f9fa;
-            --border-color: #dee2e6;
-            --shadow: rgba(0, 0, 0, 0.1);
+            --text-color: #0f172a;
+            --header-bg: #f8fafc;
+            --border-color: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.05);
+            --shadow-hover: rgba(0, 0, 0, 0.1);
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #10b981;
+            --success-hover: #059669;
+            --secondary: #64748b;
+            --secondary-hover: #475569;
+            --info: #0ea5e9;
+            --muted-text: #64748b;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --glass-bg: rgba(255, 255, 255, 0.1);
         }
 
         [data-theme="gray"] {
-            --bg-color: #f5f5f5;
-            --text-color: #333333;
-            --header-bg: #e9ecef;
-            --border-color: #adb5bd;
-            --shadow: rgba(0, 0, 0, 0.15);
+            --bg-color: #e5e7eb;      /* Gray 200 */
+            --text-color: #1f2937;    /* Gray 800 */
+            --header-bg: #d1d5db;     /* Gray 300 */
+            --border-color: #9ca3af;  /* Gray 400 */
+            --shadow: rgba(0, 0, 0, 0.1);
+            --shadow-hover: rgba(0, 0, 0, 0.2);
+            --muted-text: #4b5563;
+            --card-bg: rgba(243, 244, 246, 0.9);
+            --glass-bg: rgba(0, 0, 0, 0.08);
         }
 
         [data-theme="dark"] {
-            --bg-color: #121212;
-            --text-color: #ffffff;
-            --header-bg: #1e1e1e;
-            --border-color: #333333;
+            --bg-color: #0f172a;
+            --text-color: #f8fafc;
+            --header-bg: #1e293b;
+            --border-color: #334155;
             --shadow: rgba(0, 0, 0, 0.3);
+            --shadow-hover: rgba(0, 0, 0, 0.4);
+            --primary: #60a5fa;
+            --primary-hover: #3b82f6;
+            --success: #34d399;
+            --success-hover: #10b981;
+            --secondary: #94a3b8;
+            --secondary-hover: #64748b;
+            --muted-text: #94a3b8;
+            --card-bg: rgba(30, 41, 59, 0.8);
+            --glass-bg: rgba(255, 255, 255, 0.05);
         }
 
         html, body {
             height: 100%;
             padding: 0;
             margin: 0;
-            background-color: var(--bg-color);
+            background: linear-gradient(135deg, var(--bg-color) 0%, var(--header-bg) 100%);
             color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         .container-fluid {
-            background-color: var(--header-bg);
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: 0 2px 4px var(--shadow);
-            border-radius: 8px;
-            margin: 10px;
-            padding: 15px;
-            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px var(--shadow);
+            border-radius: 16px;
+            margin: 20px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .container-fluid:hover {
+            box-shadow: 0 8px 25px var(--shadow-hover);
         }
 
         #gantt_here {
             width: 100%;
-            height: calc(100vh - 140px);
+            height: calc(100vh - 220px);
             font-size: 14px;
-            background-color: var(--bg-color);
-            border-radius: 8px;
-            box-shadow: 0 2px 4px var(--shadow);
-            transition: background-color 0.3s, box-shadow 0.3s;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px var(--shadow);
+            transition: all 0.3s ease;
+            overflow: visible;
         }
 
         .btn-group .btn {
-            transition: all 0.3s;
+            transition: all 0.2s ease;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 8px 14px;
+            margin: 0 2px;
         }
 
-        h2 {
-            margin: 0;
-            color: var(--text-color);
+        .btn-group .btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-outline-secondary {
+            background: var(--card-bg);
+            color: var(--secondary);
+            border: 1px solid var(--border-color) !important;
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-outline-primary {
+            background: var(--card-bg);
+            color: var(--primary);
+            border: 1px solid var(--border-color) !important;
+        }
+
+        .btn-outline-primary.active, .btn-outline-primary:hover {
+            background: var(--primary) !important;
+            color: white !important;
+        }
+
+        .btn-outline-info {
+            background: var(--card-bg);
+            color: var(--info);
+            border: 1px solid var(--border-color) !important;
+        }
+        
+        .btn-outline-info:hover {
+            background: var(--info);
+            color: white;
         }
 
         /* 甘特圖主題覆蓋 */
-        .gantt_grid, .gantt_data_area, .gantt_task_row {
+        .gantt_container,
+        .gantt_grid, 
+        .gantt_data_area, 
+        .gantt_task_row,
+        .gantt_task_bg,
+        .gantt_grid_data,
+        .gantt_row,
+        .gantt_cell {
             background-color: var(--bg-color) !important;
-        }
-
-        .gantt_grid_data .gantt_tree_content, .gantt_task_content {
+            border-color: var(--border-color) !important;
             color: var(--text-color) !important;
+            font-size: 0.75rem !important;
         }
 
-        .gantt_grid_scale {
+        .gantt_grid_scale,
+        .gantt_scale_line,
+        .gantt_scale_cell {
+            background: var(--header-bg) !important;
             background-color: var(--header-bg) !important;
+            color: var(--text-color) !important;
             border-color: var(--border-color) !important;
         }
 
         .gantt_grid_scale .gantt_grid_head_cell {
             color: var(--text-color) !important;
+            font-weight: 600 !important;
+            font-size: 0.75rem !important;
+            text-transform: uppercase !important;
         }
 
         .legend-container {
@@ -116,19 +201,42 @@
             border: 1px solid #000;
         }
 
-        .loading-indicator {
-            display: none;
-            color: var(--text-color);
-            font-weight: bold;
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--card-bg);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            border-radius: 12px;
         }
 
-        .loading-indicator.active {
-            display: inline-block;
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* 自定義標記線樣式 */
         .custom-marker {
             pointer-events: none;
+            position: absolute;
+            width: 1px;
+            background-color: #ef4444;
+            z-index: 10;
         }
 
         /* 空狀態樣式 */
@@ -140,9 +248,11 @@
             transform: translate(-50%, -50%);
             text-align: center;
             z-index: 100;
-            background: rgba(var(--bg-color), 0.8);
-            padding: 20px;
-            border-radius: 12px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px var(--shadow);
+            border: 1px solid var(--border-color);
             pointer-events: none;
         }
 
@@ -162,13 +272,51 @@
             font-weight: bold;
             color: var(--text-color);
         }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+        }
+
+        .status-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
+        }
+
+        .status-loading {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
     </style>
 </head>
 <body>
     <div class="container-fluid p-3">
         <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
             <h2><i class="fa-solid fa-chart-gantt"></i> Machine Usage Gantt - From Web API</h2>
-            <!-- 視圖切換 -->
+            <!-- 視圖切換與主題 -->
+            <div class="btn-group me-3" role="group">
+                <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('light')" title="亮色主題"><i class="fa-solid fa-sun"></i></button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('gray')" title="灰色主題"><i class="fa-solid fa-adjust"></i></button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('dark')" title="暗色主題"><i class="fa-solid fa-moon"></i></button>
+            </div>
+
             <div class="btn-group me-3" role="group">
                 <button id="viewHour" class="btn btn-outline-primary btn-sm" onclick="setScale('hour')"><i class="fa-solid fa-clock"></i> 小時 </button>
                 <button id="viewDay" class="btn btn-outline-primary btn-sm" onclick="setScale('day')"><i class="fa-solid fa-calendar-day"></i> 天 </button>
@@ -199,9 +347,9 @@
             <button class="btn btn-outline-success btn-sm me-3" onclick="document.getElementById('jsonFileInput').click()"><i class="fa-solid fa-upload"></i> 讀取 JSON</button>
 
             <!-- 載入指示器 -->
-            <span id="loadingIndicator" class="loading-indicator">
-                <i class="fa-solid fa-spinner fa-spin"></i> 載入中...
-            </span>
+            <div id="dataStatus" class="status-indicator status-success">
+                <i class="fa-solid fa-circle-check"></i> 系統就緒
+            </div>
 
             <!-- 排程資訊顯示 -->
             <div class="d-flex align-items-center gap-3 ms-auto">
@@ -226,7 +374,13 @@
         <div id="legend" class="legend-container"></div>
 
         <!-- 甘特圖 -->
-        <div id="gantt_here" style="position: relative;">
+        <div style="position: relative;">
+            <div id="gantt_here"></div>
+            <!-- 載入遮罩 -->
+            <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+                <div class="spinner"></div>
+            </div>
+            <!-- 空狀態 -->
             <div id="emptyState" class="empty-state">
                 <i class="fa-solid fa-folder-open"></i>
                 <p>目前無排程資料</p>
@@ -306,12 +460,10 @@
 
         // 載入並渲染排程資料
         async function loadSchedule(offset) {
-            const loadingIndicator = document.getElementById('loadingIndicator');
+            updateStatus('spinner fa-spin', '載入中...', 'loading');
+            showLoading(true);
             
             try {
-                // 顯示載入指示器
-                loadingIndicator.classList.add('active');
-                
                 const data = await fetchScheduleData(offset);
                 
                 if (data && data.ScheduleId) {
@@ -324,7 +476,6 @@
                     document.getElementById('recordCountDisplay').textContent = `${offset + 1} / ${totalSchedules}`;
 
                     let rawData;
-                    // 確保 machineTaskSegment 是陣列
                     if (typeof data.machineTaskSegment === 'string') {
                         rawData = JSON.parse(data.machineTaskSegment);
                     } else if (Array.isArray(data.machineTaskSegment)) {
@@ -335,32 +486,37 @@
 
                     allData = rawData;
                     updateMachineFilter(allData);
-                    applyMachineFilter(); // 應用過濾器並渲染甘特圖
+                    applyMachineFilter(); 
                     updateNavigationButtons();
 
-
                     document.getElementById('emptyState').classList.remove('active');
+                    updateStatus('circle-check', `已載入 ${allData.length} 筆資料`, 'success');
                 } else {
-                    // 顯示空狀態
                     document.getElementById('emptyState').classList.add('active');
                     gantt.clearAll();
                     allData = [];
                     updateNavigationButtons();
+                    updateStatus('circle-info', '無資料', 'info');
                 }
             } catch (error) {
                 console.error("載入排程數據時發生錯誤:", error);
-                // 使用更友好的訊息顯示而不是只有 alert
-                const errorMsg = "載入失敗: " + error.message;
-                const indicator = document.getElementById('loadingIndicator');
-                indicator.innerHTML = `<i class="fa-solid fa-circle-exclamation text-danger"></i> <span class="text-danger">${errorMsg}</span>`;
-                setTimeout(() => {
-                    indicator.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 載入中...`;
-                    indicator.classList.remove('active');
-                }, 5000);
+                updateStatus('circle-exclamation', '載入失敗', 'error');
             } finally {
-                // 隱藏載入指示器
-                loadingIndicator.classList.remove('active');
+                showLoading(false);
             }
+        }
+
+        function updateStatus(icon, msg, type) {
+            const el = document.getElementById('dataStatus');
+            if (el) {
+                el.className = `status-indicator status-${type}`;
+                el.innerHTML = `<i class="fa-solid fa-${icon}"></i> ${msg}`;
+            }
+        }
+
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) overlay.style.display = show ? 'flex' : 'none';
         }
 
         // Debounce 函數
@@ -427,6 +583,7 @@
         // 設定主題
         function setTheme(theme) {
             document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('machineGanttTheme', theme);
             // 重新渲染甘特圖以應用新主題
             if (allData.length > 0) {
                 renderGantt(allData);
@@ -471,29 +628,29 @@
         // 切換視圖
         function setScale(mode) {
             // 移除所有視圖按鈕的 active 狀態
-            document.getElementById('viewHour').classList.remove('active');
-            document.getElementById('viewDay').classList.remove('active');
-            document.getElementById('viewWeek').classList.remove('active');
-            document.getElementById('viewMonth').classList.remove('active');
+            document.getElementById('viewHour')?.classList.remove('active');
+            document.getElementById('viewDay')?.classList.remove('active');
+            document.getElementById('viewWeek')?.classList.remove('active');
+            document.getElementById('viewMonth')?.classList.remove('active');
             
             // 設定當前選中按鈕為 active
             if (mode === "hour") {
-                document.getElementById('viewHour').classList.add('active');
+                document.getElementById('viewHour')?.classList.add('active');
                 gantt.config.scale_unit = "day";
                 gantt.config.date_scale = "%Y-%m-%d";
                 gantt.config.subscales = [{ unit: "hour", step: 1, date: "%H:%i" }];
             } else if (mode === "day") {
-                document.getElementById('viewDay').classList.add('active');
+                document.getElementById('viewDay')?.classList.add('active');
                 gantt.config.scale_unit = "week";
                 gantt.config.date_scale = "第 %W 週";
                 gantt.config.subscales = [{ unit: "day", step: 1, date: "%m/%d" }];
             } else if (mode === "week") {
-                document.getElementById('viewWeek').classList.add('active');
+                document.getElementById('viewWeek')?.classList.add('active');
                 gantt.config.scale_unit = "month";
                 gantt.config.date_scale = "%Y-%m";
                 gantt.config.subscales = [{ unit: "week", step: 1, date: "第 %W 週" }];
             } else if (mode === "month") {
-                document.getElementById('viewMonth').classList.add('active');
+                document.getElementById('viewMonth')?.classList.add('active');
                 gantt.config.scale_unit = "year";
                 gantt.config.date_scale = "%Y";
                 gantt.config.subscales = [{ unit: "month", step: 1, date: "%m月" }];
@@ -520,6 +677,7 @@
         // 更新機台過濾器
         function updateMachineFilter(data) {
             const select = document.getElementById("machineFilter");
+            if (!select) return;
             select.innerHTML = '<option value="ALL">全部</option>';
             const uniqueMachines = [...new Set(data.filter(d => d.parent === null || d.parent === undefined).map(d => d.text))].sort();
             uniqueMachines.forEach(m => {
@@ -567,42 +725,30 @@
             }
 
             // 如果設定為不顯示，則直接返回
-            if (!ganttShowMarker) {
-                return;
-            }
+            if (!ganttShowMarker) return;
 
             const simulationEndTimeStr = document.getElementById('simulationEndTimeDisplay').textContent;
-            if (simulationEndTimeStr === 'N/A') {
-                return;
-            }
+            if (simulationEndTimeStr === 'N/A') return;
 
             const markerDate = new Date(simulationEndTimeStr);
-            if (isNaN(markerDate.getTime())) {
-                return;
-            }
+            if (isNaN(markerDate.getTime())) return;
 
             // 確保甘特圖容器存在
             const ganttContainer = document.getElementById('gantt_here');
-            if (!ganttContainer) {
-                setTimeout(addMarker, 100);
-                return;
-            }
-
-            // 獲取時間軸區域的實際位置
-            const timelineArea = ganttContainer.querySelector('.gantt_task');
-            if (!timelineArea) {
-                setTimeout(addMarker, 100);
-                return;
-            }
+            if (!ganttContainer) return;
 
             // 計算標記線的位置（相對於時間軸區域）
             const markerPos = gantt.posFromDate(markerDate);
             
-            // 獲取左側網格寬度
+            // 獲取左側網格寬度與當前捲動位置
             const gridWidth = ganttContainer.querySelector('.gantt_grid')?.offsetWidth || 0;
+            const scrollLeft = gantt.getScrollState().x;
             
-            // 最終位置 = 網格寬度 + 時間軸內的相對位置
-            const finalPos = gridWidth + markerPos;
+            // 最終位置 = 網格寬度 + 時間軸內的相對位置 - 捲動偏移量
+            const finalPos = gridWidth + markerPos - scrollLeft;
+
+            // 如果標記線捲動到了網格區域下方，則不顯示
+            if (finalPos < gridWidth) return;
 
             // 創建標記線元素
             const marker = document.createElement('div');
@@ -615,6 +761,7 @@
             marker.style.backgroundColor = '#FF6B6B';
             marker.style.zIndex = '10';
             marker.style.pointerEvents = 'none';
+            marker.style.transition = 'opacity 0.2s';
 
             // 添加標籤
             const label = document.createElement('div');
@@ -640,11 +787,22 @@
             ganttContainer.appendChild(marker);
         }
 
-        gantt.config.duration_unit = "hour"; // 預設
-        gantt.config.date_format = "%Y-%m-%d %H:%i";
-        gantt.plugins({ tooltip: true });// 開啟 tooltip
+        // 滾動時隱藏 Marker，停止滾動後重新計算位置顯示 (Debounce)
+        let scrollTimer = null;
+        gantt.attachEvent("onGanttScroll", function (left, top) {
+            const marker = document.querySelector('.custom-marker');
+            if (marker) marker.style.opacity = '0';
 
-        // 自定義 tooltip 顯示 start date 和 end date
+            if (scrollTimer) clearTimeout(scrollTimer);
+            scrollTimer = setTimeout(() => {
+                addMarker();
+            }, 150);
+        });
+
+        gantt.config.duration_unit = "hour"; 
+        gantt.config.date_format = "%Y-%m-%d %H:%i";
+        gantt.plugins({ tooltip: true });
+
         gantt.templates.tooltip_text = function(start, end, task) {
             const startStr = gantt.date.date_to_str("%Y-%m-%d %H:%i")(start);
             const endStr = gantt.date.date_to_str("%Y-%m-%d %H:%i")(end);
@@ -655,14 +813,18 @@
             { name: "start_date", label: "Start", align: "center" }
         ];
 
+        // 捲動與尺寸配置
+        gantt.config.autosize = false; // 讓甘特圖保留在固定高度內並顯示捲動軸
+        gantt.config.scroll_size = 15; // 捲動軸寬度
+        gantt.plugins({ 
+            tooltip: true,
+            multiselect: true
+        });
+
         gantt.templates.task_class = function (start, end, task) {
             let cssClass = "";
             if (task.color) {
                 cssClass += "task-" + task.color;
-            }
-            if (task.title) {
-                var el = gantt.getTaskNode(task.id);
-                if (el) el.setAttribute("title", task.title);
             }
             return cssClass;
         };
@@ -682,7 +844,11 @@
 
         gantt.init("gantt_here");
         renderLegend(); // 渲染圖例
-        setTheme('light'); // 預設亮色主題
+        
+        // 載入儲存的主題偏好
+        const savedTheme = localStorage.getItem('machineGanttTheme') || 'light';
+        setTheme(savedTheme);
+        
         setScale("day");
 
         // 檔案輸入事件監聽器 (保留)

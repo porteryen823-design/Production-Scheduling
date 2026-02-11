@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8" />
+    <title>Lot Plan Result - Web API</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/all.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" />
+
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #0f172a;
+            --header-bg: #f8fafc;
+            --border-color: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.05);
+            --shadow-hover: rgba(0, 0, 0, 0.1);
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #10b981;
+            --success-hover: #059669;
+            --warning: #f59e0b;
+            --warning-hover: #d97706;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --secondary: #64748b;
+            --secondary-hover: #475569;
+            --info: #0ea5e9;
+            --muted-text: #64748b;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="gray"] {
+            --bg-color: #f1f5f9;      /* 淺灰藍背景 */
+            --text-color: #1e293b;    /* 深色文字 */
+            --header-bg: #e2e8f0;     /* 較深灰色標題 */
+            --border-color: #cbd5e1;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --shadow-hover: rgba(0, 0, 0, 0.15);
+            --muted-text: #64748b;
+            --card-bg: #ffffff;       /* 白色卡片 */
+            --glass-bg: rgba(0, 0, 0, 0.04);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0b0f1a;      /* 極深背景 */
+            --text-color: #f1f5f9;    /* 亮白文字 */
+            --header-bg: #1e293b;     /* 深藍灰色標題 */
+            --border-color: #334155;
+            --shadow: rgba(0, 0, 0, 0.4);
+            --shadow-hover: rgba(0, 0, 0, 0.5);
+            --primary: #60a5fa;
+            --primary-hover: #3b82f6;
+            --success: #34d399;
+            --success-hover: #10b981;
+            --warning: #fbbf24;
+            --warning-hover: #f59e0b;
+            --danger: #f87171;
+            --danger-hover: #ef4444;
+            --secondary: #94a3b8;
+            --secondary-hover: #64748b;
+            --muted-text: #94a3b8;
+            --card-bg: #161e2e;       /* 深色卡片背景 */
+            --glass-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        html, body {
+            min-height: 100%;
+            padding: 0;
+            margin: 0;
+            background: var(--bg-color); /* 直接使用背景色 */
+            background-attachment: fixed;
+            color: var(--text-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .container-fluid {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px var(--shadow);
+            border-radius: 16px;
+            margin: 20px;
+            padding: 24px;
+            width: calc(100% - 40px);
+            transition: all 0.3s ease;
+        }
+
+        .container-fluid:hover {
+            box-shadow: 0 8px 25px var(--shadow-hover);
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px var(--shadow);
+            padding: 20px;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+
+        /* 按鈕樣式優化 */
+        .btn-group .btn {
+            transition: all 0.2s ease;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 8px 14px;
+            margin: 0 2px;
+        }
+
+        .btn-outline-secondary {
+            background: var(--glass-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color) !important;
+        }
+
+        .btn-outline-secondary:hover:not(:disabled), .btn-outline-secondary.active {
+            background: var(--secondary) !important;
+            color: white !important;
+        }
+
+        .btn-outline-primary {
+            background: var(--glass-bg);
+            color: var(--primary);
+            border: 1px solid var(--border-color) !important;
+        }
+
+        .btn-outline-primary:hover, .btn-outline-primary.active {
+            background: var(--primary) !important;
+            color: white !important;
+        }
+
+        .btn-outline-info {
+            background: var(--glass-bg);
+            color: var(--info);
+            border: 1px solid var(--border-color) !important;
+        }
+
+        .btn-outline-info:hover:not(:disabled) {
+            background: var(--info) !important;
+            color: white !important;
+        }
+        
+        .btn-outline-info:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: var(--glass-bg);
+            color: var(--muted-text);
+        }
+
+        h2 {
+            margin: 0;
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .control-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .control-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .control-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-label {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+
+        .form-select {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            padding: 8px 12px;
+            font-size: 0.875rem;
+        }
+
+        /* DataTables & Table Override - 強力覆蓋 Bootstrap */
+        .table {
+            background-color: transparent !important;
+            color: var(--text-color) !important;
+        }
+
+        /* 當為暗色模式時，強力覆蓋卡片、容器與統計區塊 */
+        [data-theme="dark"] .container-fluid,
+        [data-theme="dark"] .table-container,
+        [data-theme="dark"] .card,
+        [data-theme="dark"] .card-body,
+        [data-theme="dark"] .control-panel,
+        [data-theme="dark"] .dataTables_wrapper,
+        [data-theme="dark"] .table,
+        [data-theme="dark"] td.stat-cell {
+            background-color: var(--card-bg) !important;
+            color: var(--text-color) !important;
+        }
+
+        [data-theme="dark"] .table thead th {
+            background-color: var(--header-bg) !important;
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color) !important;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px var(--shadow);
+            padding: 20px;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .dataTables_wrapper { 
+            color: var(--text-color) !important; 
+        }
+        
+        table.dataTable {
+            background: transparent !important;
+            color: var(--text-color) !important;
+            width: 100% !important;
+        }
+        
+        table.dataTable thead th {
+            background: var(--header-bg) !important;
+            border-bottom: 2px solid var(--border-color) !important;
+            color: var(--text-color) !important;
+        }
+        
+        table.dataTable tbody tr {
+            background-color: transparent !important;
+        }
+        
+        table.dataTable.table-striped tbody tr:nth-of-type(odd) {
+            background-color: var(--glass-bg) !important;
+        }
+        
+        table.dataTable tbody td {
+            background-color: transparent !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            color: var(--text-color) !important;
+        }
+        
+        /* 統計資訊卡片覆蓋 */
+        .card {
+            background-color: var(--card-bg) !important;
+            background: var(--card-bg) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-color) !important;
+        }
+        
+        .card-header {
+            background-color: var(--header-bg) !important;
+            background: var(--header-bg) !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            color: var(--text-color) !important;
+            padding: 12px 20px !important;
+        }
+
+        .card-body {
+            background-color: transparent !important;
+            background: transparent !important;
+        }
+
+        .stat-cell {
+            background-color: transparent !important;
+            color: var(--text-color) !important;
+        }
+
+        .stat-value {
+            color: var(--text-color) !important;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            color: var(--muted-text) !important;
+            font-weight: 600;
+        }
+
+        /* 表單元件 */
+        .form-select, .form-control, .dataTables_filter input, .dataTables_length select {
+            background-color: var(--header-bg) !important;
+            color: var(--text-color) !important;
+            border: 1px solid var(--border-color) !important;
+            padding: 4px 8px !important;
+            border-radius: 6px !important;
+        }
+
+        .dataTables_length select {
+            min-width: 60px !important;
+            text-align: center !important;
+            margin: 0 5px !important;
+        }
+
+        .form-select option {
+            background-color: var(--header-bg) !important;
+            color: var(--text-color) !important;
+        }
+
+        /* 徽章與狀態 */
+        .badge {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+        }
+
+        /* 導航分頁 */
+        .pagination .page-link {
+            background-color: var(--card-bg) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-color) !important;
+        }
+        
+        .pagination .page-item.active .page-link {
+            background-color: var(--primary) !important;
+            border-color: var(--primary) !important;
+            color: white !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- 頁面標題 -->
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h2><i class="fa-solid fa-table"></i> Lot Plan Result - Web API</h2>
+            <div id="dataStatus" class="status-indicator status-success">
+                <i class="fa-solid fa-circle"></i> 系統正常
+            </div>
+        </div>
+
+        <!-- 控制面板 -->
+        <div class="control-panel">
+            <!-- 導航與主題 -->
+            <div class="control-row">
+                <div class="control-group">
+                    <span class="control-label"><i class="fa-solid fa-palette"></i> 主題</span>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-outline-secondary btn-sm" id="themeLightBtn" onclick="setTheme('light')"><i class="fa-solid fa-sun"></i></button>
+                        <button class="btn btn-outline-secondary btn-sm" id="themeGrayBtn" onclick="setTheme('gray')"><i class="fa-solid fa-adjust"></i></button>
+                        <button class="btn btn-outline-secondary btn-sm" id="themeDarkBtn" onclick="setTheme('dark')"><i class="fa-solid fa-moon"></i></button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <span class="control-label"><i class="fa-solid fa-database"></i> 來源</span>
+                    <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="dataSource" id="sourceCurrent" value="current" checked onchange="onSourceChange()">
+                        <label class="btn btn-outline-secondary btn-sm" for="sourceCurrent">目前</label>
+                        <input type="radio" class="btn-check" name="dataSource" id="sourceHistory" value="history" onchange="onSourceChange()">
+                        <label class="btn btn-outline-secondary btn-sm" for="sourceHistory">歷史</label>
+                    </div>
+                </div>
+
+                <div class="control-group ms-auto">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-outline-info btn-sm" id="firstBtn" onclick="loadFirst()"><i class="fa-solid fa-angles-left"></i> 第一筆</button>
+                        <button class="btn btn-outline-info btn-sm" id="prevBtn" onclick="loadPrevious()"><i class="fa-solid fa-chevron-left"></i> 前一筆</button>
+                        <button class="btn btn-outline-info btn-sm" id="nextBtn" onclick="loadNext()"><i class="fa-solid fa-chevron-right"></i> 下一筆</button>
+                        <button class="btn btn-outline-info btn-sm" id="lastBtn" onclick="loadLast()"><i class="fa-solid fa-angles-right"></i> 最後一筆</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 資訊與過濾 -->
+            <div class="control-row">
+                <div class="control-group">
+                    <span class="control-label"><i class="fa-solid fa-filter"></i> 產品</span>
+                    <select id="productFilter" class="form-select" style="min-width: 150px;" onchange="applyFilters()">
+                        <option value="ALL">全部產品</option>
+                    </select>
+                </div>
+
+                <div class="info-display ms-auto">
+                    <div>排程 ID: <span id="scheduleIdDisplay" class="info-value">N/A</span></div>
+                    <div>建立時間: <span id="createDateDisplay" class="info-value">N/A</span></div>
+                    <div>記錄數: <span id="recordCountDisplay" class="info-value">0 / 0</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 統計資訊 -->
+        <div class="row mb-4" id="statisticsSection" style="display: none;">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header"><h5 class="card-title mb-0"><i class="fa-solid fa-chart-bar"></i> 排程統計資訊</h5></div>
+                    <div class="card-body p-0">
+                        <table class="table table-borderless mb-0">
+                            <tbody>
+                                <tr>
+                                    <td class="stat-cell"><span class="stat-label">優化類型:</span> <span class="stat-value" id="optType"></span></td>
+                                    <td class="stat-cell"><span class="stat-label">計算批數:</span> <span class="stat-value" id="batchCount"></span></td>
+                                    <td class="stat-cell"><span class="stat-label">總排程時間:</span> <span class="stat-value" id="totalDuration"></span></td>
+                                </tr>
+                                <tr>
+                                    <td class="stat-cell" colspan="4">
+                                        <div class="d-flex gap-2">
+                                            <span class="badge bg-success">提早: <span id="earlyCount"></span></span>
+                                            <span class="badge bg-info">準時: <span id="onTimeCount"></span></span>
+                                            <span class="badge bg-warning">輕微延遲: <span id="minorDelayCount"></span></span>
+                                            <span class="badge bg-danger">嚴重延遲: <span id="majorDelayCount"></span></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 表格容器 -->
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="resultTable">
+                    <thead>
+                        <tr>
+                            <th>Lot</th>
+                            <th>Product</th>
+                            <th>Priority</th>
+                            <th>DueDate</th>
+                            <th>PlanFinishDate</th>
+                            <th>ActualFinishDate</th>
+                            <th>Delay Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 載入遮罩 -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        const currentHost = window.location.hostname;
+        const API_BASE_URL = `http://${currentHost}:8000`;
+        const API_ENDPOINT = '/api/schedule';
+
+        let allData = [];
+        let table;
+        let currentScheduleIndex = -1;
+        let totalSchedules = -1;
+        let fetchTimeout = null;
+
+        function setTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('lotPlanResultTheme', theme);
+            updateThemeButtons(theme);
+        }
+
+        function updateThemeButtons(theme) {
+            ['themeLightBtn', 'themeGrayBtn', 'themeDarkBtn'].forEach(id => document.getElementById(id).classList.remove('active'));
+            if (theme === 'light') document.getElementById('themeLightBtn').classList.add('active');
+            else if (theme === 'gray') document.getElementById('themeGrayBtn').classList.add('active');
+            else if (theme === 'dark') document.getElementById('themeDarkBtn').classList.add('active');
+        }
+
+        async function fetchScheduleData(offset) {
+            const source = document.querySelector('input[name="dataSource"]:checked').value;
+            const url = `${API_BASE_URL}${API_ENDPOINT}?offset=${offset}&limit=1&source=${source}`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+            return await response.json();
+        }
+
+        async function loadSchedule(offset) {
+            updateStatus('spinner fa-spin', '載入中...', 'loading');
+            showLoading(true);
+
+            try {
+                const data = await fetchScheduleData(offset);
+                if (data && data.ScheduleId) {
+                    currentScheduleIndex = offset;
+                    totalSchedules = data.total || 0;
+
+                    document.getElementById('scheduleIdDisplay').textContent = data.ScheduleId;
+                    document.getElementById('createDateDisplay').textContent = formatDate(data.CreateDate);
+                    document.getElementById('recordCountDisplay').textContent = `${offset + 1} / ${totalSchedules}`;
+
+                    let planResult = data.LotPlanResult || {};
+                    if (typeof planResult === 'string') planResult = JSON.parse(planResult);
+
+                    if (planResult.lot_results) {
+                        allData = planResult.lot_results;
+                        renderStatistics(planResult.statistics);
+                    } else {
+                        allData = Array.isArray(planResult) ? planResult : [];
+                        renderStatistics(null);
+                    }
+
+                    updateProductFilter(allData);
+                    renderTable(allData);
+                    updateNavigationButtons();
+                    updateStatus('circle-check', `已載入 ${allData.length} 筆資料`, 'success');
+                } else {
+                    document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" class="text-center">無資料</td></tr>';
+                    updateStatus('circle-info', '無資料', 'info');
+                }
+            } catch (err) {
+                console.error(err);
+                updateStatus('circle-exclamation', '載入失敗', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function renderStatistics(stats) {
+            const section = document.getElementById('statisticsSection');
+            if (!stats) { section.style.display = 'none'; return; }
+            section.style.display = 'block';
+            document.getElementById('optType').textContent = stats.optimization_type || 'N/A';
+            document.getElementById('batchCount').textContent = stats.batch_count || 0;
+            document.getElementById('totalDuration').textContent = stats.total_schedule_duration || 'N/A';
+            document.getElementById('earlyCount').textContent = stats.early_count ?? '-';
+            document.getElementById('onTimeCount').textContent = stats.on_time_count ?? '-';
+            document.getElementById('minorDelayCount').textContent = stats.minor_delay_count ?? '-';
+            document.getElementById('majorDelayCount').textContent = stats.major_delay_count ?? '-';
+        }
+
+        function updateProductFilter(data) {
+            const select = document.getElementById("productFilter");
+            const current = select.value;
+            select.innerHTML = '<option value="ALL">全部產品</option>';
+            const uniqueProducts = [...new Set(data.map(d => d.Product))].sort();
+            uniqueProducts.forEach(p => {
+                const opt = document.createElement("option");
+                opt.value = p; opt.textContent = p;
+                select.appendChild(opt);
+            });
+            if (uniqueProducts.includes(current)) select.value = current;
+        }
+
+        function applyFilters() {
+            if (!table) return;
+            const product = document.getElementById("productFilter").value;
+            table.column(1).search(product === "ALL" ? "" : product).draw();
+        }
+
+        function getDelayBadgeInfo(delayStr) {
+            if (!delayStr || delayStr === "0:00") return { badgeClass: "bg-info", statusText: "準時", textColor: "text-info" };
+            const isNegative = delayStr.startsWith('-');
+            if (isNegative) return { badgeClass: "bg-success", statusText: "提早", textColor: "text-success" };
+            const hours = parseInt(delayStr.split(':')[0]);
+            if (hours > 48) return { badgeClass: "bg-danger", statusText: "嚴重延遲", textColor: "text-danger" };
+            return { badgeClass: "bg-warning", statusText: "輕微延遲", textColor: "text-warning" };
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                const badge = getDelayBadgeInfo(row["delay time"]);
+                tr.innerHTML = `
+                    <td>${row.Lot || row.LotId || '-'}</td>
+                    <td>${row.Product || '-'}</td>
+                    <td>${row.Priority || '-'}</td>
+                    <td>${formatDate(row.DueDate)}</td>
+                    <td>${formatDate(row.PlanFinishDate)}</td>
+                    <td>${formatDate(row.ActualFinishDate)}</td>
+                    <td class="${badge.textColor}">${row["delay time"] || '0:00'}</td>
+                    <td><span class="badge ${badge.badgeClass}">${badge.statusText}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if (table) table.destroy();
+            table = $('#resultTable').DataTable({
+                "language": { "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/zh-HANT.json" },
+                "pageLength": 25,
+                "lengthMenu": [10, 25, 50, 100],
+                "responsive": true,
+                "dom": '<"top"f>rt<"bottom"lp><"clear">'
+            });
+        }
+
+        function formatDate(d) {
+            if (!d) return 'N/A';
+            const date = new Date(d);
+            if (isNaN(date.getTime())) return d;
+            return date.toLocaleString('zh-TW', { hour12: false }).replace(/\//g, '-');
+        }
+
+        function loadFirst() { if (totalSchedules > 0) debounceLoad(totalSchedules - 1); }
+        function loadLast() { debounceLoad(0); }
+        function loadPrevious() { if (currentScheduleIndex < totalSchedules - 1) debounceLoad(currentScheduleIndex + 1); }
+        function loadNext() { if (currentScheduleIndex > 0) debounceLoad(currentScheduleIndex - 1); }
+
+        function debounceLoad(offset) {
+            if (fetchTimeout) clearTimeout(fetchTimeout);
+            fetchTimeout = setTimeout(() => loadSchedule(offset), 300);
+        }
+
+        function updateNavigationButtons() {
+            const isOldest = (currentScheduleIndex >= totalSchedules - 1 || totalSchedules <= 0);
+            const isLatest = (currentScheduleIndex <= 0);
+            document.getElementById('firstBtn').disabled = isOldest;
+            document.getElementById('prevBtn').disabled = isOldest;
+            document.getElementById('nextBtn').disabled = isLatest;
+            document.getElementById('lastBtn').disabled = isLatest;
+        }
+
+        function onSourceChange() {
+            currentScheduleIndex = -1;
+            loadSchedule(0);
+        }
+
+        function updateStatus(icon, msg, type) {
+            const el = document.getElementById('dataStatus');
+            el.className = `status-indicator status-${type}`;
+            el.innerHTML = `<i class="fa-solid fa-${icon}"></i> ${msg}`;
+        }
+
+        function showLoading(show) { document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none'; }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('lotPlanResultTheme') || 'light';
+            setTheme(savedTheme);
+            loadSchedule(0);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # 資料庫服務 (MySQL 8.0)
+  db:
+    image: mysql:8.0
+    container_name: aps-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=gsi5613686#
+      - MYSQL_DATABASE=Scheduling
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # 自動執行初始 SQL 腳本 (如有需要可放進此目錄)
+      # - ./mysql_init:/docker-entrypoint-initdb.d
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+
+  # 後端 API 服務 (FastAPI)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: aps-backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - ./backend:/app
+      - /app/venv
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_PORT=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=gsi5613686#
+      - MYSQL_DATABASE=Scheduling
+      - PYTHONPATH=/app/src
+    restart: always
+
+  # 前端 靜態網頁服務 (Nginx)
+  frontend:
+    image: nginx:alpine
+    container_name: aps-frontend
+    ports:
+      - "5501:80"
+    volumes:
+      - ./wwwroot:/usr/share/nginx/html
+    restart: always
+
+volumes:
+  mysql_data:
+
+networks:
+  default:
+    name: aps-network

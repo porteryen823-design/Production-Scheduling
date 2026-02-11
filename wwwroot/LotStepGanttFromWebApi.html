@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8" />
+    <title>Lot Step Gantt - From Web API</title>
+    <link rel="stylesheet" href="css/dhtmlxgantt.css" />
+    <link rel="stylesheet" href="css/all.min.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #0f172a;
+            --header-bg: #f8fafc;
+            --border-color: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.05);
+            --shadow-hover: rgba(0, 0, 0, 0.1);
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #10b981;
+            --success-hover: #059669;
+            --secondary: #64748b;
+            --secondary-hover: #475569;
+            --info: #0ea5e9;
+            --muted-text: #64748b;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="gray"] {
+            --bg-color: #e5e7eb;      /* Gray 200 - 明顯的灰色背景 */
+            --text-color: #1f2937;    /* Gray 800 */
+            --header-bg: #d1d5db;     /* Gray 300 - 較深的標題背景 */
+            --border-color: #9ca3af;  /* Gray 400 - 加深邊框 */
+            --shadow: rgba(0, 0, 0, 0.1);
+            --shadow-hover: rgba(0, 0, 0, 0.2);
+            --muted-text: #4b5563;
+            --card-bg: rgba(243, 244, 246, 0.9); /* Gray 100 with opacity */
+            --glass-bg: rgba(0, 0, 0, 0.08);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --text-color: #f8fafc;
+            --header-bg: #1e293b;
+            --border-color: #334155;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --shadow-hover: rgba(0, 0, 0, 0.4);
+            --primary: #60a5fa;
+            --primary-hover: #3b82f6;
+            --success: #34d399;
+            --success-hover: #10b981;
+            --secondary: #94a3b8;
+            --secondary-hover: #64748b;
+            --muted-text: #94a3b8;
+            --card-bg: rgba(30, 41, 59, 0.8);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        html, body {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            background: linear-gradient(135deg, var(--bg-color) 0%, var(--header-bg) 100%);
+            color: var(--text-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .container-fluid {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px var(--shadow);
+            border-radius: 16px;
+            margin: 20px;
+            padding: 24px;
+            width: calc(100% - 40px);
+            transition: all 0.3s ease;
+        }
+
+        .container-fluid:hover {
+            box-shadow: 0 8px 25px var(--shadow-hover);
+        }
+
+        #gantt_here {
+            width: 100%;
+            height: calc(100vh - 220px);
+            font-size: 14px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px var(--shadow);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .btn-group .btn {
+            transition: all 0.2s ease;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 8px 14px;
+            margin: 0 2px;
+        }
+
+        .btn-group .btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-outline-secondary {
+            background: var(--card-bg);
+            color: var(--secondary);
+            border: 1px solid var(--border-color) !important;
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-outline-primary {
+            background: var(--card-bg);
+            color: var(--primary);
+            border: 1px solid var(--border-color) !important;
+        }
+
+        .btn-outline-primary.active, .btn-outline-primary:hover {
+            background: var(--primary) !important;
+            color: white !important;
+        }
+
+        .btn-outline-info {
+            background: var(--card-bg);
+            color: var(--info);
+            border: 1px solid var(--border-color) !important;
+        }
+
+        .btn-outline-info:hover {
+            background: var(--info);
+            color: white;
+        }
+        
+        .btn-outline-success {
+            background: var(--card-bg);
+            color: var(--success);
+            border: 1px solid var(--border-color) !important;
+        }
+
+        .btn-outline-success:hover {
+            background: var(--success);
+            color: white;
+        }
+
+        h2 {
+            margin: 0;
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .control-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .control-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .control-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-label {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+
+        .form-select {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            padding: 8px 12px;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+        }
+
+        .status-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
+        }
+
+        .status-loading {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .info-display {
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            gap: 20px;
+            color: var(--muted-text);
+        }
+
+        .info-value {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* 甘特圖主題覆蓋 */
+        .gantt_container,
+        .gantt_grid, 
+        .gantt_data_area, 
+        .gantt_task_row,
+        .gantt_task_bg,
+        .gantt_grid_data,
+        .gantt_row,
+        .gantt_cell {
+            background-color: var(--bg-color) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-color) !important;
+        }
+
+        .gantt_grid_scale,
+        .gantt_scale_line,
+        .gantt_scale_cell {
+            background: var(--header-bg) !important;
+            background-color: var(--header-bg) !important;
+            color: var(--text-color) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .gantt_grid_scale .gantt_grid_head_cell {
+            color: var(--text-color) !important;
+            font-weight: 600 !important;
+            font-size: 0.75rem !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            padding: 10px 6px !important;
+        }
+
+        .gantt_row {
+            transition: background-color 0.2s ease !important;
+        }
+
+        .gantt_row:hover {
+            background-color: var(--glass-bg) !important;
+        }
+
+        .gantt_cell {
+            padding: 8px 12px !important;
+            font-size: 0.75rem !important;
+            line-height: 1.4 !important;
+        }
+
+        .gantt_tree_content {
+            padding: 2px 2px !important;
+            font-weight: 500 !important;
+            color: var(--text-color) !important;
+            border-radius: 6px !important;
+        }
+
+        .gantt_row_project .gantt_tree_content {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            padding: 4px 8px !important;
+        }
+
+        .gantt_task_line {
+            border-radius: 6px !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+            border: 2px solid rgba(255, 255, 255, 0.8) !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--card-bg);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            border-radius: 12px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .custom-marker {
+            pointer-events: none;
+            position: absolute;
+            width: 1px;
+            background-color: #ef4444;
+            z-index: 10;
+        }
+
+        .marker-label {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ef4444;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- 頁面標題 -->
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h2><i class="fa-solid fa-diagram-project"></i> Lot Step Gantt - Web API</h2>
+            <div id="dataStatus" class="status-indicator status-success">
+                <i class="fa-solid fa-circle"></i>
+                系統正常
+            </div>
+        </div>
+
+        <!-- 控制面板 -->
+        <div class="control-panel">
+            <!-- 第一行：主題、縮放、導航 -->
+            <div class="control-row">
+                <div class="control-group">
+                    <span class="control-label"><i class="fa-solid fa-palette"></i> 主題</span>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('light')" title="亮色主題">
+                            <i class="fa-solid fa-sun"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('gray')" title="灰色主題">
+                            <i class="fa-solid fa-adjust"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('dark')" title="暗色主題">
+                            <i class="fa-solid fa-moon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <span class="control-label"><i class="fa-solid fa-clock"></i> 時間尺度</span>
+                    <div class="btn-group" role="group">
+                        <button id="btnHour" class="btn btn-outline-primary btn-sm" onclick="setScale('hour')">小時</button>
+                        <button id="btnDay" class="btn btn-outline-primary btn-sm" onclick="setScale('day')">天</button>
+                        <button id="btnWeek" class="btn btn-outline-primary btn-sm" onclick="setScale('week')">週</button>
+                        <button id="btnMonth" class="btn btn-outline-primary btn-sm" onclick="setScale('month')">月</button>
+                    </div>
+                </div>
+
+                <div class="control-group ms-auto">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-outline-info btn-sm" id="firstBtn" onclick="loadFirst()"><i class="fa-solid fa-angles-left"></i> 第一筆</button>
+                        <button class="btn btn-outline-info btn-sm" id="prevBtn" onclick="loadPrevious()"><i class="fa-solid fa-chevron-left"></i> 讀取前一筆</button>
+                        <button class="btn btn-outline-info btn-sm" id="nextBtn" onclick="loadNext()"><i class="fa-solid fa-chevron-right"></i> 讀取下一筆</button>
+                        <button class="btn btn-outline-info btn-sm" id="lastBtn" onclick="loadLast()"><i class="fa-solid fa-angles-right"></i> 最後一筆</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第二行：資料來源、過濾、資訊 -->
+            <div class="control-row">
+                <div class="control-group">
+                    <span class="control-label"><i class="fa-solid fa-database"></i> 來源</span>
+                    <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="dataSource" id="sourceCurrent" value="current" checked onchange="onSourceChange()">
+                        <label class="btn btn-outline-secondary btn-sm" for="sourceCurrent">目前</label>
+                        
+                        <input type="radio" class="btn-check" name="dataSource" id="sourceHistory" value="history" onchange="onSourceChange()">
+                        <label class="btn btn-outline-secondary btn-sm" for="sourceHistory">歷史</label>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <span class="control-label"><i class="fa-solid fa-filter"></i> 產品過濾</span>
+                    <select id="productFilter" class="form-select" style="min-width: 150px;" onchange="applyFilter()">
+                        <option value="ALL">全部產品</option>
+                    </select>
+                </div>
+
+                <div class="info-display ms-auto">
+                    <div>排程 ID: <span id="scheduleIdDisplay" class="info-value">N/A</span></div>
+                    <div>建立時間: <span id="createDateDisplay" class="info-value">N/A</span></div>
+                    <div>記錄數: <span id="recordCountDisplay" class="info-value">0 / 0</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 甘特圖容器 -->
+        <div style="position: relative;">
+            <div id="gantt_here"></div>
+            <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/dhtmlxgantt.js"></script>
+    <script>
+        // Web API 配置 - 自動偵測主機，支援區域網路存取
+        const currentHost = window.location.hostname;
+        const API_BASE_URL = `http://${currentHost}:8000`;
+        const API_ENDPOINT = '/api/schedule';
+
+        const colorPool = [
+            "#3b82f6", "#10b981", "#ef4444", "#f59e0b", "#8b5cf6", 
+            "#ec4899", "#06b6d4", "#f97316", "#14b8a6", "#6366f1",
+            "#d946ef", "#84cc16", "#0ea5e9"
+        ];
+
+        let allData = [];
+        let productColorMap = {};
+        let currentScheduleIndex = -1;
+        let totalSchedules = -1;
+        let ganttShowMarker = false;
+        let fetchTimeout = null;
+        let simulationEndTime = null;
+
+        // 初始化甘特圖配置
+        gantt.config.columns = [
+            { name: "text", label: "Lot/工序", tree: true, width: 220 },
+            { name: "start_date", label: "開始時間", align: "center", width: 150 }
+        ];
+        gantt.config.xml_date = "%Y-%m-%d %H:%i";
+        gantt.config.show_links = true;
+        gantt.config.show_progress = false;
+        gantt.plugins({ tooltip: true });
+
+        gantt.templates.tooltip_text = function (start, end, task) {
+            const format = gantt.date.date_to_str("%Y-%m-%d %H:%i");
+            return `<b>${task.text}</b><br>
+                    Lot: ${task.lot || '-'}<br>
+                    Step: ${task.step || '-'}<br>
+                    Product: ${task.product || '-'}<br>
+                    Machine: ${task.machine || '-'}<br>
+                    ${format(start)} ~ ${format(end)}`;
+        };
+
+        // 格式化日期
+        function formatDate(dateStr) {
+            if (!dateStr) return null;
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return null;
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            const hh = String(date.getHours()).padStart(2, '0');
+            const mm = String(date.getMinutes()).padStart(2, '0');
+            return `${y}-${m}-${d} ${hh}:${mm}`;
+        }
+
+        // 修改 API 資料抓取
+        async function fetchScheduleData(offset) {
+            const source = document.querySelector('input[name="dataSource"]:checked').value;
+            const url = `${API_BASE_URL}${API_ENDPOINT}?offset=${offset}&limit=1&source=${source}`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+            return await response.json();
+        }
+
+        async function fetchUISettings() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/v1/ui-settings?skip=0&limit=100&parameter_name=gantt_show_marker`);
+                if (response.ok) {
+                    const settings = await response.json();
+                    ganttShowMarker = settings.some(s => s.parameter_name === 'gantt_show_marker' && s.parameter_value === 'True');
+                }
+            } catch (e) { console.error("UI Settings error", e); }
+        }
+
+        // 載入排程
+        async function loadSchedule(offset) {
+            updateStatus('spinner fa-spin', '載入中...', 'loading');
+            showLoading(true);
+
+            try {
+                const data = await fetchScheduleData(offset);
+                if (data && data.ScheduleId) {
+                    currentScheduleIndex = offset;
+                    totalSchedules = data.total || 0;
+                    simulationEndTime = data.simulation_end_time;
+
+                    document.getElementById('scheduleIdDisplay').textContent = data.ScheduleId;
+                    document.getElementById('createDateDisplay').textContent = formatDate(data.CreateDate);
+                    document.getElementById('recordCountDisplay').textContent = `${offset + 1} / ${totalSchedules}`;
+
+                    let rawData = data.LotStepResult || [];
+                    if (typeof rawData === 'string') rawData = JSON.parse(rawData);
+                    
+                    allData = rawData;
+                    
+                    // 建立配色
+                    productColorMap = {};
+                    const uniqueProducts = [...new Set(allData.map(d => d.Product))].sort();
+                    uniqueProducts.forEach((p, i) => {
+                        productColorMap[p] = colorPool[i % colorPool.length];
+                    });
+
+                    updateProductFilter();
+                    applyFilter();
+                    updateNavigationButtons();
+                    updateStatus('circle-check', `已載入 ${allData.length} 筆工序`, 'success');
+                } else {
+                    gantt.clearAll();
+                    updateStatus('circle-info', '無資料', 'info');
+                }
+            } catch (err) {
+                console.error(err);
+                updateStatus('circle-exclamation', '載入失敗', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function renderGantt(filteredData) {
+            const tasks = { data: [], links: [] };
+            let taskIdSeq = 1;
+            const lotParentMap = {};
+            const lots = [...new Set(filteredData.map(d => d.LotId))];
+
+            lots.forEach(lotId => {
+                const sample = filteredData.find(d => d.LotId === lotId);
+                const color = productColorMap[sample.Product] || "#64748b";
+                const id = taskIdSeq++;
+                tasks.data.push({
+                    id: id,
+                    text: lotId,
+                    open: false,
+                    type: "project",
+                    color: color,
+                    product: sample.Product
+                });
+                lotParentMap[lotId] = id;
+            });
+
+            const taskMap = {};
+            filteredData.forEach(row => {
+                const id = taskIdSeq++;
+                const color = productColorMap[row.Product] || "#94a3b8";
+                tasks.data.push({
+                    id: id,
+                    text: `${row.Step} (${row.Machine})`,
+                    start_date: formatDate(row.Start),
+                    end_date: formatDate(row.End),
+                    color: color,
+                    parent: lotParentMap[row.LotId],
+                    lot: row.LotId,
+                    step: row.Step,
+                    product: row.Product,
+                    machine: row.Machine
+                });
+                taskMap[`${row.LotId}_${row.Step}`] = id;
+            });
+
+            // 建立鏈結
+            lots.forEach(lotId => {
+                const lotOps = filteredData.filter(d => d.LotId === lotId);
+                lotOps.sort((a, b) => new Date(a.Start) - new Date(b.Start));
+                for (let i = 0; i < lotOps.length - 1; i++) {
+                    const fromId = taskMap[`${lotOps[i].LotId}_${lotOps[i].Step}`];
+                    const toId = taskMap[`${lotOps[i+1].LotId}_${lotOps[i+1].Step}`];
+                    if (fromId && toId) {
+                        tasks.links.push({ id: taskIdSeq++, source: fromId, target: toId, type: "0" });
+                    }
+                }
+            });
+
+            gantt.clearAll();
+            gantt.parse(tasks);
+            addMarker();
+        }
+
+        function addMarker() {
+            const existing = document.querySelector('.custom-marker');
+            if (existing) existing.remove();
+            if (!ganttShowMarker || !simulationEndTime) return;
+
+            const markerDate = new Date(simulationEndTime);
+            if (isNaN(markerDate.getTime())) return;
+
+            const markerPos = gantt.posFromDate(markerDate);
+            const gridWidth = document.querySelector('.gantt_grid')?.offsetWidth || 0;
+            const finalPos = gridWidth + markerPos;
+
+            const marker = document.createElement('div');
+            marker.className = 'custom-marker';
+            marker.style.left = finalPos + 'px';
+            marker.style.height = '100%';
+            marker.innerHTML = `<div class="marker-label">${formatDate(simulationEndTime)}</div>`;
+            document.getElementById('gantt_here').appendChild(marker);
+        }
+
+        // UI 互動
+        function setTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('gantt_theme', theme);
+        }
+
+        function setScale(mode) {
+            const btns = ['btnHour', 'btnDay', 'btnWeek', 'btnMonth'];
+            btns.forEach(b => document.getElementById(b).classList.remove('active'));
+            document.getElementById('btn' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
+
+            if (mode === "hour") {
+                gantt.config.scale_unit = "day";
+                gantt.config.date_scale = "%Y-%m-%d";
+                gantt.config.subscales = [{ unit: "hour", step: 1, date: "%H:%i" }];
+            } else if (mode === "day") {
+                gantt.config.scale_unit = "week";
+                gantt.config.date_scale = "第 %W 週";
+                gantt.config.subscales = [{ unit: "day", step: 1, date: "%m/%d" }];
+            } else if (mode === "week") {
+                gantt.config.scale_unit = "month";
+                gantt.config.date_scale = "%Y-%m";
+                gantt.config.subscales = [{ unit: "week", step: 1, date: "第 %W 週" }];
+            } else if (mode === "month") {
+                gantt.config.scale_unit = "year";
+                gantt.config.date_scale = "%Y";
+                gantt.config.subscales = [{ unit: "month", step: 1, date: "%m月" }];
+            }
+            gantt.config.scale_height = 60;
+            gantt.render();
+            addMarker();
+        }
+
+        function updateProductFilter() {
+            const select = document.getElementById("productFilter");
+            const current = select.value;
+            select.innerHTML = '<option value="ALL">全部產品</option>';
+            const uniqueProducts = [...new Set(allData.map(d => d.Product))].sort();
+            uniqueProducts.forEach(p => {
+                const opt = document.createElement("option");
+                opt.value = p;
+                opt.textContent = p;
+                select.appendChild(opt);
+            });
+            if (uniqueProducts.includes(current)) select.value = current;
+        }
+
+        function applyFilter() {
+            const product = document.getElementById("productFilter").value;
+            const filtered = (product === "ALL") ? allData : allData.filter(d => d.Product === product);
+            renderGantt(filtered);
+        }
+
+        // 導航按鈕邏輯
+        function loadFirst() { if (totalSchedules > 0) debounceLoad(totalSchedules - 1); }
+        function loadLast() { debounceLoad(0); }
+        function loadPrevious() { if (currentScheduleIndex < totalSchedules - 1) debounceLoad(currentScheduleIndex + 1); }
+        function loadNext() { if (currentScheduleIndex > 0) debounceLoad(currentScheduleIndex - 1); }
+
+        function debounceLoad(offset) {
+            if (fetchTimeout) clearTimeout(fetchTimeout);
+            fetchTimeout = setTimeout(() => loadSchedule(offset), 300);
+        }
+
+        function updateNavigationButtons() {
+            const isOldest = (currentScheduleIndex >= totalSchedules - 1 || totalSchedules <= 0);
+            const isLatest = (currentScheduleIndex <= 0);
+            document.getElementById('firstBtn').disabled = isOldest;
+            document.getElementById('prevBtn').disabled = isOldest;
+            document.getElementById('nextBtn').disabled = isLatest;
+            document.getElementById('lastBtn').disabled = isLatest;
+        }
+
+        function onSourceChange() {
+            currentScheduleIndex = -1;
+            loadSchedule(0);
+        }
+
+        function updateStatus(icon, msg, type) {
+            const el = document.getElementById('dataStatus');
+            el.className = `status-indicator status-${type}`;
+            el.innerHTML = `<i class="fa-solid fa-${icon}"></i> ${msg}`;
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+        }
+
+        // 初始化
+        async function init() {
+            const savedTheme = localStorage.getItem('gantt_theme') || 'light';
+            setTheme(savedTheme);
+            gantt.init("gantt_here");
+            setScale('day');
+            await fetchUISettings();
+            await loadSchedule(0);
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -223,14 +223,9 @@ BEGIN
     -- 然後刪除 DynamicSchedulingJob 表中的所有資料
     DELETE FROM DynamicSchedulingJob;    
    
-    -- 然後刪除 SimulationData 表中的所有資料
-    DELETE FROM SimulationData;
-
-    -- 然後刪除 DynamicSchedulingJob_Snap 表中的所有資料
-    DELETE FROM DynamicSchedulingJob_Snap;
-
-    -- 然後刪除 DynamicSchedulingJob_Snap_Hist 表中的所有資料
-    DELETE FROM DynamicSchedulingJob_Snap_Hist;
+    -- 更新 ui_settings, 將模擬結束時間 初值化= null
+    UPDATE ui_settings SET  parameter_value = NULL WHERE  parameter_name= 'simulation_end_time';
+    
 END
 ```
 

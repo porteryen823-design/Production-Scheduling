@@ -1,0 +1,294 @@
+generator client {
+  provider = "prisma-client-py"
+  interface = "asyncio"
+  enable_experimental_decimal = true
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model CompletedOperations {
+  LotId     String   @db.VarChar(50)
+  Step      String   @db.VarChar(20)
+  MachineId String   @db.VarChar(20)
+  StartTime DateTime @db.DateTime(0)
+  EndTime   DateTime @db.DateTime(0)
+  Lots      Lots     @relation(fields: [LotId], references: [LotId], onUpdate: Restrict, map: "CompletedOperations_ibfk_1")
+  Machines  Machines @relation(fields: [MachineId], references: [MachineId], onUpdate: Restrict, map: "CompletedOperations_ibfk_2")
+
+  @@id([LotId, Step])
+  @@index([MachineId], map: "MachineId")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model DynamicSchedulingJob {
+  ScheduleId          String    @id @db.VarChar(50)
+  LotPlanRaw          String?   @db.LongText
+  CreateDate          DateTime? @default(now()) @db.DateTime(0)
+  CreateUser          String?   @db.VarChar(50)
+  simulation_end_time DateTime? @db.DateTime(0)
+  PlanSummary         String?   @db.VarChar(2500)
+  LotPlanResult       String?   @db.LongText
+  LotStepResult       String?   @db.LongText
+  machineTaskSegment  String?   @db.LongText
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model DynamicSchedulingJob_Hist {
+  ScheduleId          String    @id @db.VarChar(50)
+  key_value           String    @db.VarChar(100)
+  remark              String?   @db.Text
+  LotPlanRaw          String?   @db.LongText
+  CreateDate          DateTime? @default(now()) @db.DateTime(0)
+  CreateUser          String?   @db.VarChar(50)
+  simulation_end_time DateTime? @db.DateTime(0)
+  PlanSummary         String?   @db.VarChar(2500)
+  LotPlanResult       String?   @db.LongText
+  LotStepResult       String?   @db.LongText
+  machineTaskSegment  String?   @db.LongText
+}
+
+model DynamicSchedulingJob_Snap {
+  id                  Int       @id @default(autoincrement())
+  key_value           String    @db.VarChar(100)
+  remark              String?   @db.Text
+  ScheduleId          String?   @db.VarChar(50)
+  LotPlanRaw          String?   @db.LongText
+  CreateDate          DateTime? @default(now()) @db.DateTime(0)
+  CreateUser          String?   @db.VarChar(50)
+  PlanSummary         String?   @db.VarChar(2500)
+  LotPlanResult       String?   @db.LongText
+  LotStepResult       String?   @db.LongText
+  machineTaskSegment  String?   @db.LongText
+  simulation_end_time DateTime? @db.DateTime(0)
+}
+
+model DynamicSchedulingJob_Snap_Hist {
+  id                  Int       @id @default(autoincrement())
+  key_value           String    @db.VarChar(100)
+  remark              String?   @db.Text
+  ScheduleId          String?   @db.VarChar(50)
+  LotPlanRaw          String?   @db.LongText
+  CreateDate          DateTime? @default(now()) @db.DateTime(0)
+  CreateUser          String?   @db.VarChar(50)
+  PlanSummary         String?   @db.VarChar(2500)
+  LotPlanResult       String?   @db.LongText
+  LotStepResult       String?   @db.LongText
+  machineTaskSegment  String?   @db.LongText
+  simulation_end_time DateTime? @db.DateTime(0)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model FrozenOperations {
+  LotId     String   @db.VarChar(50)
+  Step      String   @db.VarChar(20)
+  MachineId String   @db.VarChar(20)
+  StartTime DateTime @db.DateTime(0)
+  EndTime   DateTime @db.DateTime(0)
+  Lots      Lots     @relation(fields: [LotId], references: [LotId], onUpdate: Restrict, map: "FrozenOperations_ibfk_1")
+  Machines  Machines @relation(fields: [MachineId], references: [MachineId], onUpdate: Restrict, map: "FrozenOperations_ibfk_2")
+
+  @@id([LotId, Step])
+  @@index([MachineId], map: "MachineId")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model LotOperations {
+  LotId            String    @db.VarChar(50)
+  Step             String    @db.VarChar(20)
+  Sequence         Int
+  MachineGroup     String    @db.VarChar(20)
+  Duration         Int
+  CheckInTime      DateTime? @db.DateTime(0)
+  CheckOutTime     DateTime? @db.DateTime(0)
+  StepStatus       Int?      @default(0)
+  PlanCheckInTime  DateTime? @db.DateTime(0)
+  PlanCheckOutTime DateTime? @db.DateTime(0)
+  PlanMachineId    String?   @db.VarChar(20)
+  PlanHistory      String?   @db.LongText
+  Lots             Lots      @relation(fields: [LotId], references: [LotId], onUpdate: Restrict, map: "LotOperations_ibfk_1")
+
+  @@id([LotId, Step])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model Lots {
+  LotId               String                @id @db.VarChar(50)
+  Priority            Int
+  PlanStartTime       DateTime?             @db.DateTime(0)
+  DueDate             DateTime              @db.DateTime(0)
+  PlanFinishDate      DateTime?             @db.DateTime(0)
+  ActualFinishDate    DateTime?             @db.DateTime(0)
+  ProductID           String?               @db.VarChar(50)
+  ProductName         String?               @db.VarChar(100)
+  CustomerID          String?               @db.VarChar(50)
+  CustomerName        String?               @db.VarChar(100)
+  LotCreateDate       DateTime?             @db.DateTime(0)
+  Delay_Days          Decimal?              @db.Decimal(10, 2)
+  CompletedOperations CompletedOperations[]
+  FrozenOperations    FrozenOperations[]
+  LotOperations       LotOperations[]
+  WIPOperations       WIPOperations[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model MachineGroupUtilization {
+  id                     Int      @id @default(autoincrement())
+  PlanID                 String   @db.VarChar(50)
+  GroupId                String   @db.VarChar(20)
+  CalculationWindowStart DateTime @db.DateTime(0)
+  CalculationWindowEnd   DateTime @db.DateTime(0)
+  MachineCount           Int
+  TotalUsedMinutes       Int
+  TotalCapacityMinutes   Int
+  UtilizationRate        Decimal  @db.Decimal(5, 2)
+  CreatedAt              DateTime @default(now()) @db.Timestamp(0)
+
+  @@index([GroupId], map: "idx_group")
+  @@index([PlanID], map: "idx_plan")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model MachineGroups {
+  GroupId   String     @id @db.VarChar(20)
+  GroupName String     @db.VarChar(100)
+  Machines  Machines[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model Machines {
+  MachineId           String                @id @db.VarChar(20)
+  GroupId             String                @db.VarChar(20)
+  machine_name        String?               @db.VarChar(100)
+  is_active           Boolean?              @default(true)
+  created_at          DateTime              @default(now()) @db.Timestamp(0)
+  updated_at          DateTime              @default(now()) @db.Timestamp(0)
+  CompletedOperations CompletedOperations[]
+  FrozenOperations    FrozenOperations[]
+  MachineGroups       MachineGroups         @relation(fields: [GroupId], references: [GroupId], onUpdate: Restrict, map: "Machines_ibfk_1")
+  WIPOperations       WIPOperations[]
+
+  @@index([GroupId], map: "GroupId")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model PlanModel {
+  SeqNo             Int     @id
+  optimization_type Int?    @default(1)
+  Select            Int?    @default(1)
+  Name              String? @db.VarChar(50)
+  Description       String? @db.VarChar(250)
+  Remark            String? @db.VarChar(2050)
+  DescImage         Bytes?  @db.Blob
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model PlanModel_User_Workshop {
+  SeqNo      Int       @id @default(autoincrement())
+  ScheduleId String?   @db.VarChar(50)
+  models     String?   @db.LongText
+  lots       String?   @db.LongText
+  CreateDate DateTime? @default(now()) @db.DateTime(0)
+}
+
+model PlanRaw {
+  ID        Int       @id @default(autoincrement())
+  PlanID    String    @db.VarChar(50)
+  RawData   String    @db.LongText
+  CreatedAt DateTime? @default(now()) @db.DateTime(0)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model PlanResult {
+  ScheduleId                   String    @db.VarChar(50)
+  optimization_type            Int
+  ScheduleResult               String?   @db.VarChar(50)
+  ScheduleTimeSpan             String?   @db.VarChar(50)
+  LotStepResult                String?   @db.LongText
+  LotPlanResult                String?   @db.LongText
+  machineTaskSegment           String?   @db.LongText
+  Top5MachineGroupUtilizations String?   @db.LongText
+  ScheduleSummary              String?   @db.VarChar(1250)
+  CreateUser                   String?   @db.VarChar(50)
+  CreateDate                   DateTime? @default(now()) @db.DateTime(0)
+
+  @@id([ScheduleId, optimization_type])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model ScheduleJob {
+  ScheduleId  String    @id @db.VarChar(50)
+  LotPlan     String?   @db.LongText
+  CreateDate  DateTime? @default(now()) @db.DateTime(0)
+  CreateUser  String?   @db.VarChar(50)
+  PlanSummary String?   @db.VarChar(2500)
+}
+
+model WIPOperations {
+  LotId          String   @db.VarChar(50)
+  Step           String   @db.VarChar(20)
+  MachineId      String   @db.VarChar(20)
+  StartTime      DateTime @db.DateTime(0)
+  ElapsedMinutes Int
+  Lots           Lots     @relation(fields: [LotId], references: [LotId], onUpdate: Restrict, map: "WIPOperations_ibfk_1")
+  Machines       Machines @relation(fields: [MachineId], references: [MachineId], onUpdate: Restrict, map: "WIPOperations_ibfk_2")
+
+  @@id([LotId, Step])
+  @@index([MachineId], map: "MachineId")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model machine_unavailable_periods {
+  Id             Int                                    @id @default(autoincrement())
+  MachineId      String                                 @db.VarChar(20)
+  StartTime      DateTime                               @db.DateTime(0)
+  EndTime        DateTime                               @db.DateTime(0)
+  PeriodType     machine_unavailable_periods_PeriodType
+  LotId          String?                                @db.VarChar(50)
+  OperationStep  String?                                @db.VarChar(20)
+  Reason         String?                                @db.VarChar(255)
+  Priority       Int?                                   @default(0)
+  IsRecurring    Boolean?                               @default(false)
+  RecurrenceRule String?                                @db.LongText
+  Status         machine_unavailable_periods_Status?    @default(ACTIVE)
+  CreatedBy      String?                                @db.VarChar(50)
+  CreatedAt      DateTime                               @default(now()) @db.Timestamp(0)
+  UpdatedAt      DateTime                               @default(now()) @db.Timestamp(0)
+
+  @@index([LotId], map: "idx_lot")
+  @@index([MachineId, StartTime, EndTime], map: "idx_machine_time")
+  @@index([PeriodType], map: "idx_period_type")
+  @@index([Status], map: "idx_status")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model ui_settings {
+  id              Int       @id @default(autoincrement())
+  parameter_name  String    @unique(map: "parameter_name") @db.VarChar(255)
+  parameter_value String?   @db.Text
+  remark          String?   @db.Text
+  created_at      DateTime? @default(now()) @db.DateTime(0)
+  updated_at      DateTime? @default(now()) @db.DateTime(0)
+}
+
+enum machine_unavailable_periods_PeriodType {
+  PM
+  CM
+  BREAK
+  SHIFT_CHANGE
+  DOWNTIME
+  COMPLETED
+  WIP
+  FROZEN
+  RESERVED
+  OTHER
+}
+
+enum machine_unavailable_periods_Status {
+  ACTIVE
+  CANCELLED
+  COMPLETED
+}

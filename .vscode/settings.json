@@ -1,4 +1,4 @@
 {
-    "CodeGPT.apiKey": "OpenAI",
+    "CodeGPT.apiKey": "Ollama",
     "liveServer.settings.port": 5501
 }

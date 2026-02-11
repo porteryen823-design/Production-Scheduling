@@ -37,8 +37,11 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5500,http://localhost:5500,http://127.0.0.1:5501,http://localhost:5501,http://localhost:8080"
     
     class Config:
-        # 使用絕對路徑定位 .env 檔案（專案根目錄）
-        env_file = Path(__file__).parent.parent.parent.parent / ".env"
+        # 同時檢查 backend/ 與 專案根目錄 下的 .env
+        env_file = [
+            Path(__file__).parent.parent.parent / ".env",
+            Path(__file__).parent.parent.parent.parent / ".env"
+        ]
         case_sensitive = True
         extra = "ignore"
     
