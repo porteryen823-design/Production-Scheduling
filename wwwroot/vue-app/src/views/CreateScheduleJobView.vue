@@ -241,6 +241,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useCreateScheduleJobStore } from '../stores/createScheduleJob'
+import api from '../utils/apiConfig'
 
 interface PlanModel {
   SeqNo: number
@@ -299,8 +300,8 @@ const selectScheduleId = (scheduleId: string) => store.setTempScheduleId(schedul
 onMounted(async () => {
   try {
     // Fetch available schedules
-    const schedulesResponse = await fetch('http://127.0.0.1:5000/get_plan_model_user_workshop_list')
-    const schedulesData = await schedulesResponse.json()
+    const response = await api.get('/api/get_plan_model_user_workshop_list')
+    const schedulesData = response.data
     store.setAvailableSchedules(schedulesData.map((s: any) => ({
       ScheduleId: s.ScheduleId,
       CreateDate: s.CreateDate
@@ -326,18 +327,11 @@ const loadSelectedSchedule = async () => {
 
   try {
     // Fetch specific schedule by ID
-    const url = `http://127.0.0.1:5000/plan_model_user_workshop/schedule/${id}`
+    const url = `/api/plan_model_user_workshop/schedule/${id}`
     log(`loadSelectedSchedule: Fetching schedule from: ${url}`)
 
-    const response = await fetch(url)
-    log(`loadSelectedSchedule: Response status: ${response.status}`)
-    log(`loadSelectedSchedule: Response ok: ${response.ok}`)
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-
-    const data = await response.json()
+    const response = await api.get(url)
+    const data = response.data
     log(`loadSelectedSchedule: Received data: ${JSON.stringify(data)}`)
 
     if (!data.ScheduleId) {
@@ -449,8 +443,8 @@ const loadSelectedSchedule = async () => {
 const loadModelsFromDatabase = async () => {
   try {
     console.log('Loading models from database...')
-    const modelsResponse = await fetch('http://127.0.0.1:5000/get_plan_models?limit=10')
-    const modelsData: PlanModel[] = await modelsResponse.json()
+    const response = await api.get('/api/get_plan_models?limit=10')
+    const modelsData: PlanModel[] = response.data
     const mappedModels = modelsData.map(model => ({
       ...model,
       selected: model.Select === 1 ? 'selected' : 'unselected'
@@ -466,8 +460,8 @@ const loadModelsFromDatabase = async () => {
 const loadLotsFromDatabase = async () => {
   try {
     console.log('Loading lots from database...')
-    const lotsResponse = await fetch('http://127.0.0.1:5000/get_json/lot_Plan/Lot_Plan.json')
-    const lotsData: Lot[] = await lotsResponse.json()
+    const response = await api.get('/api/get_json/lot_Plan/Lot_Plan.json')
+    const lotsData: Lot[] = response.data
     // Format DueDate for datetime-local input
     const mappedLots = lotsData.map(lot => ({
       ...lot,
@@ -508,15 +502,9 @@ const saveToWorkshop = async () => {
     }
 
     // Save ModelList.json
-    const modelResponse = await fetch('http://127.0.0.1:5000/save_json', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        json: modelListData,
-        filename: 'ModelList.json'
-      })
+    const modelResponse = await api.post('/api/save_json', {
+      json: modelListData,
+      filename: 'ModelList.json'
     })
     if (!modelResponse.ok) {
       throw new Error(`Failed to save ModelList.json: ${modelResponse.status}`)

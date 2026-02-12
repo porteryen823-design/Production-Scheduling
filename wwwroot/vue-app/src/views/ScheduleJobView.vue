@@ -145,6 +145,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import api from '../utils/apiConfig'
 
 interface ScheduleJob {
   ScheduleId: string
@@ -174,18 +175,24 @@ const displayedPlanSummary = ref<string>('')
 
 onMounted(async () => {
   try {
-    const response = await fetch('http://localhost:5000/get_schedule_jobs')
-    const data: ScheduleJob[] = await response.json()
-    jobs.value = data
+    const response = await api.get('/api/schedule?limit=100')
+    const data = response.data
+    // FastAPI 回傳的是單一物件或列表，這裡我們假設我們需要多筆排程
+    // 如果 /api/schedule 只回傳最新一筆，我們可能需要另一個 endpoint
+    // 但為了相容性，我們先將回傳的單一物件包裝成列表
+    const jobList = Array.isArray(data) ? data : (data.ScheduleId ? [data] : [])
+    jobs.value = jobList
 
-    // 合併所有 LotPlan
+    // 合併所有 LotPlan (在 FastAPI 中稱為 machineTaskSegment 或類似)
     const allLots: Lot[] = []
-    for (const job of data) {
-      try {
-        const lotPlan: Lot[] = JSON.parse(job.LotPlan)
-        allLots.push(...lotPlan)
-      } catch (e) {
-        console.error('Error parsing LotPlan:', e)
+    for (const job of jobList) {
+      if (job.LotPlan) {
+        try {
+          const lotPlan: Lot[] = typeof job.LotPlan === 'string' ? JSON.parse(job.LotPlan) : job.LotPlan
+          allLots.push(...lotPlan)
+        } catch (e) {
+          console.error('Error parsing LotPlan:', e)
+        }
       }
     }
     lots.value = allLots

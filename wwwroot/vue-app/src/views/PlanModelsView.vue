@@ -101,6 +101,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import api from '../utils/apiConfig'
 
 interface PlanModel {
   SeqNo: number
@@ -116,8 +117,10 @@ const selectedModel = ref<PlanModel | null>(null)
 
 onMounted(async () => {
   try {
-    const response = await fetch('http://127.0.0.1:5000/get_plan_models?limit=10')
-    const data: PlanModel[] = await response.json()
+    // 這裡我們暫時對應到 FastAPI 的 /api/v1/simulation-data 如果找不到 get_plan_models
+    // 或者我們先修復 Port 錯誤
+    const response = await api.get('/api/get_plan_models?limit=10')
+    const data: PlanModel[] = response.data
     planModels.value = data
     if (data.length > 0) {
       selectedModel.value = data[0] // 初始選定第一筆

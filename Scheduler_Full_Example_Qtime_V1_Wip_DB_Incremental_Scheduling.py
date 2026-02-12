@@ -242,6 +242,7 @@ def update_plan_chunk(lots_chunk, ops_chunk):
         return True, len(lots_chunk)
     except Exception as e:
         if conn: conn.rollback()
+        print(f"!!! DB Update Task Error: {e}")
         return False, str(e)
 
 def update_plan_times(lot_results, plan_id, all_tasks_status):
@@ -252,14 +253,21 @@ def update_plan_times(lot_results, plan_id, all_tasks_status):
         ops_json_list = []
 
         for lot_id, operations in lot_results.items():
+            job_info = next((j for j in jobs_data if j["LotId"] == lot_id), None)
+            if not job_info: continue
+            
             lot_finish_time = max((res['end_time'] for res in operations.values()), default=None)
             lot_start_time = min((res['start_time'] for res in operations.values()), default=None)
 
             if lot_finish_time:
+                due_date = datetime.fromisoformat(job_info["DueDate"]) if job_info["DueDate"] else lot_finish_time
+                delay_days = round((lot_finish_time - due_date).total_seconds() / 86400, 2)
+                
                 lots_json_list.append({
                     "LotId": lot_id,
                     "PlanFinishDate": lot_finish_time.strftime("%Y-%m-%d %H:%M:%S"),
-                    "PlanStartTime": lot_start_time.strftime("%Y-%m-%d %H:%M:%S") if lot_start_time else None
+                    "PlanStartTime": lot_start_time.strftime("%Y-%m-%d %H:%M:%S") if lot_start_time else None,
+                    "Delay_Days": delay_days
                 })
 
             for step, result in operations.items():
@@ -312,9 +320,10 @@ def update_plan_times(lot_results, plan_id, all_tasks_status):
 
         main_end = datetime.now()
         success_count = sum(1 for r in results if r[0])
+        total_items = sum(r[1] if isinstance(r[1], int) else 0 for r in results)
         error_msgs = [r[1] for r in results if not r[0]]
         
-        print(f"Successfully updated plan times using {success_count}/{len(tasks)} parallel tasks - Total Time: {main_end - main_start}")
+        print(f"Successfully updated plan times using {success_count}/{len(tasks)} parallel tasks (Total items: {total_items}) - Total Time: {main_end - main_start}")
         if error_msgs:
             print(f"Update errors encountered: {set(error_msgs)}")
     except Exception as e:

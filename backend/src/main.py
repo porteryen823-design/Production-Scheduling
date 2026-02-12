@@ -15,7 +15,8 @@ from api.v1.routers import (
     ui_settings,
     simulation_data,
     dynamic_scheduling_job_snap,
-    schedule
+    schedule,
+    automation
 )
 
 # 建立 FastAPI 應用程式
@@ -61,6 +62,7 @@ app.include_router(dynamic_scheduling_job.router, prefix=settings.API_PREFIX)
 app.include_router(ui_settings.router, prefix=settings.API_PREFIX)
 app.include_router(simulation_data.router, prefix=settings.API_PREFIX)
 app.include_router(dynamic_scheduling_job_snap.router, prefix=settings.API_PREFIX)
+app.include_router(automation.router, prefix=settings.API_PREFIX)
 
 # 專為甘特圖設計的排程 API (在 /api 路徑下,不是 /api/v1)
 app.include_router(schedule.router, prefix="/api")

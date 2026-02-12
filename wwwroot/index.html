@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>生產排程系統 - 管理控制台</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/all.min.css">
     <style>
         :root {
             --primary: #6366f1;
@@ -12,10 +13,38 @@
             --secondary: #64748b;
             --dark: #0f172a;
             --light: #f8fafc;
+            --text-main: #f8fafc;
+            --text-muted: #64748b;
             --accent: #10b981;
             --glass: rgba(255, 255, 255, 0.1);
             --glass-border: rgba(255, 255, 255, 0.2);
             --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --card-hover-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(99, 102, 241, 0.4);
+        }
+
+        [data-theme="light"] {
+            --dark: #f8fafc;
+            --light: #0f172a;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --glass: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(99, 102, 241, 0.2);
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+            --card-shadow: 0 10px 30px rgba(99, 102, 241, 0.05);
+            --card-hover-shadow: 0 20px 40px rgba(99, 102, 241, 0.1), 0 0 20px rgba(99, 102, 241, 0.2);
+        }
+
+        [data-theme="gray"] {
+            --dark: #334155;
+            --light: #f8fafc;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --bg-gradient: linear-gradient(135deg, #475569 0%, #1e293b 100%);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            --card-hover-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.3);
         }
 
         * {
@@ -27,12 +56,13 @@
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg-gradient);
-            color: var(--light);
+            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow-x: hidden;
+            transition: background 0.5s ease, color 0.5s ease;
         }
 
         .container {
@@ -46,6 +76,49 @@
             text-align: center;
             margin-bottom: 4rem;
             animation: fadeInDown 1s ease-out;
+            position: relative;
+        }
+
+        /* 主題選擇器樣式 */
+        .theme-selector {
+            position: absolute;
+            top: -20px;
+            right: 0;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            padding: 5px;
+            border-radius: 12px;
+            display: flex;
+            gap: 5px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .theme-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            opacity: 0.6;
+        }
+
+        .theme-btn:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .theme-btn.active {
+            opacity: 1;
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
         }
 
         h1 {
@@ -53,7 +126,7 @@
             font-size: 3.5rem;
             font-weight: 700;
             margin-bottom: 1rem;
-            background: linear-gradient(to right, #fff, var(--primary-light));
+            background: linear-gradient(to right, var(--text-main), var(--primary-light));
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -62,7 +135,7 @@
 
         p.subtitle {
             font-size: 1.25rem;
-            color: var(--secondary);
+            color: var(--text-muted);
             font-weight: 300;
         }
 
@@ -81,14 +154,14 @@
             border-radius: 24px;
             padding: 2.5rem;
             text-decoration: none;
-            color: white;
+            color: var(--text-main);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--card-shadow);
             animation: fadeInUp 0.8s ease-out forwards;
             opacity: 0;
         }
@@ -111,8 +184,9 @@
         .card:hover {
             transform: translateY(-12px) scale(1.02);
             border-color: var(--primary-light);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(99, 102, 241, 0.4);
-            background: rgba(255, 255, 255, 0.15);
+            box-shadow: var(--card-hover-shadow);
+            background: var(--glass);
+            filter: brightness(1.05);
         }
 
         .card-icon {
@@ -131,7 +205,7 @@
         .card-description {
             font-size: 1rem;
             line-height: 1.6;
-            color: #cbd5e1;
+            color: var(--text-muted);
             margin-bottom: 2rem;
         }
 
@@ -182,8 +256,11 @@
         @media (max-width: 768px) {
             h1 { font-size: 2.5rem; }
             .cards-grid { grid-template-columns: 1fr; }
+            .theme-selector { position: static; margin: 0 auto 2rem; width: fit-content; }
         }
     </style>
+    <script src="js/theme-manager.js"></script>
+
 </head>
 <body>
     <div class="blob blob-1"></div>
@@ -191,6 +268,17 @@
 
     <div class="container">
         <header>
+            <div class="theme-selector">
+                <button class="theme-btn" id="themeLightBtn" onclick="setTheme('light')" title="亮色模式">
+                    <i class="fa-solid fa-sun"></i>
+                </button>
+                <button class="theme-btn" id="themeGrayBtn" onclick="setTheme('gray')" title="灰色模式">
+                    <i class="fa-solid fa-circle-half-stroke"></i>
+                </button>
+                <button class="theme-btn" id="themeDarkBtn" onclick="setTheme('dark')" title="深色模式">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
             <h1>生產排程系統</h1>
             <p class="subtitle">Production Scheduling System Dashboard</p>
         </header>

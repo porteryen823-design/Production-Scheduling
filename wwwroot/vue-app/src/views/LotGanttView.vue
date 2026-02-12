@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import axios from 'axios'
+import api from '../utils/apiConfig'
 import { useTheme } from '../composables/useTheme'
 import { setGanttScale, generateColorPool, parseDate } from '../utils/ganttUtils'
 import GanttChart from '../components/GanttChart.vue'
@@ -142,9 +142,8 @@ const ganttConfig = computed(() => ({
 
 const loadData = async () => {
   try {
-    // 假設 API 服務器運行在 127.0.0.1:5000
-    const response = await axios.get<LotTask[]>(`http://127.0.0.1:5000/get_json/Lot_Plan_result/LotStepResult_New.json`)
-    const data = response.data
+    const response = await api.get('/api/schedule')
+    const data = (response.data as any).LotStepResult || []
 
     // 建立 product → color 映射
     const uniqueProducts = [...new Set(data.map(d => d.Product))]

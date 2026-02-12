@@ -75,18 +75,29 @@
       </div>
     </div>
 
-   <div class="row">
-     <!-- Create Schedule Job -->
-     <div class="col-md-4 mb-4">
-       <div class="card h-100">
-         <router-link to="/create-schedule-job" class="card-body text-center" style="text-decoration: none; color: inherit;">
-           <i class="fas fa-plus-circle fa-3x text-warning mb-3"></i>
-           <h5 class="card-title">Create Schedule Job</h5>
-           <p class="card-text">創建新的排程任務</p>
-         </router-link>
-       </div>
-     </div>
-   </div>
+    <div class="row">
+      <!-- Create Schedule Job -->
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <router-link to="/create-schedule-job" class="card-body text-center" style="text-decoration: none; color: inherit;">
+            <i class="fas fa-plus-circle fa-3x text-warning mb-3"></i>
+            <h5 class="card-title">Create Schedule Job</h5>
+            <p class="card-text">創建新的排程任務</p>
+          </router-link>
+        </div>
+      </div>
+
+      <!-- Automated Test -->
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <router-link to="/automated-test" class="card-body text-center" style="text-decoration: none; color: inherit;">
+            <i class="fas fa-vial fa-3x text-primary mb-3"></i>
+            <h5 class="card-title">自動化測試</h5>
+            <p class="card-text">執行排程壓力測試與模擬連動</p>
+          </router-link>
+        </div>
+      </div>
+    </div>
 
     <div class="row justify-content-center mt-4">
       <div class="col-12 text-center">

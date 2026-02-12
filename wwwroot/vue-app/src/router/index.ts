@@ -7,6 +7,7 @@ import LotPlanResultView from '../views/LotPlanResultView.vue'
 import ScheduleJobView from '../views/ScheduleJobView.vue'
 import PlanModelsView from '../views/PlanModelsView.vue'
 import CreateScheduleJobView from '../views/CreateScheduleJobView.vue'
+import AutomatedTestView from '../views/AutomatedTestView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -50,6 +51,11 @@ const router = createRouter({
       path: '/create-schedule-job',
       name: 'create-schedule-job',
       component: CreateScheduleJobView
+    },
+    {
+      path: '/automated-test',
+      name: 'automated-test',
+      component: AutomatedTestView
     }
   ]
 })

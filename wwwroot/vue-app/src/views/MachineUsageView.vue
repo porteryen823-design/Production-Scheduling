@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import axios from 'axios'
+import api from '../utils/apiConfig'
 import { useTheme } from '../composables/useTheme'
 import { setGanttScale, formatDate } from '../utils/ganttUtils'
 import GanttChart from '../components/GanttChart.vue'
@@ -84,13 +84,9 @@ const ganttConfig = computed(() => ({
 
 const loadData = async () => {
   try {
-    const response = await axios.get<any>(`http://127.0.0.1:5000/get_json/gantt/machineTaskSegment_New.json`)
-    let rawData: GanttTask[] = []
-    if (Array.isArray(response.data)) {
-      rawData = response.data
-    } else if (response.data && response.data.data) {
-      rawData = response.data.data
-    }
+    const response = await api.get('/api/schedule')
+    const data = response.data
+    let rawData: GanttTask[] = data.machineTaskSegment || []
     allData.value = rawData
     applyFilter()
   } catch (error) {

@@ -138,7 +138,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import axios from 'axios'
+import api from '../utils/apiConfig'
 import { useTheme } from '../composables/useTheme'
 
 interface LotResult {
@@ -187,12 +187,13 @@ const filteredResults = computed(() => {
 
 const loadData = async () => {
   try {
-    const response = await axios.get<any>(`http://127.0.0.1:5000/get_json/Lot_Plan_result/Lot_Plan_Result.json`)
-    if (response.data.lot_results) {
-      allResults.value = response.data.lot_results
-      statistics.value = response.data.statistics
+    const response = await api.get('/api/schedule')
+    const data = response.data
+    if (data.LotPlanResult) {
+      allResults.value = data.LotPlanResult.lot_results || []
+      statistics.value = data.LotPlanResult.statistics || null
     } else {
-      allResults.value = response.data
+      allResults.value = []
       statistics.value = null
     }
   } catch (error) {

@@ -30,6 +30,14 @@ services:
     volumes:
       - ./backend:/app
       - /app/venv
+      - ./test_scripts:/test_scripts
+      - ./automated_test_runner.py:/automated_test_runner.py
+      - ./Scheduler_Full_Example_Qtime_V1_Wip_DB_Incremental_Scheduling.py:/Scheduler_Full_Example_Qtime_V1_Wip_DB_Incremental_Scheduling.py
+      - ./insert_lot_data.py:/insert_lot_data.py
+      - ./SimulateAPS.py:/SimulateAPS.py
+      - ./Lot_Plan_result:/Lot_Plan_result
+      - ./gantt:/gantt
+      - ./lot_Plan:/lot_Plan
     environment:
       - MYSQL_HOST=db
       - MYSQL_PORT=3306
@@ -47,6 +55,21 @@ services:
       - "5501:80"
     volumes:
       - ./wwwroot:/usr/share/nginx/html
+    restart: always
+
+  # 前端 Vue 應用程式 (Vite Dev Server)
+  frontend-vue:
+    build:
+      context: ./wwwroot/vue-app
+      dockerfile: Dockerfile
+    container_name: aps-frontend-vue
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./wwwroot/vue-app:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
     restart: always
 
 volumes:

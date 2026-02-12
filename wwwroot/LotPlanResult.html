@@ -675,6 +675,7 @@
         <div class="control-panel">
             <div class="control-row">
                 <div class="control-group">
+                    <a href="index.html" class="btn btn-outline-secondary btn-sm" title="返回主頁"><i class="fa-solid fa-house"></i></a>
                     <span class="control-label"><i class="fa-solid fa-palette"></i> 主題</span>
                     <div class="btn-group" role="group">
                         <button class="btn btn-outline-secondary btn-sm" id="themeLightBtn" onclick="setTheme('light')" title="亮色主題">
@@ -820,6 +821,7 @@
         </div>
     </div>
 
+    <script src="js/theme-manager.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
@@ -831,34 +833,14 @@
 
         // 設定主題
         function setTheme(theme) {
-            document.body.setAttribute('data-theme', theme);
-            // 儲存主題偏好到 localStorage
-            localStorage.setItem('lotPlanResultTheme', theme);
-
-            // 更新按鈕激活狀態
-            updateThemeButtons(theme);
-        }
-
-        // 更新主題按鈕狀態
-        function updateThemeButtons(activeTheme) {
-            const lightBtn = document.getElementById('themeLightBtn');
-            const grayBtn = document.getElementById('themeGrayBtn');
-            const darkBtn = document.getElementById('themeDarkBtn');
-
-            // 移除所有激活狀態
-            lightBtn.classList.remove('active');
-            grayBtn.classList.remove('active');
-            darkBtn.classList.remove('active');
-
-            // 添加當前主題的激活狀態
-            if (activeTheme === 'light') {
-                lightBtn.classList.add('active');
-            } else if (activeTheme === 'gray') {
-                grayBtn.classList.add('active');
-            } else if (activeTheme === 'dark') {
-                darkBtn.classList.add('active');
+            if (window.applyTheme) {
+                window.applyTheme(theme);
+            } else {
+                document.body.setAttribute('data-theme', theme);
+                localStorage.setItem('aps_system_theme', theme);
             }
         }
+
 
         // 更新狀態指示器
         function updateStatus(status, message, type = 'info') {
@@ -1125,12 +1107,7 @@
 
         // 初始化應用程式
         function initializeApp() {
-            // 載入儲存的主題偏好
-            const savedTheme = localStorage.getItem('lotPlanResultTheme') || 'light';
-            setTheme(savedTheme);
-
-            // 初始化按鈕激活狀態
-            updateThemeButtons(savedTheme);
+            // Theme initialization is handled by theme-manager.js
 
             // 設定檔案輸入事件監聽器
             document.getElementById('jsonFileInput').addEventListener('change', function(event) {

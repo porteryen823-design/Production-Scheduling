@@ -355,6 +355,7 @@
             <!-- 導航與主題 -->
             <div class="control-row">
                 <div class="control-group">
+                    <a href="index.html" class="btn btn-outline-secondary btn-sm" title="返回主頁"><i class="fa-solid fa-house"></i></a>
                     <span class="control-label"><i class="fa-solid fa-palette"></i> 主題</span>
                     <div class="btn-group" role="group">
                         <button class="btn btn-outline-secondary btn-sm" id="themeLightBtn" onclick="setTheme('light')"><i class="fa-solid fa-sun"></i></button>
@@ -457,6 +458,7 @@
         <div class="spinner"></div>
     </div>
 
+    <script src="js/theme-manager.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
@@ -473,16 +475,12 @@
         let fetchTimeout = null;
 
         function setTheme(theme) {
-            document.body.setAttribute('data-theme', theme);
-            localStorage.setItem('lotPlanResultTheme', theme);
-            updateThemeButtons(theme);
-        }
-
-        function updateThemeButtons(theme) {
-            ['themeLightBtn', 'themeGrayBtn', 'themeDarkBtn'].forEach(id => document.getElementById(id).classList.remove('active'));
-            if (theme === 'light') document.getElementById('themeLightBtn').classList.add('active');
-            else if (theme === 'gray') document.getElementById('themeGrayBtn').classList.add('active');
-            else if (theme === 'dark') document.getElementById('themeDarkBtn').classList.add('active');
+            if (window.applyTheme) {
+                window.applyTheme(theme);
+            } else {
+                document.body.setAttribute('data-theme', theme);
+                localStorage.setItem('aps_system_theme', theme);
+            }
         }
 
         async function fetchScheduleData(offset) {
@@ -644,8 +642,7 @@
         function showLoading(show) { document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none'; }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('lotPlanResultTheme') || 'light';
-            setTheme(savedTheme);
+            // Theme initialization is handled by theme-manager.js
             loadSchedule(0);
         });
     </script>

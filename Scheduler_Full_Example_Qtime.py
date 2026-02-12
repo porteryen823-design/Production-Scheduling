@@ -1,6 +1,15 @@
 from ortools.sat.python import cp_model
 from datetime import datetime, timedelta
 
+
+# =====================================================
+# Windows Unicode Output Encoding Fix
+# =====================================================
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
+
 SCHEDULE_START = datetime(2026, 1, 18, 13, 0, 0)
 
 # 目標函數類型: "makespan" 或 "weighted_delay"

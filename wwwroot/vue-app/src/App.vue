@@ -6,7 +6,7 @@
     </button>
 
     <!-- 側邊欄模式切換按鈕 -->
-    <button class="sidebar-mode-toggle" @click="toggleSidebarMode" :title="sidebarCollapsed ? '展開側邊欄' : '收起側邊欄'">
+    <button v-show="sidebarOpen" class="sidebar-mode-toggle" @click="toggleSidebarMode" :title="sidebarCollapsed ? '展開側邊欄' : '收起側邊欄'">
       <i :class="sidebarCollapsed ? 'fas fa-angle-right' : 'fas fa-angle-left'"></i>
     </button>
 
@@ -14,7 +14,6 @@
     <div class="sidebar" :class="{ 'sidebar-open': sidebarOpen, 'sidebar-collapsed': sidebarCollapsed }">
       <div class="sidebar-header">
         <router-link class="sidebar-brand" to="/">
-          <i class="fas fa-cogs"></i>
           <span class="brand-text" v-show="!sidebarCollapsed">產線排程系統</span>
         </router-link>
       </div>
@@ -59,6 +58,12 @@
           <router-link class="nav-link" to="/create-schedule-job">
             <i class="fas fa-plus-circle"></i>
             <span class="nav-text" v-show="!sidebarCollapsed">Create Schedule Job</span>
+          </router-link>
+        </li>
+        <li class="nav-item">
+          <router-link class="nav-link" to="/automated-test">
+            <i class="fas fa-vial"></i>
+            <span class="nav-text" v-show="!sidebarCollapsed">自動化測試</span>
           </router-link>
         </li>
       </ul>
@@ -183,7 +188,11 @@ html, body {
   z-index: 1001;
   background: var(--bg-color);
   border: 1px solid var(--border-color);
-  padding: 0.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 4px;
   cursor: pointer;
   color: var(--text-color);
@@ -195,11 +204,12 @@ html, body {
 }
 
 .sidebar-header {
-  padding: 0 1rem 1rem;
+  padding: 0 1rem 1rem 4rem;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  min-height: 7rem;
 }
 
 .sidebar-brand {
@@ -233,12 +243,15 @@ html, body {
   z-index: 1001;
   background: var(--bg-color);
   border: 1px solid var(--border-color);
-  padding: 0.25rem 1rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 4px;
   cursor: pointer;
   color: var(--text-color);
   transition: background-color 0.3s;
-  width: 2rem;
 }
 
 .sidebar-mode-toggle:hover {
@@ -248,7 +261,7 @@ html, body {
 .sidebar-nav {
   flex: 1;
   list-style: none;
-  padding: 0;
+  padding: 0.5rem 0;
   margin: 0;
 }
 

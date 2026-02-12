@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import axios from 'axios'
+import api from '../utils/apiConfig'
 import { useTheme } from '../composables/useTheme'
 import { setGanttScale, formatDate } from '../utils/ganttUtils'
 import GanttChart from '../components/GanttChart.vue'
@@ -121,8 +121,10 @@ const ganttConfig = computed(() => ({
 
 const loadData = async () => {
   try {
-    const response = await axios.get<MachineData[]>(`http://127.0.0.1:5000/get_json/machine_usage.json`)
-    allData.value = response.data
+    const response = await api.get<MachineData[]>('/api/schedule')
+    // 注意: FastAPI 回傳的是一個包含 machineTaskSegment 的物件
+    const data = (response.data as any).machineTaskSegment || []
+    allData.value = data
     applyFilter()
   } catch (error) {
     console.error("載入數據時發生錯誤:", error)

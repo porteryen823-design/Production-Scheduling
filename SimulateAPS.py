@@ -5,6 +5,14 @@ import argparse
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
+# =====================================================
+# Windows Unicode Output Encoding Fix
+# =====================================================
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
+
 # 載入環境變數
 load_dotenv()
 

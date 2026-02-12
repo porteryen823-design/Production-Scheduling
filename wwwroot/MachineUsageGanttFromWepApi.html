@@ -305,6 +305,7 @@
             color: #dc2626;
         }
     </style>
+    <script src="js/theme-manager.js"></script>
 </head>
 <body>
     <div class="container-fluid p-3">
@@ -312,9 +313,10 @@
             <h2><i class="fa-solid fa-chart-gantt"></i> Machine Usage Gantt - From Web API</h2>
             <!-- 視圖切換與主題 -->
             <div class="btn-group me-3" role="group">
-                <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('light')" title="亮色主題"><i class="fa-solid fa-sun"></i></button>
-                <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('gray')" title="灰色主題"><i class="fa-solid fa-adjust"></i></button>
-                <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('dark')" title="暗色主題"><i class="fa-solid fa-moon"></i></button>
+                <a href="index.html" class="btn btn-outline-secondary btn-sm" title="返回主頁"><i class="fa-solid fa-house"></i></a>
+                <button class="btn btn-outline-secondary btn-sm" id="themeLightBtn" onclick="setTheme('light')" title="亮色主題"><i class="fa-solid fa-sun"></i></button>
+                <button class="btn btn-outline-secondary btn-sm" id="themeGrayBtn" onclick="setTheme('gray')" title="灰色主題"><i class="fa-solid fa-circle-half-stroke"></i></button>
+                <button class="btn btn-outline-secondary btn-sm" id="themeDarkBtn" onclick="setTheme('dark')" title="暗色主題"><i class="fa-solid fa-moon"></i></button>
             </div>
 
             <div class="btn-group me-3" role="group">
@@ -580,14 +582,14 @@
 
 
 
-        // 設定主題
         function setTheme(theme) {
-            document.body.setAttribute('data-theme', theme);
-            localStorage.setItem('machineGanttTheme', theme);
-            // 重新渲染甘特圖以應用新主題
-            if (allData.length > 0) {
-                renderGantt(allData);
+            if (window.applyTheme) {
+                window.applyTheme(theme);
+            } else {
+                document.body.setAttribute('data-theme', theme);
+                localStorage.setItem('aps_system_theme', theme);
             }
+            if (allData.length > 0) renderGantt(allData);
         }
 
         // 渲染圖例

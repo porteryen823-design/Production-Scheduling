@@ -393,15 +393,16 @@
             <!-- 第一行：主題、縮放、導航 -->
             <div class="control-row">
                 <div class="control-group">
+                    <a href="index.html" class="btn btn-outline-secondary btn-sm" title="返回主頁"><i class="fa-solid fa-house"></i></a>
                     <span class="control-label"><i class="fa-solid fa-palette"></i> 主題</span>
                     <div class="btn-group" role="group">
-                        <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('light')" title="亮色主題">
+                        <button class="btn btn-outline-secondary btn-sm" id="themeLightBtn" onclick="setTheme('light')" title="亮色主題">
                             <i class="fa-solid fa-sun"></i>
                         </button>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('gray')" title="灰色主題">
+                        <button class="btn btn-outline-secondary btn-sm" id="themeGrayBtn" onclick="setTheme('gray')" title="灰色主題">
                             <i class="fa-solid fa-adjust"></i>
                         </button>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="setTheme('dark')" title="暗色主題">
+                        <button class="btn btn-outline-secondary btn-sm" id="themeDarkBtn" onclick="setTheme('dark')" title="暗色主題">
                             <i class="fa-solid fa-moon"></i>
                         </button>
                     </div>
@@ -464,6 +465,7 @@
         </div>
     </div>
 
+    <script src="js/theme-manager.js"></script>
     <script src="js/dhtmlxgantt.js"></script>
     <script>
         // Web API 配置 - 自動偵測主機，支援區域網路存取
@@ -661,8 +663,12 @@
 
         // UI 互動
         function setTheme(theme) {
-            document.body.setAttribute('data-theme', theme);
-            localStorage.setItem('gantt_theme', theme);
+            if (window.applyTheme) {
+                window.applyTheme(theme);
+            } else {
+                document.body.setAttribute('data-theme', theme);
+                localStorage.setItem('aps_system_theme', theme);
+            }
         }
 
         function setScale(mode) {
@@ -749,8 +755,7 @@
 
         // 初始化
         async function init() {
-            const savedTheme = localStorage.getItem('gantt_theme') || 'light';
-            setTheme(savedTheme);
+            // Theme initialization is handled by theme-manager.js
             gantt.init("gantt_here");
             setScale('day');
             await fetchUISettings();
