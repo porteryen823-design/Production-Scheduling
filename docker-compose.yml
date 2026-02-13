@@ -54,19 +54,19 @@ services:
     ports:
       - "5501:80"
     volumes:
-      - ./wwwroot:/usr/share/nginx/html
+      - ./pure-web:/usr/share/nginx/html
     restart: always
 
   # 前端 Vue 應用程式 (Vite Dev Server)
   frontend-vue:
     build:
-      context: ./wwwroot/vue-app
+      context: ./vue-app
       dockerfile: Dockerfile
     container_name: aps-frontend-vue
     ports:
       - "5173:5173"
     volumes:
-      - ./wwwroot/vue-app:/app
+      - ./vue-app:/app
       - /app/node_modules
     environment:
       - VITE_API_BASE_URL=http://localhost:8000

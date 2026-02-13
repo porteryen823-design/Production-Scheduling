@@ -1,7 +1,15 @@
 # Production Scheduling System (APS01)
 
 ## Project Profile
-- Technology Profile: Profile A (FastAPI + Python + MySQL + DHTMLX Gantt)
+- **Backend & Core**: Profile A (FastAPI + Python + MySQL + Google OR-Tools)
+- **Frontend (Static)**: Profile C (pure-web: HTML + CSS + JS) - 用於簡單監控與展示
+- **Frontend (App)**: Profile A (vue-app: Vue 3 + Vite + Pinia) - 用於完整互動應用
+
+## 專案結構
+本專案包含三個主要部分：
+1. **backend/**: FastAPI 後端伺服器與排程核心演算法。
+2. **pure-web/**: 純網頁版前端 (原 wwwroot)，提供輕量級的甘特圖與報表檢視。
+3. **vue-app/**: 現代化 Vue 3 前端應用，提供更完整的互動體驗。
 
 ## 系統概述
 這是一個結合 Google OR-Tools CP-SAT 求解器、FastAPI 後端、MySQL 資料庫以及 DHTMLX 甘特圖的可視化生產排程系統。專為處理複雜工序與機台約束的製造業設計。

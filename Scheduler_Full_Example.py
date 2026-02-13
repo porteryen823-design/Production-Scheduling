@@ -84,7 +84,7 @@ class SchedulerFullExample:
         self.file_schedule_log = r"C:\Data\APS\ScheduleLog\SheduleLog.json"
 
         # 設定 PlanResult 目錄
-        self.plan_result_dir = os.path.join("wwwroot", "PlanResult", str(self.optimization_type))
+        self.plan_result_dir = os.path.join("pure-web", "PlanResult", str(self.optimization_type))
         os.makedirs(self.plan_result_dir, exist_ok=True)
 
         # 確保目錄存在
